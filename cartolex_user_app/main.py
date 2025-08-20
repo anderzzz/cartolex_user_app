@@ -1,7 +1,8 @@
 """Main Flask application using shared constants"""
 
 from flask import Flask
-from cartolex_endpoint_server.constants import ConfigurationKinds
+
+from cartolex_endpoint_server.constants import ConfigurationKinds, JobStatuses
 from cartolex_user_app.services.api_client import CartolexAPI
 from cartolex_user_app.utils.template_filters import register_filters
 from cartolex_user_app.routes import dashboard, workflows, semantics, io_config

@@ -118,3 +118,38 @@ class CartolexAPI:
         """Update LLM model configuration"""
         endpoint = APIEndpoints.LLM_MODEL_CONFIG.format(provider=provider, tier=tier)
         return self._make_request('PUT', endpoint, data=config)
+
+    def get_database_configs(self, config_kind: str = None) -> APIResponse:
+        """Get all database configurations"""
+        params = {}
+        if config_kind:
+            params['config_kind'] = config_kind
+        return self._make_request('GET', APIEndpoints.IO_CONFIGS_LIST, params=params)
+
+    def get_endpoint_configs(self, endpoint_name: str) -> APIResponse:
+        """Get all configurations for a specific endpoint"""
+        endpoint = APIEndpoints.IO_CONFIGS_BY_ENDPOINT.format(endpoint=endpoint_name)
+        return self._make_request('GET', endpoint)
+
+    def get_database_config(self, endpoint_name: str, db_type: str, db_kind: str) -> APIResponse:
+        """Get specific database configuration"""
+        endpoint = APIEndpoints.IO_CONFIG_DETAIL.format(
+            endpoint=endpoint_name, db_type=db_type, db_kind=db_kind
+        )
+        return self._make_request('GET', endpoint)
+
+    def update_database_config(self, endpoint_name: str, db_type: str,
+                               db_kind: str, config: dict) -> APIResponse:
+        """Update database configuration"""
+        endpoint = APIEndpoints.IO_CONFIG_DETAIL.format(
+            endpoint=endpoint_name, db_type=db_type, db_kind=db_kind
+        )
+        return self._make_request('PUT', endpoint, data=config)
+
+    def get_embedding_models(self, config_kind: str = None) -> APIResponse:
+        """Get embedding model configurations"""
+        params = {}
+        if config_kind:
+            params['config_kind'] = config_kind
+        return self._make_request('GET', APIEndpoints.EMBEDDING_MODELS_LIST, params=params)
+
