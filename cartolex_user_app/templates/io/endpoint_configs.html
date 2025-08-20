@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="px-4 py-6 sm:px-0">
+    <!-- Header -->
+    <div class="flex justify-between items-center border-b border-gray-200 pb-4 mb-6">
+        <div>
+            <h2 class="text-2xl font-bold leading-7 text-gray-900">{{ endpoint_name }} Configurations</h2>
+            <p class="mt-2 text-sm text-gray-600">Database configurations for this endpoint</p>
+        </div>
+        <div>
+            <a href="{{ url_for('io_config.index') }}" 
+               class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                ← Back to IO Config
+            </a>
+        </div>
+    </div>
+
+    <!-- Configurations List -->
+    {% if configs %}
+        <div class="bg-white shadow overflow-hidden sm:rounded-md">
+            <ul class="divide-y divide-gray-200">
+                {% for config in configs %}
+                    <li>
+                        <div class="px-4 py-4 sm:px-6">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center">
+                                            <span class="text-white font-medium text-sm">
+                                                {{ config.db_type[:2].upper() }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="flex items-center">
+                                            <h3 class="text-sm font-medium text-gray-900">
+                                                {{ config.db_type }} / {{ config.db_kind }}
+                                            </h3>
+                                            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                {{ config.db_kind.title() }}
+                                            </span>
+                                        </div>
+                                        <div class="text-sm text-gray-600 mt-1">
+                                            {% if config.connection_details %}
+                                                {% if config.connection_details.host %}
+                                                    {{ config.connection_details.host }}
+                                                    {% if config.connection_details.port %}:{{ config.connection_details.port }}{% endif %}
+                                                {% endif %}
+                                                {% if config.connection_details.database %}
+                                                    / {{ config.connection_details.database }}
+                                                {% endif %}
+                                            {% else %}
+                                                No connection details configured
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <button hx-post="{{ url_for('io_config.test_connection', endpoint_name=config.endpoint, db_type=config.db_type, db_kind=config.db_kind) }}"
+                                            hx-target="#test-result-{{ loop.index }}"
+                                            hx-swap="innerHTML"
+                                            class="text-gray-600 hover:text-gray-900 text-sm font-medium">
+                                        Test
+                                    </button>
+                                    <a href="{{ url_for('io_config.edit_config', endpoint_name=config.endpoint, db_type=config.db_type, db_kind=config.db_kind) }}" 
+                                       class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
+                                        Configure
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <!-- Test Result Area -->
+                            <div id="test-result-{{ loop.index }}" class="mt-3"></div>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 48 48">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21 3.582 4 8 4s8-1.79 8-4V7m0 0c0 2.21 3.582 4 8 4s8-1.79 8-4V7m0 0c0-2.21 3.582-4 8-4s8 1.79 8 4v5M28 7h8" />
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No configurations found</h3>
+            <p class="mt-1 text-sm text-gray-500">
+                No database configurations found for endpoint "{{ endpoint_name }}".
+            </p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

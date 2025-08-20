@@ -1,0 +1,1 @@
+"""Configuration module for Cartolex User App"""

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="px-4 py-6 sm:px-0">
+    <!-- Header -->
+    <div class="flex justify-between items-center border-b border-gray-200 pb-4 mb-6">
+        <div>
+            <h2 class="text-2xl font-bold leading-7 text-gray-900">LLM Models</h2>
+            <p class="mt-2 text-sm text-gray-600">Configure language model providers and parameters</p>
+        </div>
+        <div>
+            <a href="{{ url_for('semantics.index') }}" 
+               class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                ← Back to Semantics
+            </a>
+        </div>
+    </div>
+
+    <!-- Configuration Kind Filter -->
+    {% if supported_kinds %}
+        <div class="mb-6">
+            <label class="text-sm font-medium text-gray-700">Configuration Source:</label>
+            <select id="config-kind-filter" 
+                    onchange="window.location.href = '{{ url_for('semantics.llm_models') }}?config_kind=' + this.value"
+                    class="ml-2 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                {% for kind in supported_kinds %}
+                    <option value="{{ kind }}" {% if config_kind == kind %}selected{% endif %}>
+                        {{ kind.replace('_', ' ').title() }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    {% endif %}
+
+    <!-- Models List -->
+    {% if models %}
+        <div class="bg-white shadow overflow-hidden sm:rounded-md">
+            <ul class="divide-y divide-gray-200">
+                {% for provider, tiers in models.items() %}
+                    {% for tier, model_config in tiers.items() %}
+                        <li>
+                            <div class="px-4 py-4 sm:px-6">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0">
+                                            <div class="w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center">
+                                                <span class="text-white font-medium text-sm">
+                                                    {{ provider[:2].upper() }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="flex items-center">
+                                                <h3 class="text-sm font-medium text-gray-900">
+                                                    {{ provider }} / {{ tier }}
+                                                </h3>
+                                                {% if model_config.model %}
+                                                    <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                        {{ model_config.model }}
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                            <div class="text-sm text-gray-600 mt-1">
+                                                {% if model_config.chat_completion_parameters %}
+                                                    Temperature: {{ model_config.chat_completion_parameters.get('temperature', 'Default') }}
+                                                    {% if model_config.chat_completion_parameters.get('max_completion_tokens') %}
+                                                        | Max Tokens: {{ model_config.chat_completion_parameters.max_completion_tokens }}
+                                                    {% endif %}
+                                                {% else %}
+                                                    Default configuration
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <a href="{{ url_for('semantics.edit_llm_model', provider=provider, tier=tier, config_kind=config_kind) }}" 
+                                           class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
+                                            Configure
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 48 48">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v20c0 4.418 7.163 8 16 8 1.381 0 2.721-.087 4-.252M8 14c0 4.418 7.163 8 16 8s16-3.582 16-8M8 14c0-4.418 7.163-8 16-8s16 3.582 16 8m0 0v14m-16-4h16m0 0c0 4.418-7.163 8-16 8s-16-3.582-16-8" />
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No LLM models configured</h3>
+            <p class="mt-1 text-sm text-gray-500">
+                {% if models is none %}
+                    Error loading model configurations. Check your backend connection.
+                {% else %}
+                    No models are available for configuration.
+                {% endif %}
+            </p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

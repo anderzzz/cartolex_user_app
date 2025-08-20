@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="px-4 py-6 sm:px-0">
+    <!-- Header -->
+    <div class="flex justify-between items-center border-b border-gray-200 pb-4 mb-6">
+        <div>
+            <h2 class="text-2xl font-bold leading-7 text-gray-900">Configure Database</h2>
+            <p class="mt-2 text-sm text-gray-600">{{ endpoint_name }} / {{ db_type }} / {{ db_kind }}</p>
+        </div>
+        <div>
+            <a href="{{ url_for('io_config.list_endpoint_configs', endpoint_name=endpoint_name) }}" 
+               class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                ← Back to {{ endpoint_name }}
+            </a>
+        </div>
+    </div>
+
+    <!-- Configuration Form -->
+    <div class="bg-white shadow sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <form hx-post="{{ url_for('io_config.update_config', endpoint_name=endpoint_name, db_type=db_type, db_kind=db_kind) }}"
+                  hx-target="#form-result"
+                  hx-swap="innerHTML"
+                  class="space-y-6">
+                
+                <!-- Connection Details -->
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Connection Details</h3>
+                    
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <!-- Host -->
+                        <div>
+                            <label for="config_host" class="block text-sm font-medium text-gray-700">
+                                Host
+                            </label>
+                            <input type="text" 
+                                   name="config_host" 
+                                   id="config_host" 
+                                   value="{{ config.host if config else '' }}"
+                                   placeholder="localhost"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+
+                        <!-- Port -->
+                        <div>
+                            <label for="config_port" class="block text-sm font-medium text-gray-700">
+                                Port
+                            </label>
+                            <input type="number" 
+                                   name="config_port" 
+                                   id="config_port" 
+                                   value="{{ config.port if config else '' }}"
+                                   placeholder="{% if db_kind == 'mongo' %}27017{% elif db_kind == 'qdrant' %}6333{% else %}5432{% endif %}"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+
+                        <!-- Database Name -->
+                        <div>
+                            <label for="config_database" class="block text-sm font-medium text-gray-700">
+                                Database Name
+                            </label>
+                            <input type="text" 
+                                   name="config_database" 
+                                   id="config_database" 
+                                   value="{{ config.database if config else '' }}"
+                                   placeholder="{% if db_kind == 'mongo' %}cartolex{% elif db_kind == 'qdrant' %}collection{% else %}cartolex{% endif %}"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+
+                        <!-- Username -->
+                        <div>
+                            <label for="config_username" class="block text-sm font-medium text-gray-700">
+                                Username
+                            </label>
+                            <input type="text" 
+                                   name="config_username" 
+                                   id="config_username" 
+                                   value="{{ config.username if config else '' }}"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+
+                        <!-- Password -->
+                        <div class="sm:col-span-2">
+                            <label for="config_password" class="block text-sm font-medium text-gray-700">
+                                Password
+                            </label>
+                            <input type="password" 
+                                   name="config_password" 
+                                   id="config_password" 
+                                   value="{{ config.password if config else '' }}"
+                                   placeholder="Leave blank to keep current password"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <p class="mt-1 text-xs text-gray-500">Password will not be displayed for security</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advanced Settings -->
+                <div class="border-t border-gray-200 pt-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Advanced Settings</h3>
+                    
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <!-- SSL -->
+                        <div class="flex items-center">
+                            <input type="checkbox" 
+                                   name="config_ssl" 
+                                   id="config_ssl" 
+                                   value="true"
+                                   {% if config and config.ssl %}checked{% endif %}
+                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                            <label for="config_ssl" class="ml-2 block text-sm text-gray-900">
+                                Enable SSL/TLS
+                            </label>
+                        </div>
+
+                        <!-- Timeout -->
+                        <div>
+                            <label for="config_timeout" class="block text-sm font-medium text-gray-700">
+                                Connection Timeout (seconds)
+                            </label>
+                            <input type="number" 
+                                   name="config_timeout" 
+                                   id="config_timeout" 
+                                   value="{{ config.timeout if config else '' }}"
+                                   placeholder="30"
+                                   min="1"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                    </div>
+
+                    <!-- Database-specific settings -->
+                    {% if db_kind == 'mongo' %}
+                        <div class="mt-4">
+                            <label for="config_auth_source" class="block text-sm font-medium text-gray-700">
+                                Authentication Source
+                            </label>
+                            <input type="text" 
+                                   name="config_auth_source" 
+                                   id="config_auth_source" 
+                                   value="{{ config.auth_source if config else '' }}"
+                                   placeholder="admin"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-between pt-6">
+                    <button type="button"
+                            hx-post="{{ url_for('io_config.test_connection', endpoint_name=endpoint_name, db_type=db_type, db_kind=db_kind) }}"
+                            hx-target="#test-result"
+                            hx-swap="innerHTML"
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Test Connection
+                    </button>
+                    
+                    <button type="submit" 
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 htmx-indicator">
+                        <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white hidden" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Update Configuration
+                    </button>
+                </div>
+            </form>
+
+            <!-- Result Areas -->
+            <div id="form-result" class="mt-4"></div>
+            <div id="test-result" class="mt-4"></div>
+        </div>
+    </div>
+
+    <!-- Current Configuration Display -->
+    {% if config %}
+        <div class="mt-8 bg-gray-50 overflow-hidden shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Current Configuration</h3>
+                <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                    {% for key, value in config.items() %}
+                        {% if key != 'password' %}
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">{{ key.replace('_', ' ').title() }}</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ value or 'Not set' }}</dd>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Password</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ '••••••••' if config.password else 'Not set' }}</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

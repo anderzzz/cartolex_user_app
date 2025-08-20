@@ -1,0 +1,25 @@
+<!-- Workflow execution error -->
+<div class="bg-red-50 border border-red-200 rounded-md p-4">
+    <div class="flex">
+        <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800">Execution Failed</h3>
+            <div class="mt-2 text-sm text-red-700">
+                <p>{{ error or 'An error occurred while executing the workflow.' }}</p>
+            </div>
+            <div class="mt-4">
+                <div class="-mx-2 -my-1.5 flex">
+                    <button type="button" 
+                            onclick="location.reload()" 
+                            class="bg-red-50 px-2 py-1.5 rounded-md text-sm font-medium text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-50 focus:ring-red-600">
+                        Try Again
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
