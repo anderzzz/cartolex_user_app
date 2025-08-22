@@ -11,7 +11,7 @@ from cartolex_user_app.routes import dashboard, workflows, semantics, io_config
 def create_app():
     """Application factory"""
     app = Flask(__name__)
-    app.config.from_object('config.settings.Config')
+    app.config.from_object('cartolex_user_app.config.Config')
 
     # Initialize API client
     api_client = CartolexAPI(app.config['CARTOLEX_API_BASE_URL'])

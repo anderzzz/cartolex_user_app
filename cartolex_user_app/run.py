@@ -17,11 +17,10 @@ from enum import Enum
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
-from rich.syntax import Syntax
 from rich import box
 
 from cartolex_user_app.main import create_app
-from config.settings import DevelopmentConfig, ProductionConfig
+from cartolex_user_app.config import DevelopmentConfig, ProductionConfig
 
 app = typer.Typer(help="CLI tool for running the Cartolex User App")
 console = Console()
