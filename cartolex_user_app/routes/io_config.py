@@ -94,7 +94,8 @@ def update_config(endpoint_name, db_type, db_kind):
             elif config_key == 'ssl':
                 config[config_key] = value.lower() in ['true', '1', 'yes', 'on']
             else:
-                config[config_key] = value.strip() if value else None
+                stripped_value = value.strip() if value else ''
+                config[config_key] = stripped_value if stripped_value else None
 
     response = api.update_database_config(endpoint_name, db_type, db_kind, config)
 
