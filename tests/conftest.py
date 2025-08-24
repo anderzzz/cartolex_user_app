@@ -2,7 +2,7 @@
 
 """
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 from cartolex_user_app.main import create_app
 from cartolex_user_app.services.api_client import CartolexAPI, APIResponse

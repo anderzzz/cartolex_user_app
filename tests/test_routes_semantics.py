@@ -2,10 +2,9 @@
 
 """
 import unittest
-from unittest.mock import patch
 
 from cartolex_endpoint_server.constants import ErrorCodes, ConfigurationKinds
-from tests.conftest import BaseRouteTestCase
+from conftest import BaseRouteTestCase
 
 
 class TestSemanticsRoutes(BaseRouteTestCase):

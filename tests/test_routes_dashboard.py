@@ -3,10 +3,9 @@
 """
 import unittest
 from unittest.mock import patch
-from datetime import datetime
 
 from cartolex_endpoint_server.constants import ErrorCodes, JobStatuses
-from tests.conftest import BaseRouteTestCase
+from conftest import BaseRouteTestCase
 
 
 class TestDashboardRoutes(BaseRouteTestCase):
