@@ -1,5 +1,6 @@
 """Main Flask application using shared constants"""
 
+import os
 from flask import Flask
 
 from cartolex_endpoint_server.constants import ConfigurationKinds, JobStatuses
@@ -10,7 +11,14 @@ from cartolex_user_app.routes import dashboard, workflows, semantics, io_config
 
 def create_app():
     """Application factory"""
-    app = Flask(__name__)
+
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    template_dir = os.path.join(basedir, 'templates')
+    static_dir = os.path.join(basedir, 'static')
+    
+    app = Flask(__name__, 
+                template_folder=template_dir,
+                static_folder=static_dir)
     app.config.from_object('cartolex_user_app.config.Config')
 
     # Initialize API client
