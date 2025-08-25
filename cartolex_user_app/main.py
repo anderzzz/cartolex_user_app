@@ -2,6 +2,7 @@
 
 import os
 from flask import Flask
+from flask_wtf.csrf import CSRFProtect
 
 from cartolex_endpoint_server.constants import ConfigurationKinds, JobStatuses
 from cartolex_user_app.services.api_client import CartolexAPI
@@ -20,6 +21,9 @@ def create_app():
                 template_folder=template_dir,
                 static_folder=static_dir)
     app.config.from_object('cartolex_user_app.config.Config')
+
+    # Initialize CSRF protection
+    csrf = CSRFProtect(app)
 
     # Initialize API client
     api_client = CartolexAPI(app.config['CARTOLEX_API_BASE_URL'])
