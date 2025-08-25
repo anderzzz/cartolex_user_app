@@ -20,6 +20,9 @@ def debug_template_paths():
         from cartolex_user_app.main import create_app
         app = create_app()
         
+        # Configure SERVER_NAME for URL generation outside request context
+        app.config['SERVER_NAME'] = 'localhost:3000'
+        
         print("✓ Flask app created successfully")
         print(f"Flask version: {app.__class__.__module__}")
         
@@ -73,7 +76,7 @@ def debug_template_paths():
         
         # Test template rendering
         print(f"\n=== Template Rendering Test ===")
-        with app.app_context():
+        with app.test_request_context():
             try:
                 from flask import render_template
                 # Try rendering the problematic template
