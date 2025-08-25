@@ -1,0 +1,16 @@
+# Include all template files
+recursive-include cartolex_user_app/templates *.html
+
+# Include all static files
+recursive-include cartolex_user_app/static *
+
+# Include configuration files
+include cartolex_user_app/*.py
+
+# Include the CLI module
+include cartolex_user_app/run.py
+
+# Include README and other documentation
+include README.md
+include CLAUDE.md
+include requirements.txt
