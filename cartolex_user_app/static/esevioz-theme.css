@@ -1,0 +1,230 @@
+/* Esevioz Brand Theme - Cartolex User App */
+
+/* Import Montserrat font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+/* CSS Custom Properties for Esevioz Brand Colors */
+:root {
+  /* Light Mode Colors */
+  --color-background: #FFF5EB; /* linen */
+  --color-text: #191919; /* black */
+  --color-dominant: #1B5420; /* pine */
+  --color-highlight: #E0993D; /* butterscotch */
+  
+  /* Typography */
+  --font-family: 'Montserrat', Arial, sans-serif;
+}
+
+/* Dark Mode Colors */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: #191919; /* black */
+    --color-text: #FCFCFC; /* white */
+    --color-dominant: #FFF2DE; /* antique white */
+    --color-highlight: #486F38; /* fern */
+  }
+}
+
+/* Manual Dark Mode Toggle (when user explicitly chooses) */
+[data-theme="dark"] {
+  --color-background: #191919; /* black */
+  --color-text: #FCFCFC; /* white */
+  --color-dominant: #FFF2DE; /* antique white */
+  --color-highlight: #486F38; /* fern */
+}
+
+[data-theme="light"] {
+  --color-background: #FFF5EB; /* linen */
+  --color-text: #191919; /* black */
+  --color-dominant: #1B5420; /* pine */
+  --color-highlight: #E0993D; /* butterscotch */
+}
+
+/* Base Typography */
+body {
+  font-family: var(--font-family);
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+/* Esevioz Brand Classes */
+.esevioz-bg {
+  background-color: var(--color-background);
+}
+
+.esevioz-text {
+  color: var(--color-text);
+}
+
+.esevioz-dominant {
+  color: var(--color-dominant);
+}
+
+.esevioz-dominant-bg {
+  background-color: var(--color-dominant);
+}
+
+.esevioz-highlight {
+  color: var(--color-highlight);
+}
+
+.esevioz-highlight-bg {
+  background-color: var(--color-highlight);
+}
+
+/* Navigation Styling with Esevioz Colors */
+.esevioz-nav {
+  background-color: var(--color-background);
+  border-bottom: 1px solid var(--color-dominant);
+}
+
+.esevioz-nav-link {
+  color: var(--color-text);
+  transition: color 0.2s ease;
+}
+
+.esevioz-nav-link:hover {
+  color: var(--color-highlight);
+}
+
+.esevioz-nav-brand {
+  color: var(--color-dominant);
+  font-weight: 600;
+}
+
+/* Button Styles */
+.esevioz-btn-primary {
+  background-color: var(--color-dominant);
+  color: var(--color-background);
+  border: 2px solid var(--color-dominant);
+  font-family: var(--font-family);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.esevioz-btn-primary:hover {
+  background-color: var(--color-background);
+  color: var(--color-dominant);
+}
+
+.esevioz-btn-secondary {
+  background-color: var(--color-highlight);
+  color: var(--color-background);
+  border: 2px solid var(--color-highlight);
+  font-family: var(--font-family);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.esevioz-btn-secondary:hover {
+  background-color: var(--color-background);
+  color: var(--color-highlight);
+}
+
+/* Alert/Flash Message Styles */
+.esevioz-alert-success {
+  background-color: var(--color-dominant);
+  color: var(--color-background);
+  border: 1px solid var(--color-dominant);
+}
+
+.esevioz-alert-error {
+  background-color: var(--color-highlight);
+  color: var(--color-background);
+  border: 1px solid var(--color-highlight);
+}
+
+/* Card/Panel Styles */
+.esevioz-card {
+  background-color: var(--color-background);
+  border: 1px solid var(--color-dominant);
+  color: var(--color-text);
+}
+
+.esevioz-card-header {
+  background-color: var(--color-dominant);
+  color: var(--color-background);
+  font-weight: 600;
+}
+
+/* Form Styles */
+.esevioz-input {
+  background-color: var(--color-background);
+  border: 2px solid var(--color-text);
+  color: var(--color-text);
+  font-family: var(--font-family);
+}
+
+.esevioz-input:focus {
+  border-color: var(--color-highlight);
+  outline: none;
+}
+
+.esevioz-label {
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-weight: 500;
+}
+
+/* Status Indicators */
+.esevioz-status-success {
+  color: var(--color-dominant);
+}
+
+.esevioz-status-error {
+  color: var(--color-highlight);
+}
+
+.esevioz-status-warning {
+  color: var(--color-highlight);
+}
+
+/* Dark Mode Toggle Button */
+.esevioz-theme-toggle {
+  background-color: var(--color-text);
+  color: var(--color-background);
+  border: 2px solid var(--color-text);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.esevioz-theme-toggle:hover {
+  background-color: var(--color-highlight);
+  border-color: var(--color-highlight);
+}
+
+/* Utility Classes */
+.esevioz-shadow {
+  box-shadow: 0 4px 6px rgba(25, 25, 25, 0.1);
+}
+
+.esevioz-border {
+  border-color: var(--color-text);
+}
+
+.esevioz-border-dominant {
+  border-color: var(--color-dominant);
+}
+
+.esevioz-border-highlight {
+  border-color: var(--color-highlight);
+}
+
+/* Responsive Typography */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 769px) {
+  body {
+    font-size: 16px;
+  }
+}
