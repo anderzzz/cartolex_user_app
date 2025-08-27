@@ -4,7 +4,7 @@ import os
 
 class Config:
     """Base configuration class"""
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
+    SECRET_KEY = os.environ.get('FLASK_SECRET_USER_APP') or 'dev-secret-key-change-in-production'
     CARTOLEX_API_BASE_URL = os.environ.get('CARTOLEX_API_BASE_URL') or 'http://localhost:5555'
     
     # CORS settings

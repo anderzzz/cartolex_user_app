@@ -232,7 +232,7 @@ def config_check(
         # Configuration settings to display
         config_items = [
             ("DEBUG", str(flask_app.config.get('DEBUG', 'Not Set')), "Flask Config"),
-            ("SECRET_KEY", "***" if flask_app.config.get('SECRET_KEY') else "Not Set", "Environment/Config"),
+            ("FLASK_SECRET_USER_APP", "***" if flask_app.config.get('SECRET_KEY') else "Not Set", "Environment/Config"),
             ("CARTOLEX_API_BASE_URL", flask_app.config.get('CARTOLEX_API_BASE_URL', 'Not Set'), "Environment/Config"),
             ("CORS_ORIGINS", str(flask_app.config.get('CORS_ORIGINS', 'Not Set')), "Environment/Config"),
             ("SECURITY_HEADERS_ENABLED", str(flask_app.config.get('SECURITY_HEADERS_ENABLED', 'Not Set')), "Environment/Config"),
@@ -252,9 +252,9 @@ def config_check(
         
         if not flask_app.config.get('SECRET_KEY') or flask_app.config.get('SECRET_KEY') == 'dev-secret-key-change-in-production':
             if config == ConfigMode.PRODUCTION:
-                issues.append("SECRET_KEY should be set to a secure value in production")
+                issues.append("FLASK_SECRET_USER_APP should be set to a secure value in production")
             elif config == ConfigMode.DEVELOPMENT:
-                issues.append("Using default SECRET_KEY (acceptable for development)")
+                issues.append("Using default FLASK_SECRET_USER_APP (acceptable for development)")
         
         if config == ConfigMode.PRODUCTION and flask_app.config.get('DEBUG'):
             issues.append("DEBUG should be disabled in production mode")
@@ -304,7 +304,7 @@ def health_check():
         try:
             config_issues = []
             if not flask_app.config.get('SECRET_KEY'):
-                config_issues.append("Missing SECRET_KEY")
+                config_issues.append("Missing FLASK_SECRET_USER_APP")
             
             if config_issues:
                 checks.append(("Configuration", f"⚠ Issues: {', '.join(config_issues)}", "yellow"))
