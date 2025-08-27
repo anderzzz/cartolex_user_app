@@ -36,11 +36,11 @@ def _create_app_with_config(config_class=None):
     """Create Flask app with specified configuration."""
     if config_class:
         # Temporarily set config in environment for create_app to pick up
-        original_config = os.environ.get('FLASK_CONFIG')
+        original_config = os.environ.get('USER_APP_FLASK_CONFIG')
         if config_class == DevelopmentConfig:
-            os.environ['FLASK_CONFIG'] = 'development'
+            os.environ['USER_APP_FLASK_CONFIG'] = 'development'
         elif config_class == ProductionConfig:
-            os.environ['FLASK_CONFIG'] = 'production'
+            os.environ['USER_APP_FLASK_CONFIG'] = 'production'
         
         try:
             flask_app = create_app()
@@ -48,9 +48,9 @@ def _create_app_with_config(config_class=None):
             return flask_app
         finally:
             if original_config:
-                os.environ['FLASK_CONFIG'] = original_config
+                os.environ['USER_APP_FLASK_CONFIG'] = original_config
             else:
-                os.environ.pop('FLASK_CONFIG', None)
+                os.environ.pop('USER_APP_FLASK_CONFIG', None)
     else:
         return create_app()
 
@@ -234,12 +234,12 @@ def config_check(
             ("DEBUG", str(flask_app.config.get('DEBUG', 'Not Set')), "Flask Config"),
             ("FLASK_SECRET_USER_APP", "***" if flask_app.config.get('SECRET_KEY') else "Not Set", "Environment/Config"),
             ("CARTOLEX_API_BASE_URL", flask_app.config.get('CARTOLEX_API_BASE_URL', 'Not Set'), "Environment/Config"),
-            ("CORS_ORIGINS", str(flask_app.config.get('CORS_ORIGINS', 'Not Set')), "Environment/Config"),
-            ("SECURITY_HEADERS_ENABLED", str(flask_app.config.get('SECURITY_HEADERS_ENABLED', 'Not Set')), "Environment/Config"),
-            ("CSP_MODE", flask_app.config.get('CSP_MODE', 'Not Set'), "Environment/Config"),
-            ("DISABLE_SECURITY", str(flask_app.config.get('DISABLE_SECURITY', 'Not Set')), "Environment/Config"),
-            ("RATELIMIT_DEFAULT", flask_app.config.get('RATELIMIT_DEFAULT', 'Not Set'), "Environment/Config"),
-            ("RATELIMIT_ENABLED", str(flask_app.config.get('RATELIMIT_ENABLED', 'Not Set')), "Environment/Config"),
+            ("USER_APP_CORS_ORIGINS", str(flask_app.config.get('CORS_ORIGINS', 'Not Set')), "Environment/Config"),
+            ("USER_APP_SECURITY_HEADERS_ENABLED", str(flask_app.config.get('SECURITY_HEADERS_ENABLED', 'Not Set')), "Environment/Config"),
+            ("USER_APP_CSP_MODE", flask_app.config.get('CSP_MODE', 'Not Set'), "Environment/Config"),
+            ("USER_APP_DISABLE_SECURITY", str(flask_app.config.get('DISABLE_SECURITY', 'Not Set')), "Environment/Config"),
+            ("USER_APP_RATELIMIT_DEFAULT", flask_app.config.get('RATELIMIT_DEFAULT', 'Not Set'), "Environment/Config"),
+            ("USER_APP_RATELIMIT_ENABLED", str(flask_app.config.get('RATELIMIT_ENABLED', 'Not Set')), "Environment/Config"),
         ]
         
         for setting, value, source in config_items:
