@@ -10,7 +10,7 @@ from cartolex_user_app.utils.template_filters import register_filters
 from cartolex_user_app.routes import dashboard, workflows, semantics, io_config
 
 
-def create_app():
+def create_app(config_class=None):
     """Application factory"""
 
     basedir = os.path.abspath(os.path.dirname(__file__))
@@ -20,7 +20,12 @@ def create_app():
     app = Flask(__name__, 
                 template_folder=template_dir,
                 static_folder=static_dir)
-    app.config.from_object('cartolex_user_app.config.Config')
+    
+    # Load the specified config class, or default to base Config
+    if config_class:
+        app.config.from_object(config_class)
+    else:
+        app.config.from_object('cartolex_user_app.config.Config')
 
     # Initialize CSRF protection
     csrf = CSRFProtect(app)

@@ -13,8 +13,8 @@ class BaseRouteTestCase(unittest.TestCase):
 
     def setUp(self):
         """Set up test client and mock API"""
-        # Create test app
-        self.app = create_app()
+        # Create test app with base config for testing
+        self.app = create_app()  # Uses base Config class by default
         self.app.config['TESTING'] = True
         self.app.config['WTF_CSRF_ENABLED'] = False  # Disable CSRF for testing
         self.client = self.app.test_client()
