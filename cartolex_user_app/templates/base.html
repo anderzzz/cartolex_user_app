@@ -37,9 +37,12 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center">
-                    <h1 class="text-xl font-semibold esevioz-nav-brand">
-                        <a href="{{ url_for('dashboard.index') }}">Cartolex</a>
-                    </h1>
+                    <a href="{{ url_for('dashboard.index') }}" class="flex items-center">
+                        <img id="logo-light" src="{{ url_for('static', filename='cartolex_logo_transparent_snug.png') }}" 
+                             alt="Cartolex" class="h-8 w-auto transition-opacity duration-200">
+                        <img id="logo-dark" src="{{ url_for('static', filename='cartolex_logo_transparent_snug_darkmode.png') }}" 
+                             alt="Cartolex" class="h-8 w-auto transition-opacity duration-200" style="display: none;">
+                    </a>
                 </div>
                 
                 <div class="flex items-center space-x-8">
@@ -111,6 +114,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             const themeToggle = document.getElementById('theme-toggle');
             const themeIcon = document.getElementById('theme-icon');
+            const logoLight = document.getElementById('logo-light');
+            const logoDark = document.getElementById('logo-dark');
             const body = document.body;
             
             // Check for saved theme preference or default to 'light'
@@ -122,6 +127,15 @@
                 body.setAttribute('data-theme', theme);
                 themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
                 localStorage.setItem('theme', theme);
+                
+                // Switch logo variants based on theme
+                if (theme === 'dark') {
+                    logoLight.style.display = 'none';
+                    logoDark.style.display = 'block';
+                } else {
+                    logoLight.style.display = 'block';
+                    logoDark.style.display = 'none';
+                }
             }
             
             // Initialize theme
