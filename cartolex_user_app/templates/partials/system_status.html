@@ -1,22 +1,22 @@
 <!-- Live system status updates -->
 <div class="flex items-center space-x-2">
     {% if status.backend_connected %}
-        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-            <span class="w-2 h-2 bg-green-400 rounded-full mr-1"></span>
+        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium esevioz-status-success esevioz-bg">
+            <span class="w-2 h-2 esevioz-dominant rounded-full mr-1"></span>
             Connected
         </span>
     {% else %}
-        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-            <span class="w-2 h-2 bg-red-400 rounded-full mr-1"></span>
+        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium esevioz-status-error esevioz-bg">
+            <span class="w-2 h-2 esevioz-highlight rounded-full mr-1"></span>
             Disconnected
         </span>
     {% endif %}
     
-    <div class="text-xs text-gray-500">
+    <div class="text-xs esevioz-text opacity-75">
         Active: {{ status.active_jobs }}/{{ status.total_workflows }}
     </div>
 </div>
 
-<div class="text-xs text-gray-400 mt-1">
+<div class="text-xs esevioz-text opacity-50 mt-1">
     Updated: {{ status.last_updated }}
 </div>

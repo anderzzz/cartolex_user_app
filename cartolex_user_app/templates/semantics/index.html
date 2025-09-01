@@ -3,9 +3,9 @@
 {% block content %}
 <div class="px-4 py-6 sm:px-0">
     <!-- Header -->
-    <div class="border-b border-gray-200 pb-4 mb-6">
-        <h2 class="text-2xl font-bold leading-7 text-gray-900">Semantics Configuration</h2>
-        <p class="mt-2 text-sm text-gray-600">
+    <div class="border-b esevioz-border-dominant pb-4 mb-6">
+        <h2 class="text-2xl font-bold leading-7 esevioz-text">Semantics Configuration</h2>
+        <p class="mt-2 text-sm esevioz-text opacity-75">
             Configure LLM models and embedding systems
         </p>
     </div>
@@ -13,25 +13,25 @@
     <!-- Configuration Sections -->
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <!-- LLM Models -->
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="esevioz-card overflow-hidden esevioz-shadow rounded-lg">
             <div class="p-6">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <div class="w-8 h-8 esevioz-highlight-bg rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 esevioz-bg" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                         </div>
                     </div>
                     <div class="ml-5">
-                        <h3 class="text-lg font-medium text-gray-900">LLM Models</h3>
-                        <p class="text-sm text-gray-600">Configure language model providers and settings</p>
+                        <h3 class="text-lg font-medium esevioz-text">LLM Models</h3>
+                        <p class="text-sm esevioz-text opacity-75">Configure language model providers and settings</p>
                     </div>
                 </div>
                 
                 <div class="mt-6">
                     <a href="{{ url_for('semantics.llm_models') }}" 
-                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md esevioz-bg esevioz-highlight-bg hover:opacity-75 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-opacity">
                         Manage LLM Models
                         <svg class="ml-2 -mr-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
@@ -42,26 +42,26 @@
         </div>
 
         <!-- Embedding Models -->
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="esevioz-card overflow-hidden esevioz-shadow rounded-lg">
             <div class="p-6">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <div class="w-8 h-8 esevioz-dominant-bg rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 esevioz-bg" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"></path>
-                                <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z"></path>
+                                <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0710 15c-2.796 0-5.487-.46-8-1.308z"></path>
                             </svg>
                         </div>
                     </div>
                     <div class="ml-5">
-                        <h3 class="text-lg font-medium text-gray-900">Embedding Models</h3>
-                        <p class="text-sm text-gray-600">Configure vector embedding model settings</p>
+                        <h3 class="text-lg font-medium esevioz-text">Embedding Models</h3>
+                        <p class="text-sm esevioz-text opacity-75">Configure vector embedding model settings</p>
                     </div>
                 </div>
                 
                 <div class="mt-6">
                     <a href="{{ url_for('semantics.embedding_models') }}" 
-                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md esevioz-bg esevioz-dominant-bg hover:opacity-75 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-opacity">
                         Manage Embeddings
                         <svg class="ml-2 -mr-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
@@ -73,16 +73,16 @@
     </div>
 
     <!-- Configuration Info -->
-    <div class="mt-8 bg-blue-50 border border-blue-200 rounded-md p-4">
+    <div class="mt-8 esevioz-bg border esevioz-border-highlight rounded-md p-4">
         <div class="flex">
             <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="h-5 w-5 esevioz-highlight" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
                 </svg>
             </div>
             <div class="ml-3">
-                <h3 class="text-sm font-medium text-blue-800">Configuration Notes</h3>
-                <div class="mt-2 text-sm text-blue-700">
+                <h3 class="text-sm font-medium esevioz-highlight">Configuration Notes</h3>
+                <div class="mt-2 text-sm esevioz-text">
                     <ul class="list-disc list-inside space-y-1">
                         <li>Changes to LLM model configurations affect workflow execution</li>
                         <li>Embedding model changes impact vector search and similarity operations</li>

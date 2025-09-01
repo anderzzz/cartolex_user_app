@@ -3,15 +3,15 @@
 {% block content %}
 <div class="px-4 py-6 sm:px-0">
     <!-- Dashboard Header -->
-    <div class="border-b border-gray-200 pb-4 mb-6">
-        <h2 class="text-2xl font-bold leading-7 text-gray-900">Dashboard</h2>
-        <p class="mt-2 text-sm text-gray-600">
+    <div class="border-b esevioz-border-dominant pb-4 mb-6">
+        <h2 class="text-2xl font-bold leading-7 esevioz-text">Dashboard</h2>
+        <p class="mt-2 text-sm esevioz-text opacity-75">
             Monitor workflows and system status
         </p>
     </div>
 
     {% if error %}
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+        <div class="esevioz-alert-error px-4 py-3 rounded mb-6">
             {{ error }}
         </div>
     {% endif %}
@@ -19,22 +19,22 @@
     <!-- Stats Grid -->
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 mb-8">
         <!-- System Status -->
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="esevioz-card overflow-hidden esevioz-shadow rounded-lg">
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <div class="w-8 h-8 esevioz-dominant-bg rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 esevioz-bg" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                             </svg>
                         </div>
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">
+                            <dt class="text-sm font-medium esevioz-text opacity-75 truncate">
                                 System Status
                             </dt>
-                            <dd class="text-lg font-medium text-gray-900"
+                            <dd class="text-lg font-medium esevioz-text"
                                 hx-get="{{ url_for('dashboard.system_status') }}" 
                                 hx-trigger="load, every 30s"
                                 hx-swap="innerHTML">
@@ -47,22 +47,22 @@
         </div>
 
         <!-- Workflow Count -->
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="esevioz-card overflow-hidden esevioz-shadow rounded-lg">
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <div class="w-8 h-8 esevioz-highlight-bg rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 esevioz-bg" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                         </div>
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">
+                            <dt class="text-sm font-medium esevioz-text opacity-75 truncate">
                                 Available Workflows
                             </dt>
-                            <dd class="text-lg font-medium text-gray-900">
+                            <dd class="text-lg font-medium esevioz-text">
                                 {{ workflow_count }}
                             </dd>
                         </dl>
@@ -72,22 +72,22 @@
         </div>
 
         <!-- Current Time -->
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="esevioz-card overflow-hidden esevioz-shadow rounded-lg">
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <div class="w-8 h-8 esevioz-dominant-bg rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 esevioz-bg" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
                             </svg>
                         </div>
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">
+                            <dt class="text-sm font-medium esevioz-text opacity-75 truncate">
                                 Current Time
                             </dt>
-                            <dd class="text-lg font-medium text-gray-900">
+                            <dd class="text-lg font-medium esevioz-text">
                                 {{ current_time.strftime('%H:%M:%S') if current_time else 'N/A' }}
                             </dd>
                         </dl>
@@ -99,13 +99,13 @@
 
     <!-- Recent Jobs -->
     {% if recent_jobs %}
-        <div class="bg-white shadow rounded-lg mb-6">
+        <div class="esevioz-card esevioz-shadow rounded-lg mb-6">
             <div class="px-4 py-5 sm:px-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Recent Jobs</h3>
-                <p class="mt-1 max-w-2xl text-sm text-gray-500">Latest job executions</p>
+                <h3 class="text-lg leading-6 font-medium esevioz-text">Recent Jobs</h3>
+                <p class="mt-1 max-w-2xl text-sm esevioz-text opacity-75">Latest job executions</p>
             </div>
-            <div class="border-t border-gray-200">
-                <ul class="divide-y divide-gray-200">
+            <div class="border-t esevioz-border-dominant">
+                <ul class="divide-y esevioz-border-dominant">
                     {% for job in recent_jobs %}
                         <li class="px-4 py-4 sm:px-6">
                             <div class="flex items-center justify-between">
@@ -113,11 +113,11 @@
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ job.status | job_status_class }}">
                                         {{ job.status | title }}
                                     </span>
-                                    <p class="ml-3 text-sm font-medium text-gray-900">
+                                    <p class="ml-3 text-sm font-medium esevioz-text">
                                         {{ job.workflow_name or job.id }}
                                     </p>
                                 </div>
-                                <div class="text-sm text-gray-500">
+                                <div class="text-sm esevioz-text opacity-75">
                                     {{ job.created_at or 'Recently' }}
                                 </div>
                             </div>
@@ -125,9 +125,9 @@
                     {% endfor %}
                 </ul>
             </div>
-            <div class="bg-gray-50 px-4 py-3 text-right sm:px-6">
+            <div class="esevioz-bg px-4 py-3 text-right sm:px-6 border-t esevioz-border-dominant">
                 <a href="{{ url_for('workflows.list_jobs') }}" 
-                   class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                   class="text-sm font-medium esevioz-highlight hover:opacity-75 transition-opacity">
                     View all jobs →
                 </a>
             </div>
@@ -136,22 +136,22 @@
 
     <!-- Workflows Preview -->
     {% if workflows %}
-        <div class="bg-white shadow rounded-lg">
+        <div class="esevioz-card esevioz-shadow rounded-lg">
             <div class="px-4 py-5 sm:px-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Available Workflows</h3>
-                <p class="mt-1 max-w-2xl text-sm text-gray-500">Quick access to workflows</p>
+                <h3 class="text-lg leading-6 font-medium esevioz-text">Available Workflows</h3>
+                <p class="mt-1 max-w-2xl text-sm esevioz-text opacity-75">Quick access to workflows</p>
             </div>
-            <div class="border-t border-gray-200">
-                <ul class="divide-y divide-gray-200">
+            <div class="border-t esevioz-border-dominant">
+                <ul class="divide-y esevioz-border-dominant">
                     {% for workflow in workflows %}
                         <li class="px-4 py-4 sm:px-6">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-sm font-medium text-gray-900">{{ workflow.name }}</p>
-                                    <p class="text-sm text-gray-500">{{ workflow.description or 'No description' }}</p>
+                                    <p class="text-sm font-medium esevioz-text">{{ workflow.name }}</p>
+                                    <p class="text-sm esevioz-text opacity-75">{{ workflow.description or 'No description' }}</p>
                                 </div>
                                 <a href="{{ url_for('workflows.list_workflows') }}" 
-                                   class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
+                                   class="esevioz-highlight hover:opacity-75 text-sm font-medium transition-opacity">
                                     Execute
                                 </a>
                             </div>
@@ -159,9 +159,9 @@
                     {% endfor %}
                 </ul>
             </div>
-            <div class="bg-gray-50 px-4 py-3 text-right sm:px-6">
+            <div class="esevioz-bg px-4 py-3 text-right sm:px-6 border-t esevioz-border-dominant">
                 <a href="{{ url_for('workflows.list_workflows') }}" 
-                   class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                   class="text-sm font-medium esevioz-highlight hover:opacity-75 transition-opacity">
                     View all workflows →
                 </a>
             </div>
