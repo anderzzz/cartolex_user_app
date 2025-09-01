@@ -47,143 +47,143 @@ body {
   color: var(--color-text);
 }
 
-/* Esevioz Brand Classes */
+/* Esevioz Brand Classes - with !important to override Tailwind */
 .esevioz-bg {
-  background-color: var(--color-background);
+  background-color: var(--color-background) !important;
 }
 
 .esevioz-text {
-  color: var(--color-text);
+  color: var(--color-text) !important;
 }
 
 .esevioz-dominant {
-  color: var(--color-dominant);
+  color: var(--color-dominant) !important;
 }
 
 .esevioz-dominant-bg {
-  background-color: var(--color-dominant);
+  background-color: var(--color-dominant) !important;
 }
 
 .esevioz-highlight {
-  color: var(--color-highlight);
+  color: var(--color-highlight) !important;
 }
 
 .esevioz-highlight-bg {
-  background-color: var(--color-highlight);
+  background-color: var(--color-highlight) !important;
 }
 
 /* Navigation Styling with Esevioz Colors */
 .esevioz-nav {
-  background-color: var(--color-background);
-  border-bottom: 1px solid var(--color-dominant);
+  background-color: var(--color-background) !important;
+  border-bottom: 1px solid var(--color-dominant) !important;
 }
 
 .esevioz-nav-link {
-  color: var(--color-text);
+  color: var(--color-text) !important;
   transition: color 0.2s ease;
 }
 
 .esevioz-nav-link:hover {
-  color: var(--color-highlight);
+  color: var(--color-highlight) !important;
 }
 
 .esevioz-nav-brand {
-  color: var(--color-dominant);
+  color: var(--color-dominant) !important;
   font-weight: 600;
 }
 
 /* Button Styles */
 .esevioz-btn-primary {
-  background-color: var(--color-dominant);
-  color: var(--color-background);
-  border: 2px solid var(--color-dominant);
+  background-color: var(--color-dominant) !important;
+  color: var(--color-background) !important;
+  border: 2px solid var(--color-dominant) !important;
   font-family: var(--font-family);
   font-weight: 500;
   transition: all 0.2s ease;
 }
 
 .esevioz-btn-primary:hover {
-  background-color: var(--color-background);
-  color: var(--color-dominant);
+  background-color: var(--color-background) !important;
+  color: var(--color-dominant) !important;
 }
 
 .esevioz-btn-secondary {
-  background-color: var(--color-highlight);
-  color: var(--color-background);
-  border: 2px solid var(--color-highlight);
+  background-color: var(--color-highlight) !important;
+  color: var(--color-background) !important;
+  border: 2px solid var(--color-highlight) !important;
   font-family: var(--font-family);
   font-weight: 500;
   transition: all 0.2s ease;
 }
 
 .esevioz-btn-secondary:hover {
-  background-color: var(--color-background);
-  color: var(--color-highlight);
+  background-color: var(--color-background) !important;
+  color: var(--color-highlight) !important;
 }
 
 /* Alert/Flash Message Styles */
 .esevioz-alert-success {
-  background-color: var(--color-dominant);
-  color: var(--color-background);
-  border: 1px solid var(--color-dominant);
+  background-color: var(--color-dominant) !important;
+  color: var(--color-background) !important;
+  border: 1px solid var(--color-dominant) !important;
 }
 
 .esevioz-alert-error {
-  background-color: var(--color-highlight);
-  color: var(--color-background);
-  border: 1px solid var(--color-highlight);
+  background-color: var(--color-highlight) !important;
+  color: var(--color-background) !important;
+  border: 1px solid var(--color-highlight) !important;
 }
 
 /* Card/Panel Styles */
 .esevioz-card {
-  background-color: var(--color-background);
-  border: 1px solid var(--color-dominant);
-  color: var(--color-text);
+  background-color: var(--color-background) !important;
+  border: 1px solid var(--color-dominant) !important;
+  color: var(--color-text) !important;
 }
 
 .esevioz-card-header {
-  background-color: var(--color-dominant);
-  color: var(--color-background);
+  background-color: var(--color-dominant) !important;
+  color: var(--color-background) !important;
   font-weight: 600;
 }
 
 /* Form Styles */
 .esevioz-input {
-  background-color: var(--color-background);
-  border: 2px solid var(--color-text);
-  color: var(--color-text);
+  background-color: var(--color-background) !important;
+  border: 2px solid var(--color-text) !important;
+  color: var(--color-text) !important;
   font-family: var(--font-family);
 }
 
 .esevioz-input:focus {
-  border-color: var(--color-highlight);
+  border-color: var(--color-highlight) !important;
   outline: none;
 }
 
 .esevioz-label {
-  color: var(--color-text);
+  color: var(--color-text) !important;
   font-family: var(--font-family);
   font-weight: 500;
 }
 
 /* Status Indicators */
 .esevioz-status-success {
-  color: var(--color-dominant);
+  color: var(--color-dominant) !important;
 }
 
 .esevioz-status-error {
-  color: var(--color-highlight);
+  color: var(--color-highlight) !important;
 }
 
 .esevioz-status-warning {
-  color: var(--color-highlight);
+  color: var(--color-highlight) !important;
 }
 
 /* Dark Mode Toggle Button */
 .esevioz-theme-toggle {
-  background-color: var(--color-text);
-  color: var(--color-background);
-  border: 2px solid var(--color-text);
+  background-color: var(--color-text) !important;
+  color: var(--color-background) !important;
+  border: 2px solid var(--color-text) !important;
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -195,8 +195,8 @@ body {
 }
 
 .esevioz-theme-toggle:hover {
-  background-color: var(--color-highlight);
-  border-color: var(--color-highlight);
+  background-color: var(--color-highlight) !important;
+  border-color: var(--color-highlight) !important;
 }
 
 /* Utility Classes */
@@ -205,15 +205,15 @@ body {
 }
 
 .esevioz-border {
-  border-color: var(--color-text);
+  border-color: var(--color-text) !important;
 }
 
 .esevioz-border-dominant {
-  border-color: var(--color-dominant);
+  border-color: var(--color-dominant) !important;
 }
 
 .esevioz-border-highlight {
-  border-color: var(--color-highlight);
+  border-color: var(--color-highlight) !important;
 }
 
 /* Responsive Typography */
