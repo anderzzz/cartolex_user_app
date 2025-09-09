@@ -93,7 +93,7 @@ body {
 }
 
 /* Button Styles */
-.esevioz-btn-primary {
+button.esevioz-btn-primary {
   background-color: var(--color-dominant) !important;
   color: var(--color-background) !important;
   border: 2px solid var(--color-dominant) !important;
@@ -102,7 +102,7 @@ body {
   transition: all 0.2s ease;
 }
 
-.esevioz-btn-primary:hover {
+button.esevioz-btn-primary:hover {
   background-color: var(--color-background) !important;
   color: var(--color-dominant) !important;
 }
