@@ -3,14 +3,14 @@
 {% block content %}
 <div class="px-4 py-6 sm:px-0">
     <!-- Header -->
-    <div class="flex justify-between items-center border-b border-gray-200 pb-4 mb-6">
+    <div class="flex justify-between items-center border-b esevioz-border-dominant pb-4 mb-6">
         <div>
-            <h2 class="text-2xl font-bold leading-7 text-gray-900">Embedding Models</h2>
-            <p class="mt-2 text-sm text-gray-600">Configure vector embedding model settings</p>
+            <h2 class="text-2xl font-bold leading-7 esevioz-text">Embedding Models</h2>
+            <p class="mt-2 text-sm esevioz-text opacity-75">Configure vector embedding model settings</p>
         </div>
         <div>
             <a href="{{ url_for('semantics.index') }}" 
-               class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+               class="text-sm font-medium esevioz-highlight hover:opacity-75 transition-opacity">
                 ← Back to Semantics
             </a>
         </div>
@@ -18,11 +18,11 @@
 
     <!-- Coming Soon Message -->
     <div class="text-center py-12">
-        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 48 48">
+        <svg class="mx-auto h-12 w-12 esevioz-text opacity-50" fill="none" stroke="currentColor" viewBox="0 0 48 48">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v20c0 4.418 7.163 8 16 8 1.381 0 2.721-.087 4-.252M8 14c0 4.418 7.163 8 16 8s16-3.582 16-8M8 14c0-4.418 7.163-8 16-8s16 3.582 16 8m0 0v14m-16-4h16m0 0c0 4.418-7.163 8-16 8s-16-3.582-16-8" />
         </svg>
-        <h3 class="mt-2 text-sm font-medium text-gray-900">Embedding Models Configuration</h3>
-        <p class="mt-1 text-sm text-gray-500">{{ message or 'This feature is coming soon.' }}</p>
+        <h3 class="mt-2 text-sm font-medium esevioz-text">Embedding Models Configuration</h3>
+        <p class="mt-1 text-sm esevioz-text opacity-75">{{ message or 'This feature is coming soon.' }}</p>
     </div>
 
     <!-- Placeholder for future configuration -->
