@@ -156,6 +156,31 @@ a.esevioz-btn-primary:hover,
   color: var(--color-highlight) !important;
 }
 
+/* Configuration Button - Fern Green */
+.esevioz-btn-config {
+  background-color: #486F38 !important; /* fern green */
+  color: #FFF5EB !important; /* linen/white */
+  border: 2px solid #486F38 !important;
+  border-color: #486F38 !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 0.375rem !important;
+  font-family: var(--font-family) !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+}
+
+.esevioz-btn-config:hover {
+  background-color: #FFF5EB !important;
+  color: #486F38 !important;
+  border-color: #486F38 !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+}
+
 /* Alert/Flash Message Styles */
 .esevioz-alert-success {
   background-color: var(--color-dominant) !important;
