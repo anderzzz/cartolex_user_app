@@ -153,3 +153,14 @@ class CartolexAPI:
             params['config_kind'] = config_kind
         return self._make_request('GET', APIEndpoints.EMBEDDING_MODELS_LIST, params=params)
 
+    def get_workflow_config(self, workflow_name: str, config_kind: str = 'configuration directory') -> APIResponse:
+        """Get workflow configuration"""
+        endpoint = f"/workflows/{workflow_name}/config"
+        params = {'config_kind': config_kind}
+        return self._make_request('GET', endpoint, params=params)
+
+    def update_workflow_config(self, workflow_name: str, config_data: dict) -> APIResponse:
+        """Update workflow configuration"""
+        endpoint = f"/workflows/{workflow_name}/config"
+        return self._make_request('PUT', endpoint, data=config_data)
+

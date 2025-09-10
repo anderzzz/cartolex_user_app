@@ -1,0 +1,128 @@
+<!-- Workflow Launch Pad Section -->
+<div class="esevioz-card esevioz-shadow rounded-lg">
+    <div class="px-6 py-4 border-b esevioz-border-dominant">
+        <div class="flex items-center">
+            <svg class="w-5 h-5 esevioz-text mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+            </svg>
+            <h3 class="text-lg font-medium esevioz-text">Launch Pad</h3>
+        </div>
+        <p class="mt-1 text-sm esevioz-text opacity-75">Execute any available workflow with custom parameters</p>
+    </div>
+    
+    <div class="px-6 py-4">
+        <form hx-post=""
+              hx-target="#launch-result"
+              hx-swap="innerHTML"
+              id="launch-pad-form"
+              class="space-y-4">
+            
+            <!-- Workflow Selection -->
+            <div>
+                <label for="selected-workflow" class="block text-sm font-medium esevioz-text">Select Workflow</label>
+                <select id="selected-workflow" 
+                        name="selected_workflow"
+                        class="mt-1 block w-full esevioz-input rounded-md shadow-sm sm:text-sm"
+                        onchange="updateLaunchForm(this.value)"
+                        required>
+                    <option value="">Choose a workflow...</option>
+                    {% for workflow in workflows %}
+                        <option value="{{ workflow.name }}">{{ workflow.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Dynamic Parameter Section -->
+            <div id="dynamic-parameters" class="hidden">
+                <h4 class="text-sm font-medium esevioz-text mb-3">Workflow Parameters</h4>
+                <div id="parameter-fields" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Parameters will be loaded dynamically -->
+                </div>
+            </div>
+            
+            <!-- Execution Options -->
+            <div>
+                <h4 class="text-sm font-medium esevioz-text mb-3">Execution Options</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="launch_priority" class="block text-sm font-medium esevioz-text">Priority</label>
+                        <select name="exec_priority" id="launch_priority" class="mt-1 block w-full esevioz-input rounded-md shadow-sm sm:text-sm">
+                            <option value="normal">Normal</option>
+                            <option value="high">High</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="launch_timeout" class="block text-sm font-medium esevioz-text">Timeout (seconds)</label>
+                        <input type="number" 
+                               name="exec_timeout" 
+                               id="launch_timeout"
+                               class="mt-1 block w-full esevioz-input rounded-md shadow-sm sm:text-sm"
+                               placeholder="300" 
+                               min="1">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Launch Button -->
+            <div class="flex justify-end">
+                <button type="submit" 
+                        id="launch-button"
+                        disabled
+                        class="px-6 py-2 text-sm font-medium rounded-md esevioz-btn-primary disabled:opacity-50 disabled:cursor-not-allowed htmx-indicator">
+                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-current hidden" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                    </svg>
+                    Launch Workflow
+                </button>
+            </div>
+        </form>
+        
+        <!-- Launch Result Area -->
+        <div id="launch-result" class="mt-4"></div>
+    </div>
+</div>
+
+<script>
+function updateLaunchForm(workflowName) {
+    const form = document.getElementById('launch-pad-form');
+    const launchButton = document.getElementById('launch-button');
+    const dynamicParams = document.getElementById('dynamic-parameters');
+    const parameterFields = document.getElementById('parameter-fields');
+    
+    if (workflowName) {
+        // Update form action
+        form.setAttribute('hx-post', `/workflows/${workflowName}/execute`);
+        
+        // Enable launch button
+        launchButton.disabled = false;
+        
+        // Load workflow parameters (this would typically come from an API call)
+        // For now, we'll show a placeholder section
+        parameterFields.innerHTML = `
+            <div class="col-span-full">
+                <p class="text-sm esevioz-text opacity-75">
+                    Parameters for ${workflowName} will be loaded here.
+                    <br>
+                    <em>Note: This will be enhanced to dynamically load actual workflow parameters.</em>
+                </p>
+            </div>
+        `;
+        dynamicParams.classList.remove('hidden');
+        
+        // Re-initialize HTMX for the updated form
+        if (typeof htmx !== 'undefined') {
+            htmx.process(form);
+        }
+    } else {
+        // Disable launch button and hide parameters
+        launchButton.disabled = true;
+        dynamicParams.classList.add('hidden');
+        form.removeAttribute('hx-post');
+    }
+}
+</script>

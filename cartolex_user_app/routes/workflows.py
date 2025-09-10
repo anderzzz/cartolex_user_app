@@ -103,3 +103,56 @@ def list_jobs():
                            jobs=response.data.get('jobs', []),
                            current_filter=status_filter,
                            all_statuses=JobStatuses.ALL_STATUSES)
+
+
+@bp.route('/<workflow_name>/config')
+def get_workflow_config(workflow_name):
+    """Get workflow configuration for HTMX expansion"""
+    api = current_app.api_client
+    response = api.get_workflow_config(workflow_name)
+    
+    if response.success:
+        config_data = response.data
+        return render_template('partials/workflow_config.html',
+                               workflow_name=workflow_name,
+                               config=config_data.get('configuration', {}),
+                               config_source=config_data.get('configuration_source', 'configuration directory'))
+    else:
+        if response.error_code == ErrorCodes.WORKFLOW_NOT_FOUND:
+            return render_template('partials/workflow_not_found.html',
+                                   workflow_name=workflow_name)
+        return render_template('partials/config_error.html',
+                               error=response.error)
+
+
+@bp.route('/<workflow_name>/config', methods=['PUT'])
+def update_workflow_config(workflow_name):
+    """Update workflow configuration via HTMX"""
+    api = current_app.api_client
+    
+    # Extract configuration data from form
+    config_data = {}
+    for key, value in request.form.items():
+        if key.startswith('launcher_param_'):
+            param_name = key.replace('launcher_param_', '')
+            if 'workflow_launcher' not in config_data:
+                config_data['workflow_launcher'] = {'launcher_params': {}}
+            config_data['workflow_launcher']['launcher_params'][param_name] = value
+        elif key.startswith('lander_param_'):
+            param_name = key.replace('lander_param_', '')
+            if 'workflow_lander' not in config_data:
+                config_data['workflow_lander'] = {'lander_params': {}}
+            config_data['workflow_lander']['lander_params'][param_name] = value
+    
+    response = api.update_workflow_config(workflow_name, config_data)
+    
+    if response.success:
+        return render_template('partials/config_save_result.html',
+                               success=True,
+                               message="Configuration saved successfully",
+                               workflow_name=workflow_name)
+    else:
+        return render_template('partials/config_save_result.html',
+                               success=False,
+                               message=response.error,
+                               workflow_name=workflow_name)

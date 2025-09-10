@@ -6,123 +6,80 @@
     <div class="border-b esevioz-border-dominant pb-4 mb-6">
         <h2 class="text-2xl font-bold leading-7 esevioz-text">Workflows</h2>
         <p class="mt-2 text-sm esevioz-text opacity-75">
-            Execute workflows and monitor progress
+            Configure, execute, and monitor workflows
         </p>
     </div>
 
-    <!-- Workflows List -->
-    {% if workflows %}
-        <div class="grid gap-6">
-            {% for workflow in workflows %}
-                <div class="esevioz-card esevioz-shadow rounded-lg">
-                    <div class="px-6 py-4 border-b esevioz-border-dominant">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h3 class="text-lg font-medium esevioz-text">{{ workflow.name }}</h3>
-                                <p class="mt-1 text-sm esevioz-text opacity-75">{{ workflow.description or 'No description available' }}</p>
-                            </div>
-                            <div class="text-sm esevioz-text opacity-75">
-                                {% if workflow.last_run %}
-                                    Last run: {{ workflow.last_run }}
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Workflow Execution Form -->
-                    <div class="px-6 py-4" id="workflow-{{ workflow.name }}-form">
-                        <form hx-post="{{ url_for('workflows.execute_workflow', workflow_name=workflow.name) }}"
-                              hx-target="#workflow-{{ workflow.name }}-result"
-                              hx-swap="innerHTML"
-                              class="space-y-4">
-                            
-                            <!-- Parameters Section -->
-                            {% if workflow.parameters %}
-                                <div>
-                                    <h4 class="text-sm font-medium esevioz-text mb-3">Parameters</h4>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {% for param_name, param_info in workflow.parameters.items() %}
-                                            <div>
-                                                <label for="param_{{ param_name }}" class="block text-sm font-medium esevioz-text">
-                                                    {{ param_name.replace('_', ' ').title() }}
-                                                    {% if param_info.required %}*{% endif %}
-                                                </label>
-                                                <input type="text" 
-                                                       id="param_{{ param_name }}" 
-                                                       name="param_{{ param_name }}"
-                                                       class="mt-1 block w-full esevioz-input rounded-md shadow-sm sm:text-sm"
-                                                       {% if param_info.required %}required{% endif %}
-                                                       placeholder="{{ param_info.description or param_info.default or '' }}">
-                                            </div>
-                                        {% endfor %}
-                                    </div>
+    <!-- Available Workflows Section -->
+    <div class="mb-8">
+        <h3 class="text-lg font-medium esevioz-text mb-4">Available Workflows</h3>
+        
+        {% if workflows %}
+            <div class="grid gap-4">
+                {% for workflow in workflows %}
+                    <div class="esevioz-card esevioz-shadow rounded-lg">
+                        <!-- Workflow Header -->
+                        <div class="px-6 py-4 border-b esevioz-border-dominant">
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1">
+                                    <h4 class="text-lg font-medium esevioz-text">{{ workflow.name }}</h4>
+                                    <p class="mt-1 text-sm esevioz-text opacity-75">{{ workflow.description or 'No description available' }}</p>
+                                    {% if workflow.launcher_name or workflow.lander_name %}
+                                        <div class="mt-2 flex items-center space-x-4 text-xs esevioz-text opacity-60">
+                                            {% if workflow.launcher_name %}
+                                                <span>Launcher: {{ workflow.launcher_name }}</span>
+                                            {% endif %}
+                                            {% if workflow.lander_name %}
+                                                <span>Lander: {{ workflow.lander_name }}</span>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
                                 </div>
-                            {% endif %}
-                            
-                            <!-- Execution Options -->
-                            <div>
-                                <h4 class="text-sm font-medium esevioz-text mb-3">Execution Options</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label for="exec_priority" class="block text-sm font-medium esevioz-text">Priority</label>
-                                        <select name="exec_priority" class="mt-1 block w-full esevioz-input rounded-md shadow-sm sm:text-sm">
-                                            <option value="normal">Normal</option>
-                                            <option value="high">High</option>
-                                            <option value="low">Low</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label for="exec_timeout" class="block text-sm font-medium esevioz-text">Timeout (seconds)</label>
-                                        <input type="number" 
-                                               name="exec_timeout" 
-                                               class="mt-1 block w-full esevioz-input rounded-md shadow-sm sm:text-sm"
-                                               placeholder="300" 
-                                               min="1">
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Submit Button -->
-                            <div class="flex justify-end">
-                                <button type="submit" class="esevioz-btn-primary htmx-indicator">
-                                    <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-current hidden" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                <!-- Expand/Collapse Button -->
+                                <button type="button" 
+                                        hx-get="{{ url_for('workflows.get_workflow_config', workflow_name=workflow.name) }}"
+                                        hx-target="#workflow-{{ workflow.name }}-config"
+                                        hx-swap="innerHTML"
+                                        hx-trigger="click"
+                                        class="flex items-center px-3 py-1 text-sm font-medium rounded-md esevioz-btn-secondary hover:opacity-75 transition-opacity"
+                                        title="Configure workflow">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
                                     </svg>
-                                    <span>Execute Workflow</span>  <!-- Wrap text in span and keep INSIDE button -->
+                                    Configure
                                 </button>
                             </div>
-                        </form>
+                        </div>
                         
-                        <!-- Result Area -->
-                        <div id="workflow-{{ workflow.name }}-result" class="mt-4"></div>
+                        <!-- Expandable Configuration Area -->
+                        <div id="workflow-{{ workflow.name }}-config">
+                            <!-- Configuration will be loaded here via HTMX -->
+                        </div>
                     </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <!-- Empty State -->
-        <div class="text-center py-12">
-            <svg class="mx-auto h-12 w-12 esevioz-text opacity-50" fill="none" stroke="currentColor" viewBox="0 0 48 48">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M34 40h10v-4a6 6 0 00-10.712-3.714M34 40H14m20 0v-4a9.971 9.971 0 00-.712-3.714M14 40H4v-4a6 6 0 0110.712-3.714M14 40v-4a9.971 9.971 0 01.712-3.714M28 16a4 4 0 11-8 0 4 4 0 018 0zM24 20v6M8 16a4 4 0 11-8 0 4 4 0 018 0zM8 20v6m32-6a4 4 0 11-8 0 4 4 0 018 0zM40 20v6" />
-            </svg>
-            <h3 class="mt-2 text-sm font-medium esevioz-text">No workflows available</h3>
-            <p class="mt-1 text-sm esevioz-text opacity-75">Check your backend connection and configuration.</p>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-12 esevioz-card rounded-lg">
+                <svg class="mx-auto h-12 w-12 esevioz-text opacity-50" fill="none" stroke="currentColor" viewBox="0 0 48 48">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M34 40h10v-4a6 6 0 00-10.712-3.714M34 40H14m20 0v-4a9.971 9.971 0 00-.712-3.714M14 40H4v-4a6 6 0 0110.712-3.714M14 40v-4a9.971 9.971 0 01.712-3.714M28 16a4 4 0 11-8 0 4 4 0 018 0zM24 20v6M8 16a4 4 0 11-8 0 4 4 0 018 0zM8 20v6m32-6a4 4 0 11-8 0 4 4 0 018 0zM40 20v6" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium esevioz-text">No workflows available</h3>
+                <p class="mt-1 text-sm esevioz-text opacity-75">Check your backend connection and configuration.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Launch Pad Section -->
+    {% if workflows %}
+        <div class="mb-8">
+            {% include 'partials/workflow_launch_pad.html' %}
         </div>
     {% endif %}
 
-    <!-- Quick Actions -->
-    <div class="mt-8 esevioz-bg rounded-lg p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <h3 class="text-lg font-medium esevioz-text">Job Monitoring</h3>
-                <p class="text-sm esevioz-text opacity-75">Track running and completed jobs</p>
-            </div>
-            <a href="{{ url_for('workflows.list_jobs') }}" 
-               class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md esevioz-btn-primary hover:opacity-75 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-opacity">
-                View Jobs
-            </a>
-        </div>
+    <!-- Monitoring Section -->
+    <div>
+        {% include 'partials/workflow_monitor.html' %}
     </div>
 </div>
 {% endblock %}
