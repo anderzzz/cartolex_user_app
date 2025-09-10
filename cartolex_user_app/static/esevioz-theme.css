@@ -93,38 +93,53 @@ body {
 }
 
 /* Button Styles */
-/* Works for both <a> and <button> elements */
+/* Super-specific selectors to override Tailwind CSS */
+button.esevioz-btn-primary,
+a.esevioz-btn-primary,
 .esevioz-btn-primary {
   /* Light mode */
   background-color: #1B5420 !important; /* pine green */
   color: #FFF5EB !important; /* linen/white */
   border: 2px solid #1B5420 !important;
+  border-color: #1B5420 !important; /* Extra specificity */
   padding: 0.5rem 1rem !important;
   border-radius: 0.375rem !important;
-  font-family: var(--font-family);
-  font-weight: 500;
-  transition: all 0.2s ease;
+  font-family: var(--font-family) !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
   display: inline-flex !important;
   align-items: center !important;
   text-decoration: none !important;
+  box-shadow: none !important; /* Override any Tailwind shadows */
 }
 
+button.esevioz-btn-primary:hover,
+a.esevioz-btn-primary:hover,
 .esevioz-btn-primary:hover {
   background-color: #FFF5EB !important;
   color: #1B5420 !important;
+  border-color: #1B5420 !important;
   opacity: 1 !important; /* Override the opacity-75 on hover */
+  box-shadow: none !important;
 }
 
 /* Dark mode adjustments */
+[data-theme="dark"] button.esevioz-btn-primary,
+[data-theme="dark"] a.esevioz-btn-primary,
 [data-theme="dark"] .esevioz-btn-primary {
   background-color: #486F38 !important; /* fern green for dark mode */
   color: #191919 !important; /* black background in dark mode */
   border-color: #486F38 !important;
+  box-shadow: none !important;
 }
 
+[data-theme="dark"] button.esevioz-btn-primary:hover,
+[data-theme="dark"] a.esevioz-btn-primary:hover,
 [data-theme="dark"] .esevioz-btn-primary:hover {
   background-color: #191919 !important;
   color: #486F38 !important;
+  border-color: #486F38 !important;
+  box-shadow: none !important;
 }
 
 .esevioz-btn-secondary {
