@@ -28,9 +28,10 @@ class APIResponse:
 class CartolexAPI:
     """Frontend API client using shared constants"""
 
-    def __init__(self, base_url: str, timeout: int = 30):
+    def __init__(self, base_url: str, timeout: int = 30, debug: bool = False):
         self.base_url = base_url.rstrip('/')
         self.timeout = timeout
+        self.debug = debug
         self.session = requests.Session()
         self.session.headers.update({
             'Content-Type': ContentTypes.JSON,
@@ -41,6 +42,13 @@ class CartolexAPI:
                       params: Dict = None, data: Dict = None) -> APIResponse:
         """Make HTTP request using shared constants"""
         url = f"{self.base_url}{endpoint}"
+        
+        if self.debug:
+            print(f"[API DEBUG] {method} {url}")
+            if params:
+                print(f"[API DEBUG] Params: {params}")
+            if data:
+                print(f"[API DEBUG] Data: {data}")
 
         try:
             response = self.session.request(
@@ -56,9 +64,18 @@ class CartolexAPI:
                 )
             else:
                 error_data = response.json() if response.content else {}
+                
+                # Enhanced error message with context
+                base_error = error_data.get('error', f'HTTP {response.status_code}')
+                enhanced_error = f"{base_error} (URL: {method} {url})"
+                
+                # Add query params context if they exist
+                if params:
+                    enhanced_error += f" with params: {params}"
+                
                 return APIResponse(
                     success=False,
-                    error=error_data.get('error', f'HTTP {response.status_code}'),
+                    error=enhanced_error,
                     error_code=error_data.get('error_code'),
                     status_code=response.status_code
                 )
