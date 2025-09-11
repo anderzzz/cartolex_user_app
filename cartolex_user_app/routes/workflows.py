@@ -28,34 +28,54 @@ def list_workflows():
 def execute_workflow(workflow_name):
     """Execute workflow (HTMX endpoint)"""
     api = current_app.api_client
+    
+    # Basic validation
+    if not workflow_name or not workflow_name.strip():
+        return render_template('partials/execution_error.html',
+                               error="Invalid workflow name provided")
+    
+    try:
+        # Extract form data
+        parameters = {}
+        execution = {}
+        for key, value in request.form.items():
+            if key.startswith('param_'):
+                param_name = key.replace('param_', '')
+                if param_name and value.strip():  # Only add non-empty parameters
+                    parameters[param_name] = value.strip()
+            elif key.startswith('exec_'):
+                exec_key = key.replace('exec_', '')
+                if exec_key and value.strip():  # Only add non-empty execution options
+                    execution[exec_key] = value.strip()
 
-    # Extract form data
-    parameters = {}
-    execution = {}
-    for key, value in request.form.items():
-        if key.startswith('param_'):
-            parameters[key.replace('param_', '')] = value
-        elif key.startswith('exec_'):
-            execution[key.replace('exec_', '')] = value
+        current_app.logger.info(f"Executing workflow '{workflow_name}' with {len(parameters)} parameters and {len(execution)} execution options")
+        
+        response = api.execute_workflow(workflow_name, parameters, execution)
 
-    response = api.execute_workflow(workflow_name, parameters, execution)
-
-    if response.success:
-        job_id = response.data.get('job_id')
-        return render_template('partials/job_submitted.html',
-                               job_id=job_id, workflow_name=workflow_name)
-    else:
-        # Handle specific error codes using shared constants
-        if response.error_code == ErrorCodes.WORKFLOW_NOT_FOUND:
-            return render_template('partials/workflow_not_found.html',
-                                   workflow_name=workflow_name)
-        elif response.error_code == ErrorCodes.VALIDATION_ERROR:
-            validation_errors = response.data.get('validation_errors', []) if response.data else []
-            return render_template('partials/validation_error.html',
-                                   errors=validation_errors)
+        if response.success:
+            job_id = response.data.get('job_id')
+            current_app.logger.info(f"Workflow '{workflow_name}' launched successfully with job ID: {job_id}")
+            return render_template('partials/job_submitted.html',
+                                   job_id=job_id, workflow_name=workflow_name)
         else:
-            return render_template('partials/execution_error.html',
-                                   error=response.error)
+            current_app.logger.warning(f"Workflow execution failed: {response.error} (code: {response.error_code})")
+            
+            # Handle specific error codes using shared constants
+            if response.error_code == ErrorCodes.WORKFLOW_NOT_FOUND:
+                return render_template('partials/workflow_not_found.html',
+                                       workflow_name=workflow_name)
+            elif response.error_code == ErrorCodes.VALIDATION_ERROR:
+                validation_errors = response.data.get('validation_errors', []) if response.data else []
+                return render_template('partials/validation_error.html',
+                                       errors=validation_errors)
+            else:
+                return render_template('partials/execution_error.html',
+                                       error=response.error)
+                                       
+    except Exception as e:
+        current_app.logger.error(f"Unexpected error executing workflow '{workflow_name}': {str(e)}")
+        return render_template('partials/execution_error.html',
+                               error=f"An unexpected error occurred: {str(e)}")
 
 
 @bp.route('/jobs/<job_id>/status')

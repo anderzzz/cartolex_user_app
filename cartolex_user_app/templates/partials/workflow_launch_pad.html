@@ -15,7 +15,14 @@
               hx-target="#launch-result"
               hx-swap="innerHTML"
               @htmx:before-request="launching = true"
-              @htmx:after-request="launching = false"
+              @htmx:after-request="launching = false; $nextTick(() => {
+                  // Clear launch result after 15 seconds for successful launches
+                  if (!document.querySelector('#launch-result .bg-red-50')) {
+                      setTimeout(() => {
+                          document.getElementById('launch-result').innerHTML = '';
+                      }, 15000);
+                  }
+              })"
               id="launch-pad-form"
               class="space-y-4">
             

@@ -1,5 +1,8 @@
-<!-- Form validation errors -->
-<div class="bg-red-50 border border-red-200 rounded-md p-4">
+<!-- Form Validation Errors -->
+<div class="bg-red-50 border border-red-200 rounded-md p-4 mb-4" 
+     x-data="{ show: true }" 
+     x-show="show" 
+     x-transition>
     <div class="flex">
         <div class="flex-shrink-0">
             <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
@@ -21,6 +24,15 @@
                 {% else %}
                     <p class="mt-1">Invalid form data provided.</p>
                 {% endif %}
+            </div>
+            <div class="mt-4">
+                <div class="-mx-2 -my-1.5 flex">
+                    <button type="button" 
+                            @click="show = false"
+                            class="bg-red-50 px-2 py-1.5 rounded-md text-sm font-medium text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-50 focus:ring-red-600">
+                        Dismiss
+                    </button>
+                </div>
             </div>
         </div>
     </div>

@@ -1,5 +1,8 @@
-<!-- Workflow execution error -->
-<div class="bg-red-50 border border-red-200 rounded-md p-4">
+<!-- Workflow Execution Error -->
+<div class="bg-red-50 border border-red-200 rounded-md p-4 mb-4" 
+     x-data="{ show: true }" 
+     x-show="show" 
+     x-transition>
     <div class="flex">
         <div class="flex-shrink-0">
             <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
@@ -7,16 +10,17 @@
             </svg>
         </div>
         <div class="ml-3">
-            <h3 class="text-sm font-medium text-red-800">Execution Failed</h3>
+            <h3 class="text-sm font-medium text-red-800">Workflow Launch Failed</h3>
             <div class="mt-2 text-sm text-red-700">
-                <p>{{ error or 'An error occurred while executing the workflow.' }}</p>
+                <p><strong>Error:</strong> {{ error or 'An error occurred while launching the workflow.' }}</p>
+                <p class="mt-1">Please check your workflow configuration and try again.</p>
             </div>
             <div class="mt-4">
-                <div class="-mx-2 -my-1.5 flex">
+                <div class="-mx-2 -my-1.5 flex space-x-2">
                     <button type="button" 
-                            onclick="location.reload()" 
+                            @click="show = false"
                             class="bg-red-50 px-2 py-1.5 rounded-md text-sm font-medium text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-50 focus:ring-red-600">
-                        Try Again
+                        Dismiss
                     </button>
                 </div>
             </div>
