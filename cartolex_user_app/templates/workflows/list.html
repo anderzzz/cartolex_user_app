@@ -1,7 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="px-4 py-6 sm:px-0" x-data="{ openConfigs: {} }">
+<div class="px-4 py-6 sm:px-0" x-data="{ 
+    openConfigs: {},
+    init() {
+        // Listen for the close event from the configuration panel
+        window.addEventListener('close-workflow-config', (event) => {
+            const workflowName = event.detail.workflowName;
+            this.openConfigs[workflowName] = false;
+            // Also clear the content
+            const configElement = document.getElementById('workflow-' + workflowName + '-config');
+            if (configElement) {
+                configElement.innerHTML = '';
+            }
+        });
+    }
+}">
     <!-- Header -->
     <div class="border-b esevioz-border-dominant pb-4 mb-6">
         <h2 class="text-2xl font-bold leading-7 esevioz-text">Workflows</h2>
@@ -38,14 +52,14 @@
                                 <!-- Expand/Collapse Button -->
                                 <button type="button" 
                                         @click="if (!openConfigs['{{ workflow.name }}']) {
-                                                  $nextTick(() => {
-                                                    htmx.ajax('GET', '{{ url_for('workflows.get_workflow_config', workflow_name=workflow.name) }}', {
-                                                      target: '#workflow-{{ workflow.name }}-config',
-                                                      swap: 'innerHTML'
-                                                    }).then(() => openConfigs['{{ workflow.name }}'] = true);
+                                                  htmx.ajax('GET', '{{ url_for('workflows.get_workflow_config', workflow_name=workflow.name) }}', {
+                                                    target: '#workflow-{{ workflow.name }}-config',
+                                                    swap: 'innerHTML'
                                                   });
+                                                  openConfigs['{{ workflow.name }}'] = true;
                                                 } else {
                                                   openConfigs['{{ workflow.name }}'] = false;
+                                                  document.getElementById('workflow-{{ workflow.name }}-config').innerHTML = '';
                                                 }"
                                         class="flex items-center px-3 py-1 text-sm font-medium rounded-md esevioz-btn-config"
                                         title="Configure workflow">

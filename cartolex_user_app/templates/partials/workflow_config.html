@@ -12,15 +12,7 @@
                 <p class="text-sm esevioz-text opacity-75">Source: {{ config_source }}</p>
             </div>
             <button type="button" 
-                    @click="
-                        // Find the Alpine.js component that manages openConfigs
-                        let parentComponent = document.querySelector('[x-data*=\"openConfigs\"]');
-                        if (parentComponent && parentComponent._x_dataStack && parentComponent._x_dataStack[0]) {
-                            parentComponent._x_dataStack[0].openConfigs['{{ workflow_name }}'] = false;
-                        }
-                        // Also clear the content as fallback
-                        document.getElementById('workflow-{{ workflow_name }}-config').innerHTML = '';
-                    "
+                    onclick="closeWorkflowConfig('{{ workflow_name }}')"
                     class="text-sm esevioz-text opacity-75 hover:opacity-100">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -113,15 +105,7 @@
         <!-- Action Buttons -->
         <div class="flex justify-end space-x-3 pt-4 border-t esevioz-border-dominant">
             <button type="button" 
-                    @click="
-                        // Find the Alpine.js component that manages openConfigs
-                        let parentComponent = document.querySelector('[x-data*=\"openConfigs\"]');
-                        if (parentComponent && parentComponent._x_dataStack && parentComponent._x_dataStack[0]) {
-                            parentComponent._x_dataStack[0].openConfigs['{{ workflow_name }}'] = false;
-                        }
-                        // Also clear the content as fallback
-                        document.getElementById('workflow-{{ workflow_name }}-config').innerHTML = '';
-                    "
+                    onclick="closeWorkflowConfig('{{ workflow_name }}')"
                     class="px-4 py-2 text-sm font-medium rounded-md esevioz-btn-secondary">
                 Cancel
             </button>
@@ -139,3 +123,19 @@
         <div id="config-save-result-{{ workflow_name }}" class="mt-4"></div>
     </form>
 </div>
+
+<script>
+    // Global function to close workflow configuration
+    window.closeWorkflowConfig = function(workflowName) {
+        // Method 1: Dispatch a custom event that the Alpine component can listen to
+        window.dispatchEvent(new CustomEvent('close-workflow-config', { 
+            detail: { workflowName: workflowName } 
+        }));
+        
+        // Method 2: Fallback - directly clear the content
+        const configElement = document.getElementById('workflow-' + workflowName + '-config');
+        if (configElement) {
+            configElement.innerHTML = '';
+        }
+    };
+</script>
