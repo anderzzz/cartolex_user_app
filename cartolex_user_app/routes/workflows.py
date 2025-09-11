@@ -97,10 +97,17 @@ def list_jobs():
 
     if not response.success:
         flash(f"Error loading jobs: {response.error}", 'error')
-        return render_template('workflows/jobs.html', jobs=[], current_filter=status_filter)
+        jobs_data = []
+    else:
+        jobs_data = response.data.get('jobs', [])
 
+    # Check if this is an HTMX request for partial content
+    if request.headers.get('HX-Request'):
+        return render_template('partials/job_list.html', jobs=jobs_data)
+    
+    # Full page request
     return render_template('workflows/jobs.html',
-                           jobs=response.data.get('jobs', []),
+                           jobs=jobs_data,
                            current_filter=status_filter,
                            all_statuses=JobStatuses.ALL_STATUSES)
 
