@@ -155,12 +155,12 @@ class CartolexAPI:
 
     def get_workflow_config(self, workflow_name: str, config_kind: str = 'configuration directory') -> APIResponse:
         """Get workflow configuration"""
-        endpoint = f"/api/v1/workflows/{workflow_name}/config"
+        endpoint = APIEndpoints.WORKFLOW_CONFIG.format(name=workflow_name)
         params = {'config_kind': config_kind}
         return self._make_request('GET', endpoint, params=params)
 
     def update_workflow_config(self, workflow_name: str, config_data: dict) -> APIResponse:
         """Update workflow configuration"""
-        endpoint = f"/api/v1/workflows/{workflow_name}/config"
+        endpoint = APIEndpoints.WORKFLOW_CONFIG.format(name=workflow_name)
         return self._make_request('PUT', endpoint, data=config_data)
 
