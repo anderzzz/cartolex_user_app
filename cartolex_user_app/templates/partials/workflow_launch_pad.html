@@ -1,5 +1,5 @@
 <!-- Workflow Launch Pad Section -->
-<div class="esevioz-card esevioz-shadow rounded-lg" x-data="{ selectedWorkflow: '', formReady: false, showParams: false, launching: false }">
+<div class="esevioz-card esevioz-shadow rounded-lg" x-data="{ selectedWorkflow: '', formReady: false, launching: false }">
     <div class="px-6 py-4 border-b esevioz-border-dominant">
         <div class="flex items-center">
             <svg class="w-5 h-5 esevioz-text mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -32,7 +32,7 @@
                 <select id="selected-workflow" 
                         name="selected_workflow"
                         x-model="selectedWorkflow"
-                        @change="formReady = !!selectedWorkflow; showParams = !!selectedWorkflow; $nextTick(() => { if (typeof htmx !== 'undefined') htmx.process(document.getElementById('launch-pad-form')); })"
+                        @change="formReady = !!selectedWorkflow; $nextTick(() => { if (typeof htmx !== 'undefined') htmx.process(document.getElementById('launch-pad-form')); })"
                         class="mt-1 block w-full esevioz-input rounded-md shadow-sm sm:text-sm"
                         required>
                     <option value="">Choose a workflow...</option>
@@ -42,19 +42,6 @@
                 </select>
             </div>
 
-            <!-- Dynamic Parameter Section -->
-            <div id="dynamic-parameters" x-show="showParams" x-transition>
-                <h4 class="text-sm font-medium esevioz-text mb-3">Workflow Parameters</h4>
-                <div id="parameter-fields" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="col-span-full" x-show="selectedWorkflow">
-                        <p class="text-sm esevioz-text opacity-75">
-                            Parameters for <span x-text="selectedWorkflow"></span> will be loaded here.
-                            <br>
-                            <em>Note: This will be enhanced to dynamically load actual workflow parameters.</em>
-                        </p>
-                    </div>
-                </div>
-            </div>
             
             <!-- Execution Options -->
             <div>
