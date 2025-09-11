@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="px-4 py-6 sm:px-0">
+<div class="px-4 py-6 sm:px-0" x-data="{ openConfigs: {} }">
     <!-- Header -->
     <div class="border-b esevioz-border-dominant pb-4 mb-6">
         <h2 class="text-2xl font-bold leading-7 esevioz-text">Workflows</h2>
@@ -37,10 +37,16 @@
                                 </div>
                                 <!-- Expand/Collapse Button -->
                                 <button type="button" 
-                                        hx-get="{{ url_for('workflows.get_workflow_config', workflow_name=workflow.name) }}"
-                                        hx-target="#workflow-{{ workflow.name }}-config"
-                                        hx-swap="innerHTML"
-                                        hx-trigger="click"
+                                        @click="if (!openConfigs['{{ workflow.name }}']) {
+                                                  $nextTick(() => {
+                                                    htmx.ajax('GET', '{{ url_for('workflows.get_workflow_config', workflow_name=workflow.name) }}', {
+                                                      target: '#workflow-{{ workflow.name }}-config',
+                                                      swap: 'innerHTML'
+                                                    }).then(() => openConfigs['{{ workflow.name }}'] = true);
+                                                  });
+                                                } else {
+                                                  openConfigs['{{ workflow.name }}'] = false;
+                                                }"
                                         class="flex items-center px-3 py-1 text-sm font-medium rounded-md esevioz-btn-config"
                                         title="Configure workflow">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -52,8 +58,8 @@
                         </div>
                         
                         <!-- Expandable Configuration Area -->
-                        <div id="workflow-{{ workflow.name }}-config">
-                            <!-- Configuration will be loaded here via HTMX -->
+                        <div id="workflow-{{ workflow.name }}-config" x-show="openConfigs['{{ workflow.name }}']" x-collapse>
+                            <!-- Configuration will be loaded here via HTMX when opened -->
                         </div>
                     </div>
                 {% endfor %}
