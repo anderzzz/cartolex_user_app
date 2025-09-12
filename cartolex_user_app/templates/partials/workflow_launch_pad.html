@@ -14,8 +14,18 @@
         <form :hx-post="selectedWorkflow ? `/workflows/${selectedWorkflow}/execute` : ''"
               hx-target="#launch-result"
               hx-swap="innerHTML"
-              @htmx:before-request="launching = true"
-              @htmx:after-request="launching = false; $nextTick(() => {
+              @htmx:before-request="launching = true; console.log('HTMX Request:', {
+                  method: 'POST',
+                  url: selectedWorkflow ? `/workflows/${selectedWorkflow}/execute` : '',
+                  formData: new FormData($event.detail.elt),
+                  timestamp: new Date().toISOString()
+              })"
+              @htmx:after-request="launching = false; console.log('HTMX Response:', {
+                  status: $event.detail.xhr.status,
+                  statusText: $event.detail.xhr.statusText,
+                  responseText: $event.detail.xhr.responseText,
+                  timestamp: new Date().toISOString()
+              }); $nextTick(() => {
                   // Clear launch result after 15 seconds for successful launches
                   if (!document.querySelector('#launch-result .bg-red-50')) {
                       setTimeout(() => {
