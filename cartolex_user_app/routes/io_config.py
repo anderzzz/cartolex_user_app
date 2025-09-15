@@ -95,6 +95,35 @@ def edit_config(endpoint_name, db_type, db_kind):
                                db_kind=db_kind)
 
 
+@bp.route('/<endpoint_name>/<db_type>/<db_kind>/details')
+def view_config_details(endpoint_name, db_type, db_kind):
+    """View detailed configuration information (read-only)"""
+    api = current_app.api_client
+    config_kind = request.args.get('config_kind', ConfigurationKinds.CONFIGURATION_DIRECTORY)
+
+    # Validate config_kind
+    if config_kind not in ConfigurationKinds.IO_SUPPORTED:
+        config_kind = ConfigurationKinds.CONFIGURATION_DIRECTORY
+
+    response = api.get_database_config(endpoint_name, db_type, db_kind, config_kind)
+
+    if not response.success:
+        if response.error_code == ErrorCodes.ENDPOINT_NOT_FOUND:
+            error_message = f"Configuration {endpoint_name}/{db_type}/{db_kind} not found"
+        elif response.error_code == ErrorCodes.CONFIG_HANDLER_ERROR:
+            error_message = "Configuration system unavailable"
+        else:
+            error_message = f"Error loading configuration: {response.error}"
+
+        return render_template('partials/config_error.html', error=error_message)
+
+    return render_template('partials/io_config_details.html',
+                           config=response.data.get('configuration', {}),
+                           endpoint_name=endpoint_name,
+                           db_type=db_type,
+                           db_kind=db_kind)
+
+
 @bp.route('/<endpoint_name>/<db_type>/<db_kind>', methods=['PUT', 'POST'])
 def update_config(endpoint_name, db_type, db_kind):
     """Update database configuration (HTMX endpoint)"""
@@ -140,6 +169,51 @@ def update_config(endpoint_name, db_type, db_kind):
             error_message = response.error
 
         return render_template('partials/config_error.html', error=error_message)
+
+
+@bp.route('/<endpoint_name>/<db_type>/<db_kind>', methods=['DELETE'])
+def delete_config(endpoint_name, db_type, db_kind):
+    """Delete database configuration"""
+    api = current_app.api_client
+
+    try:
+        response = api.delete_database_config(endpoint_name, db_type, db_kind)
+
+        if response.success:
+            from flask import jsonify
+            return jsonify({
+                "success": True,
+                "message": f"Configuration {endpoint_name}/{db_type}/{db_kind} deleted successfully"
+            })
+        else:
+            from flask import jsonify
+            return jsonify({
+                "success": False,
+                "error": response.error,
+                "error_code": response.error_code
+            }), 400
+
+    except Exception as e:
+        # Handle case where backend hasn't implemented DELETE yet
+        from flask import jsonify
+        return jsonify({
+            "success": False,
+            "error": "Delete operation not yet implemented by backend",
+            "message": f"Backend needs to implement DELETE /api/v1/io/configs/{endpoint_name}/{db_type}/{db_kind}",
+            "technical_error": str(e)
+        }), 501
+
+
+@bp.route('/create')
+def create_config():
+    """Create new database configuration (optionally from template)"""
+    template_endpoint = request.args.get('template_endpoint')
+    template_db_type = request.args.get('template_db_type')
+    template_db_kind = request.args.get('template_db_kind')
+
+    # TODO: Backend needs to implement template retrieval and creation UI
+    flash("Create configuration feature will be implemented once backend provides the necessary endpoints", 'info')
+    return redirect(url_for('io_config.index'))
 
 
 @bp.route('/<endpoint_name>/<db_type>/<db_kind>/test', methods=['POST'])

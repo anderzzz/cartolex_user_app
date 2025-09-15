@@ -166,6 +166,19 @@ class CartolexAPI:
         )
         return self._make_request('PUT', endpoint, data=config)
 
+    def delete_database_config(self, endpoint_name: str, db_type: str, db_kind: str) -> APIResponse:
+        """Delete database configuration"""
+        endpoint = APIEndpoints.IO_CONFIG_DETAIL.format(
+            endpoint=endpoint_name, db_type=db_type, db_kind=db_kind
+        )
+        return self._make_request('DELETE', endpoint)
+
+    def get_database_entries_count(self, endpoint_name: str, db_type: str, db_kind: str) -> APIResponse:
+        """Get number of entries in database (future endpoint)"""
+        # TODO: Backend needs to implement this endpoint
+        endpoint = f"/api/v1/io/configs/{endpoint_name}/{db_type}/{db_kind}/count"
+        return self._make_request('GET', endpoint)
+
     def get_embedding_models(self, config_kind: str = None) -> APIResponse:
         """Get embedding model configurations"""
         params = {}
