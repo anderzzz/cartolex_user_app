@@ -1,7 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="px-4 py-6 sm:px-0">
+<div class="px-4 py-6 sm:px-0" x-data="{
+    openConfigs: {},
+    init() {
+        // Listen for the close event from the configuration panel
+        window.addEventListener('close-io-config', (event) => {
+            const configKey = event.detail.configKey;
+            this.openConfigs[configKey] = false;
+            // Also clear the content
+            const configElement = document.getElementById('io-config-' + configKey);
+            if (configElement) {
+                configElement.innerHTML = '';
+            }
+        });
+    }
+}">
     <!-- Header -->
     <div class="border-b esevioz-border-dominant pb-4 mb-6">
         <h2 class="text-2xl font-bold leading-7 esevioz-text">IO Configuration</h2>
@@ -14,7 +28,7 @@
     {% if supported_kinds %}
         <div class="mb-6">
             <label class="text-sm font-medium esevioz-text">Configuration Source:</label>
-            <select id="config-kind-filter" 
+            <select id="config-kind-filter"
                     onchange="window.location.href = '{{ url_for('io_config.index') }}?config_kind=' + this.value"
                     class="ml-2 esevioz-input rounded-md shadow-sm text-sm">
                 {% for kind in supported_kinds %}
@@ -28,67 +42,134 @@
 
     <!-- Database Configurations -->
     {% if configs %}
-        <div class="grid grid-cols-1 gap-6">
-            {% set current_endpoint = None %}
-            {% for config in configs %}
-                {% if config.endpoint_name != current_endpoint %}
-                    {% set current_endpoint = config.endpoint_name %}
-                    <div class="esevioz-card esevioz-shadow rounded-lg">
-                        <div class="px-6 py-4 border-b esevioz-border-dominant">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <h3 class="text-lg font-medium esevioz-text">{{ config.endpoint_name }}</h3>
-                                    <p class="text-sm esevioz-text opacity-75">Database endpoint configuration</p>
+        <!-- Group configurations by endpoint -->
+        {% set endpoints_dict = {} %}
+        {% for config in configs %}
+            {% if config.endpoint_name not in endpoints_dict %}
+                {% set _ = endpoints_dict.update({config.endpoint_name: []}) %}
+            {% endif %}
+            {% set _ = endpoints_dict[config.endpoint_name].append(config) %}
+        {% endfor %}
+
+        <div class="grid gap-6">
+            {% for endpoint_name, endpoint_configs in endpoints_dict.items() %}
+                <div class="esevioz-card esevioz-shadow rounded-lg">
+                    <!-- Endpoint Header -->
+                    <div class="px-6 py-4 border-b esevioz-border-dominant">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-medium esevioz-text">{{ endpoint_name }}</h3>
+                                <p class="mt-1 text-sm esevioz-text opacity-75">
+                                    {{ endpoint_configs|length }} database {{ 'configuration' if endpoint_configs|length == 1 else 'configurations' }}
+                                </p>
+                                <div class="mt-2 flex items-center space-x-4 text-xs esevioz-text opacity-60">
+                                    <!-- Show database types in this endpoint -->
+                                    {% set db_types = endpoint_configs | map(attribute='db_type') | list | unique %}
+                                    <span>Types: {{ db_types | join(', ') }}</span>
                                 </div>
-                                <a href="{{ url_for('io_config.list_endpoint_configs', endpoint_name=config.endpoint_name, config_kind=config_kind) }}" 
-                                   class="esevioz-highlight hover:opacity-75 text-sm font-medium transition-opacity">
-                                    View All →
-                                </a>
                             </div>
+                            <!-- Expand/Collapse Button -->
+                            <button type="button"
+                                    @click="if (!openConfigs['{{ endpoint_name }}']) {
+                                              openConfigs['{{ endpoint_name }}'] = true;
+                                            } else {
+                                              openConfigs['{{ endpoint_name }}'] = false;
+                                            }"
+                                    class="flex items-center px-3 py-1 text-sm font-medium rounded-md esevioz-btn-config"
+                                    title="Show database configurations">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21 3.582 4 8 4s8-1.79 8-4V7m0 0c0 2.21 3.582 4 8 4s8-1.79 8-4V7m0 0c0-2.21 3.582-4 8-4s8 1.79 8 4v5M28 7h8"></path>
+                                </svg>
+                                <span x-text="openConfigs['{{ endpoint_name }}'] ? 'Hide' : 'Show'">Show</span>
+                            </button>
                         </div>
-                        
+                    </div>
+
+                    <!-- Expandable Configuration Grid -->
+                    <div x-show="openConfigs['{{ endpoint_name }}']" x-collapse>
                         <div class="px-6 py-4">
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {% endif %}
-                
-                <div class="border esevioz-border rounded-lg p-4">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center">
-                            <div class="w-8 h-8 esevioz-dominant-bg rounded-full flex items-center justify-center mr-3">
-                                <span class="esevioz-bg font-medium text-xs">
-                                    {{ config.db_type[:2].upper() }}
-                                </span>
-                            </div>
-                            <div>
-                                <h4 class="text-sm font-medium esevioz-text">{{ config.db_type }} / {{ config.db_kind }}</h4>
-                                <p class="text-xs esevioz-text opacity-75">{{ config.db_kind.title() }} Database</p>
+                                {% for config in endpoint_configs %}
+                                    {% set config_key = endpoint_name + '-' + config.db_type + '-' + config.db_kind %}
+                                    <div class="esevioz-db-card rounded-lg p-4">
+                                        <div class="flex items-center justify-between mb-3">
+                                            <div class="flex items-center">
+                                                <!-- Database Type Icon -->
+                                                <div class="w-8 h-8 esevioz-dominant-bg rounded-full flex items-center justify-center mr-3">
+                                                    {% if config.db_type == 'text' %}
+                                                        <svg class="w-4 h-4 esevioz-bg" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 2v2h8V6H6zm0 4v2h8v-2H6zm0 4v2h5v-2H6z"/>
+                                                        </svg>
+                                                    {% elif config.db_type == 'vector' %}
+                                                        <svg class="w-4 h-4 esevioz-bg" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                                                        </svg>
+                                                    {% elif config.db_type == 'token' %}
+                                                        <svg class="w-4 h-4 esevioz-bg" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                                                        </svg>
+                                                    {% else %}
+                                                        <span class="esevioz-bg font-medium text-xs">
+                                                            {{ config.db_type[:2].upper() }}
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                                <div>
+                                                    <h4 class="text-sm font-medium esevioz-text">{{ config.db_type | title }} Database</h4>
+                                                    <div class="flex items-center space-x-1 mt-1">
+                                                        <span class="esevioz-db-badge esevioz-db-badge-{{ config.db_type }}">{{ config.db_type }}</span>
+                                                        <span class="esevioz-db-badge esevioz-db-kind-{{ config.db_kind }}">{{ config.db_kind }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Connection Preview -->
+                                        {% if config.configuration %}
+                                            <div class="text-xs esevioz-text opacity-75 mb-3">
+                                                {% if config.configuration.host %}
+                                                    <div>Host: {{ config.configuration.host }}</div>
+                                                {% endif %}
+                                                {% if config.configuration.database %}
+                                                    <div>DB: {{ config.configuration.database }}</div>
+                                                {% elif config.configuration.collection %}
+                                                    <div>Collection: {{ config.configuration.collection }}</div>
+                                                {% endif %}
+                                                {% if config.configuration.port %}
+                                                    <div>Port: {{ config.configuration.port }}</div>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+
+                                        <!-- Configure Button -->
+                                        <button type="button"
+                                                @click="if (!openConfigs['config-{{ config_key }}']) {
+                                                          htmx.ajax('GET', '{{ url_for('io_config.edit_config', endpoint_name=config.endpoint_name, db_type=config.db_type, db_kind=config.db_kind, config_kind=config_kind) }}', {
+                                                            target: '#io-config-{{ config_key }}',
+                                                            swap: 'innerHTML'
+                                                          });
+                                                          openConfigs['config-{{ config_key }}'] = true;
+                                                        } else {
+                                                          openConfigs['config-{{ config_key }}'] = false;
+                                                          document.getElementById('io-config-{{ config_key }}').innerHTML = '';
+                                                        }"
+                                                class="esevioz-btn-config-db">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+                                            </svg>
+                                            <span x-text="openConfigs['config-{{ config_key }}'] ? 'Close' : 'Configure'">Configure</span>
+                                        </button>
+
+                                        <!-- Configuration Panel -->
+                                        <div id="io-config-{{ config_key }}" x-show="openConfigs['config-{{ config_key }}']" x-collapse class="mt-4">
+                                            <!-- Configuration form will be loaded here via HTMX -->
+                                        </div>
+                                    </div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
-                    
-                    {% if config.connection_details %}
-                        <div class="text-xs esevioz-text opacity-75 mb-3">
-                            {% if config.connection_details.host %}
-                                <div>Host: {{ config.connection_details.host }}</div>
-                            {% endif %}
-                            {% if config.connection_details.database %}
-                                <div>DB: {{ config.connection_details.database }}</div>
-                            {% endif %}
-                        </div>
-                    {% endif %}
-                    
-                    <a href="{{ url_for('io_config.edit_config', endpoint_name=config.endpoint_name, db_type=config.db_type, db_kind=config.db_kind, config_kind=config_kind) }}" 
-                       class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded esevioz-highlight esevioz-bg hover:opacity-75 transition-opacity">
-                        Configure
-                    </a>
                 </div>
-                
-                <!-- Close endpoint grouping after processing all configs for this endpoint -->
-                {% if loop.nextitem is not defined or loop.nextitem.endpoint_name != current_endpoint %}
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
             {% endfor %}
         </div>
     {% else %}
@@ -116,7 +197,20 @@
                 <h3 class="text-sm font-medium esevioz-highlight">Configuration Hierarchy</h3>
                 <div class="mt-2 text-sm esevioz-text">
                     <p>Database configurations are organized by: <strong>Endpoint</strong> → <strong>Database Type</strong> → <strong>Database Kind</strong></p>
-                    <p class="mt-1">Each configuration includes connection details, authentication, and performance settings.</p>
+                    <div class="mt-2 flex items-center space-x-4 text-xs">
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-blue-500 rounded-full mr-1"></div>
+                            <span>Text databases store document content</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-green-500 rounded-full mr-1"></div>
+                            <span>Vector databases store embeddings</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-purple-500 rounded-full mr-1"></div>
+                            <span>Token databases store authentication</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

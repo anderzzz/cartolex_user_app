@@ -79,11 +79,20 @@ def edit_config(endpoint_name, db_type, db_kind):
             flash(f"Error loading configuration: {response.error}", 'error')
         return redirect(url_for('io_config.index'))
 
-    return render_template('io/edit.html',
-                           config=response.data,
-                           endpoint_name=endpoint_name,
-                           db_type=db_type,
-                           db_kind=db_kind)
+    # Check if this is an HTMX request for the panel
+    if request.headers.get('HX-Request'):
+        return render_template('partials/io_config_panel.html',
+                               config=response.data.get('configuration', {}),
+                               endpoint_name=endpoint_name,
+                               db_type=db_type,
+                               db_kind=db_kind)
+    else:
+        # Full page request (for direct URL access)
+        return render_template('io/edit.html',
+                               config=response.data,
+                               endpoint_name=endpoint_name,
+                               db_type=db_type,
+                               db_kind=db_kind)
 
 
 @bp.route('/<endpoint_name>/<db_type>/<db_kind>', methods=['PUT', 'POST'])

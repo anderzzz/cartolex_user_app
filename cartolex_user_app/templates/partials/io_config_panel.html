@@ -1,0 +1,231 @@
+<!-- IO Configuration Panel - Loaded via HTMX -->
+<div class="border-t esevioz-border-dominant mt-4 pt-4" x-data="{ saving: false }">
+    <form hx-put="{{ url_for('io_config.update_config', endpoint_name=endpoint_name, db_type=db_type, db_kind=db_kind) }}"
+          hx-target="#config-save-result-{{ endpoint_name }}-{{ db_type }}-{{ db_kind }}"
+          hx-swap="innerHTML"
+          @htmx:before-request="saving = true"
+          @htmx:after-request="saving = false"
+          class="space-y-4">
+
+        <!-- Configuration Header -->
+        <div class="flex items-center justify-between">
+            <div>
+                <h4 class="text-lg font-medium esevioz-text">{{ db_type | title }} Database Configuration</h4>
+                <p class="text-sm esevioz-text opacity-75">{{ endpoint_name }} → {{ db_type }} → {{ db_kind }}</p>
+            </div>
+            <button type="button"
+                    onclick="closeIOConfig('{{ endpoint_name }}-{{ db_type }}-{{ db_kind }}')"
+                    class="text-sm esevioz-text opacity-75 hover:opacity-100"
+                    title="Close configuration">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Connection Settings -->
+        {% if config %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Host -->
+            {% if 'host' in config %}
+            <div>
+                <label for="config_host" class="block text-sm font-medium esevioz-text mb-2">
+                    Host
+                </label>
+                <input type="text"
+                       id="config_host"
+                       name="config_host"
+                       value="{{ config.host or '' }}"
+                       placeholder="localhost"
+                       class="block w-full esevioz-input rounded-md shadow-sm sm:text-sm">
+            </div>
+            {% endif %}
+
+            <!-- Port -->
+            {% if 'port' in config %}
+            <div>
+                <label for="config_port" class="block text-sm font-medium esevioz-text mb-2">
+                    Port
+                </label>
+                <input type="number"
+                       id="config_port"
+                       name="config_port"
+                       value="{{ config.port or '' }}"
+                       placeholder="27017"
+                       class="block w-full esevioz-input rounded-md shadow-sm sm:text-sm">
+            </div>
+            {% endif %}
+
+            <!-- Database Name -->
+            {% if 'database' in config %}
+            <div>
+                <label for="config_database" class="block text-sm font-medium esevioz-text mb-2">
+                    Database Name
+                </label>
+                <input type="text"
+                       id="config_database"
+                       name="config_database"
+                       value="{{ config.database or '' }}"
+                       placeholder="cartolex"
+                       class="block w-full esevioz-input rounded-md shadow-sm sm:text-sm">
+            </div>
+            {% endif %}
+
+            <!-- Collection (for vector/document stores) -->
+            {% if 'collection' in config %}
+            <div>
+                <label for="config_collection" class="block text-sm font-medium esevioz-text mb-2">
+                    Collection Name
+                </label>
+                <input type="text"
+                       id="config_collection"
+                       name="config_collection"
+                       value="{{ config.collection or '' }}"
+                       placeholder="documents"
+                       class="block w-full esevioz-input rounded-md shadow-sm sm:text-sm">
+            </div>
+            {% endif %}
+
+            <!-- Username -->
+            {% if 'username' in config %}
+            <div>
+                <label for="config_username" class="block text-sm font-medium esevioz-text mb-2">
+                    Username
+                </label>
+                <input type="text"
+                       id="config_username"
+                       name="config_username"
+                       value="{{ config.username or '' }}"
+                       placeholder="admin"
+                       class="block w-full esevioz-input rounded-md shadow-sm sm:text-sm">
+            </div>
+            {% endif %}
+
+            <!-- Password -->
+            {% if 'password' in config %}
+            <div>
+                <label for="config_password" class="block text-sm font-medium esevioz-text mb-2">
+                    Password
+                </label>
+                <input type="password"
+                       id="config_password"
+                       name="config_password"
+                       value="{{ config.password or '' }}"
+                       placeholder="••••••••"
+                       class="block w-full esevioz-input rounded-md shadow-sm sm:text-sm">
+            </div>
+            {% endif %}
+
+            <!-- SSL -->
+            {% if 'ssl' in config %}
+            <div class="flex items-center">
+                <input type="checkbox"
+                       id="config_ssl"
+                       name="config_ssl"
+                       value="true"
+                       {% if config.ssl %}checked{% endif %}
+                       class="h-4 w-4 esevioz-highlight focus:ring-2 focus:ring-offset-2 focus:ring-esevioz-highlight rounded">
+                <label for="config_ssl" class="ml-2 block text-sm esevioz-text">
+                    Enable SSL/TLS
+                </label>
+            </div>
+            {% endif %}
+
+            <!-- Timeout -->
+            {% if 'timeout' in config %}
+            <div>
+                <label for="config_timeout" class="block text-sm font-medium esevioz-text mb-2">
+                    Connection Timeout (seconds)
+                </label>
+                <input type="number"
+                       id="config_timeout"
+                       name="config_timeout"
+                       value="{{ config.timeout or '' }}"
+                       placeholder="30"
+                       min="1"
+                       max="300"
+                       class="block w-full esevioz-input rounded-md shadow-sm sm:text-sm">
+            </div>
+            {% endif %}
+
+            <!-- Vector Database Specific Fields -->
+            {% if db_type == 'vector' %}
+                <!-- Vector Size -->
+                {% if 'vector_size' in config %}
+                <div>
+                    <label for="config_vector_size" class="block text-sm font-medium esevioz-text mb-2">
+                        Vector Dimensions
+                    </label>
+                    <input type="number"
+                           id="config_vector_size"
+                           name="config_vector_size"
+                           value="{{ config.vector_size or '' }}"
+                           placeholder="1536"
+                           min="1"
+                           class="block w-full esevioz-input rounded-md shadow-sm sm:text-sm">
+                </div>
+                {% endif %}
+
+                <!-- Distance Metric -->
+                {% if 'distance' in config %}
+                <div>
+                    <label for="config_distance" class="block text-sm font-medium esevioz-text mb-2">
+                        Distance Metric
+                    </label>
+                    <select id="config_distance"
+                            name="config_distance"
+                            class="block w-full esevioz-input rounded-md shadow-sm sm:text-sm">
+                        <option value="cosine" {% if config.distance == 'cosine' %}selected{% endif %}>Cosine</option>
+                        <option value="euclidean" {% if config.distance == 'euclidean' %}selected{% endif %}>Euclidean</option>
+                        <option value="dot" {% if config.distance == 'dot' %}selected{% endif %}>Dot Product</option>
+                    </select>
+                </div>
+                {% endif %}
+            {% endif %}
+
+            <!-- Additional fields for other database types can be added here -->
+        </div>
+        {% else %}
+            <!-- No configuration data available -->
+            <div class="text-center py-8">
+                <svg class="mx-auto h-8 w-8 esevioz-text opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <p class="mt-2 text-sm esevioz-text opacity-75">No configuration available for this database</p>
+            </div>
+        {% endif %}
+
+        <!-- Action Buttons -->
+        <div class="flex justify-end space-x-3 pt-4 border-t esevioz-border-dominant">
+            <button type="button"
+                    onclick="closeIOConfig('{{ endpoint_name }}-{{ db_type }}-{{ db_kind }}')"
+                    class="px-4 py-2 text-sm font-medium rounded-md esevioz-btn-secondary">
+                Cancel
+            </button>
+            {% if config %}
+            <button type="submit"
+                    :disabled="saving"
+                    class="px-4 py-2 text-sm font-medium rounded-md esevioz-btn-primary disabled:opacity-50">
+                <svg x-show="saving" class="animate-spin -ml-1 mr-2 h-4 w-4 text-current" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span x-text="saving ? 'Saving...' : 'Save Configuration'">Save Configuration</span>
+            </button>
+            {% endif %}
+        </div>
+
+        <!-- Save Result Area -->
+        <div id="config-save-result-{{ endpoint_name }}-{{ db_type }}-{{ db_kind }}" class="mt-4"></div>
+    </form>
+</div>
+
+<script>
+    // Global function to close IO configuration panel
+    window.closeIOConfig = function(configKey) {
+        // Dispatch custom event that the Alpine component can listen to
+        window.dispatchEvent(new CustomEvent('close-io-config', {
+            detail: { configKey: configKey }
+        }));
+    };
+</script>
