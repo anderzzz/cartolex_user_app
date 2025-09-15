@@ -57,13 +57,13 @@
                                     </div>
                                 </div>
                                 <div class="flex items-center space-x-2">
-                                    <button hx-post="{{ url_for('io_config.test_connection', endpoint_name=config.endpoint, db_type=config.db_type, db_kind=config.db_kind) }}"
+                                    <button hx-post="{{ url_for('io_config.test_connection', endpoint_name=config.endpoint_name, db_type=config.db_type, db_kind=config.db_kind) }}"
                                             hx-target="#test-result-{{ loop.index }}"
                                             hx-swap="innerHTML"
                                             class="text-gray-600 hover:text-gray-900 text-sm font-medium">
                                         Test
                                     </button>
-                                    <a href="{{ url_for('io_config.edit_config', endpoint_name=config.endpoint, db_type=config.db_type, db_kind=config.db_kind) }}" 
+                                    <a href="{{ url_for('io_config.edit_config', endpoint_name=config.endpoint_name, db_type=config.db_type, db_kind=config.db_kind) }}" 
                                        class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
                                         Configure
                                     </a>

@@ -15,7 +15,7 @@ class TestIOConfigRoutes(BaseRouteTestCase):
         self.mock_config_data = {
             'configurations': [
                 {
-                    'endpoint': 'standard_rawtext_local_config',
+                    'endpoint_name': 'standard_rawtext_local_config',
                     'db_type': 'mongo',
                     'db_kind': 'local',
                     'config': {
@@ -26,7 +26,7 @@ class TestIOConfigRoutes(BaseRouteTestCase):
                     }
                 },
                 {
-                    'endpoint': 'vector_store_config', 
+                    'endpoint_name': 'vector_store_config', 
                     'db_type': 'qdrant',
                     'db_kind': 'cloud',
                     'config': {
@@ -173,7 +173,7 @@ class TestIOConfigRoutes(BaseRouteTestCase):
         """Test successful database configuration edit page"""
         def setup_mock():
             config_data = {
-                'endpoint': 'test_endpoint',
+                'endpoint_name': 'test_endpoint',
                 'db_type': 'mongo',
                 'db_kind': 'local',
                 'config': {
@@ -242,7 +242,7 @@ class TestIOConfigRoutes(BaseRouteTestCase):
         def setup_mock():
             update_response = {
                 'message': 'Database configuration updated successfully',
-                'endpoint': 'test_endpoint',
+                'endpoint_name': 'test_endpoint',
                 'db_type': 'mongo',
                 'db_kind': 'local'
             }

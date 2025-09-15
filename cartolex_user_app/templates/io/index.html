@@ -31,16 +31,16 @@
         <div class="grid grid-cols-1 gap-6">
             {% set current_endpoint = None %}
             {% for config in configs %}
-                {% if config.endpoint != current_endpoint %}
-                    {% set current_endpoint = config.endpoint %}
+                {% if config.endpoint_name != current_endpoint %}
+                    {% set current_endpoint = config.endpoint_name %}
                     <div class="esevioz-card esevioz-shadow rounded-lg">
                         <div class="px-6 py-4 border-b esevioz-border-dominant">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <h3 class="text-lg font-medium esevioz-text">{{ config.endpoint }}</h3>
+                                    <h3 class="text-lg font-medium esevioz-text">{{ config.endpoint_name }}</h3>
                                     <p class="text-sm esevioz-text opacity-75">Database endpoint configuration</p>
                                 </div>
-                                <a href="{{ url_for('io_config.list_endpoint_configs', endpoint_name=config.endpoint) }}" 
+                                <a href="{{ url_for('io_config.list_endpoint_configs', endpoint_name=config.endpoint_name) }}" 
                                    class="esevioz-highlight hover:opacity-75 text-sm font-medium transition-opacity">
                                     View All →
                                 </a>
@@ -77,14 +77,14 @@
                         </div>
                     {% endif %}
                     
-                    <a href="{{ url_for('io_config.edit_config', endpoint_name=config.endpoint, db_type=config.db_type, db_kind=config.db_kind) }}" 
+                    <a href="{{ url_for('io_config.edit_config', endpoint_name=config.endpoint_name, db_type=config.db_type, db_kind=config.db_kind) }}" 
                        class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded esevioz-highlight esevioz-bg hover:opacity-75 transition-opacity">
                         Configure
                     </a>
                 </div>
                 
                 <!-- Close endpoint grouping after processing all configs for this endpoint -->
-                {% if loop.nextitem is not defined or loop.nextitem.endpoint != current_endpoint %}
+                {% if loop.nextitem is not defined or loop.nextitem.endpoint_name != current_endpoint %}
                             </div>
                         </div>
                     </div>
