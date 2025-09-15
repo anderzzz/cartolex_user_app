@@ -55,10 +55,11 @@
                         <label for="launcher_param_{{ param_name }}" class="block text-sm font-medium esevioz-text">
                             {{ param_name.replace('_', ' ').title() }}
                         </label>
-                        <input type="text" 
+                        <input type="text"
                                id="launcher_param_{{ param_name }}"
                                name="launcher_param_{{ param_name }}"
-                               value="{{ param_value }}"
+                               value="{{ param_value | to_form_value }}"
+                               placeholder="{% if param_value is iterable and param_value is not string %}JSON format: arrays like [&quot;item1&quot;,&quot;item2&quot;], objects like {&quot;key&quot;:&quot;value&quot;}{% endif %}"
                                class="mt-1 block w-full esevioz-input rounded-md shadow-sm sm:text-sm">
                     </div>
                     {% endfor %}
@@ -91,10 +92,11 @@
                         <label for="lander_param_{{ param_name }}" class="block text-sm font-medium esevioz-text">
                             {{ param_name.replace('_', ' ').title() }}
                         </label>
-                        <input type="text" 
+                        <input type="text"
                                id="lander_param_{{ param_name }}"
                                name="lander_param_{{ param_name }}"
-                               value="{{ param_value }}"
+                               value="{{ param_value | to_form_value }}"
+                               placeholder="{% if param_value is iterable and param_value is not string %}JSON format: arrays like [&quot;item1&quot;,&quot;item2&quot;], objects like {&quot;key&quot;:&quot;value&quot;}{% endif %}"
                                class="mt-1 block w-full esevioz-input rounded-md shadow-sm sm:text-sm">
                     </div>
                     {% endfor %}
@@ -131,14 +133,46 @@
     // Global function to close workflow configuration
     window.closeWorkflowConfig = function(workflowName) {
         // Method 1: Dispatch a custom event that the Alpine component can listen to
-        window.dispatchEvent(new CustomEvent('close-workflow-config', { 
-            detail: { workflowName: workflowName } 
+        window.dispatchEvent(new CustomEvent('close-workflow-config', {
+            detail: { workflowName: workflowName }
         }));
-        
+
         // Method 2: Fallback - directly clear the content
         const configElement = document.getElementById('workflow-' + workflowName + '-config');
         if (configElement) {
             configElement.innerHTML = '';
         }
     };
+
+    // JSON validation helper for parameter inputs
+    function validateJSONInput(input) {
+        const value = input.value.trim();
+
+        // Skip validation for empty values or simple strings not starting with [ or {
+        if (!value || (!value.startsWith('[') && !value.startsWith('{'))) {
+            input.classList.remove('border-red-500', 'border-green-500');
+            return;
+        }
+
+        try {
+            JSON.parse(value);
+            // Valid JSON - show green border
+            input.classList.remove('border-red-500');
+            input.classList.add('border-green-500');
+        } catch (e) {
+            // Invalid JSON - show red border
+            input.classList.remove('border-green-500');
+            input.classList.add('border-red-500');
+        }
+    }
+
+    // Add event listeners when the config panel loads
+    document.addEventListener('DOMContentLoaded', function() {
+        // Find all parameter inputs and add validation
+        const paramInputs = document.querySelectorAll('input[name^="launcher_param_"], input[name^="lander_param_"]');
+        paramInputs.forEach(input => {
+            input.addEventListener('input', () => validateJSONInput(input));
+            input.addEventListener('blur', () => validateJSONInput(input));
+        });
+    });
 </script>

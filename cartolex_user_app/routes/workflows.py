@@ -1,9 +1,43 @@
 """Workflow routes using shared constants"""
 
+import json
 from flask import Blueprint, render_template, request, current_app, flash, redirect, url_for
 from cartolex_endpoint_server.constants import ErrorCodes, JobStatuses
 
 bp = Blueprint('workflows', __name__)
+
+
+def _infer_and_parse_value(value_str: str):
+    """
+    Intelligently parse form values to preserve JSON types.
+
+    Attempts to parse strings that look like JSON arrays/objects back to their
+    original types. Falls back to string for invalid JSON or simple strings.
+
+    Args:
+        value_str: String value from form data
+
+    Returns:
+        Parsed value (list, dict, or original string)
+    """
+    if not value_str or not isinstance(value_str, str):
+        return value_str
+
+    # Remove leading/trailing whitespace
+    cleaned = value_str.strip()
+
+    # Check if it looks like JSON (starts with [ or {)
+    if cleaned.startswith(('[', '{')):
+        try:
+            parsed = json.loads(cleaned)
+            current_app.logger.debug(f"Successfully parsed JSON value: {cleaned} -> {type(parsed)}")
+            return parsed
+        except json.JSONDecodeError:
+            current_app.logger.debug(f"Failed to parse as JSON, keeping as string: {cleaned}")
+            return value_str
+
+    # For simple strings, return as-is
+    return value_str
 
 
 @bp.route('/')
@@ -164,12 +198,16 @@ def update_workflow_config(workflow_name):
             param_name = key.replace('launcher_param_', '')
             if 'workflow_launcher' not in config_data:
                 config_data['workflow_launcher'] = {'launcher_params': {}}
-            config_data['workflow_launcher']['launcher_params'][param_name] = value
+            # Apply type inference to preserve JSON types (arrays, objects)
+            parsed_value = _infer_and_parse_value(value)
+            config_data['workflow_launcher']['launcher_params'][param_name] = parsed_value
         elif key.startswith('lander_param_'):
             param_name = key.replace('lander_param_', '')
             if 'workflow_lander' not in config_data:
                 config_data['workflow_lander'] = {'lander_params': {}}
-            config_data['workflow_lander']['lander_params'][param_name] = value
+            # Apply type inference to preserve JSON types (arrays, objects)
+            parsed_value = _infer_and_parse_value(value)
+            config_data['workflow_lander']['lander_params'][param_name] = parsed_value
     
     response = api.update_workflow_config(workflow_name, config_data)
     

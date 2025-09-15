@@ -1,5 +1,6 @@
 """Custom Jinja filters using shared constants"""
 
+import json
 from cartolex_endpoint_server.constants import JobStatuses
 
 
@@ -27,3 +28,15 @@ def register_filters(app):
     def is_active_filter(status):
         """Check if job status is active"""
         return JobStatuses.is_active(status)
+
+    @app.template_filter('to_form_value')
+    def to_form_value(value):
+        """
+        Convert parameter values to form-safe strings.
+
+        Arrays and objects are serialized to JSON, strings remain as-is.
+        This ensures type information is preserved in HTML forms.
+        """
+        if isinstance(value, (list, dict)):
+            return json.dumps(value, separators=(',', ':'))
+        return str(value) if value is not None else ''
