@@ -40,7 +40,7 @@
                                     <h3 class="text-lg font-medium esevioz-text">{{ config.endpoint_name }}</h3>
                                     <p class="text-sm esevioz-text opacity-75">Database endpoint configuration</p>
                                 </div>
-                                <a href="{{ url_for('io_config.list_endpoint_configs', endpoint_name=config.endpoint_name) }}" 
+                                <a href="{{ url_for('io_config.list_endpoint_configs', endpoint_name=config.endpoint_name, config_kind=config_kind) }}" 
                                    class="esevioz-highlight hover:opacity-75 text-sm font-medium transition-opacity">
                                     View All →
                                 </a>
@@ -77,7 +77,7 @@
                         </div>
                     {% endif %}
                     
-                    <a href="{{ url_for('io_config.edit_config', endpoint_name=config.endpoint_name, db_type=config.db_type, db_kind=config.db_kind) }}" 
+                    <a href="{{ url_for('io_config.edit_config', endpoint_name=config.endpoint_name, db_type=config.db_type, db_kind=config.db_kind, config_kind=config_kind) }}" 
                        class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded esevioz-highlight esevioz-bg hover:opacity-75 transition-opacity">
                         Configure
                     </a>

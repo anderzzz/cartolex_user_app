@@ -36,6 +36,12 @@ def index():
 def list_endpoint_configs(endpoint_name):
     """List all configurations for a specific endpoint"""
     api = current_app.api_client
+    config_kind = request.args.get('config_kind', ConfigurationKinds.CONFIGURATION_DIRECTORY)
+
+    # Validate config_kind
+    if config_kind not in ConfigurationKinds.IO_SUPPORTED:
+        config_kind = ConfigurationKinds.CONFIGURATION_DIRECTORY
+
     response = api.get_endpoint_configs(endpoint_name)
 
     if not response.success:
@@ -48,14 +54,21 @@ def list_endpoint_configs(endpoint_name):
     configs = response.data.get('configurations', []) if response.success else []
     return render_template('io/endpoint_configs.html',
                            endpoint_name=endpoint_name,
-                           configs=configs)
+                           configs=configs,
+                           config_kind=config_kind)
 
 
 @bp.route('/<endpoint_name>/<db_type>/<db_kind>')
 def edit_config(endpoint_name, db_type, db_kind):
     """Edit specific database configuration"""
     api = current_app.api_client
-    response = api.get_database_config(endpoint_name, db_type, db_kind)
+    config_kind = request.args.get('config_kind', ConfigurationKinds.CONFIGURATION_DIRECTORY)
+
+    # Validate config_kind
+    if config_kind not in ConfigurationKinds.IO_SUPPORTED:
+        config_kind = ConfigurationKinds.CONFIGURATION_DIRECTORY
+
+    response = api.get_database_config(endpoint_name, db_type, db_kind, config_kind)
 
     if not response.success:
         if response.error_code == ErrorCodes.ENDPOINT_NOT_FOUND:

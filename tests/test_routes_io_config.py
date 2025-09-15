@@ -193,7 +193,7 @@ class TestIOConfigRoutes(BaseRouteTestCase):
         self.assertIn(b'localhost', response.data)
         self.assertIn(b'test_db', response.data)
         
-        self.mock_api.get_database_config.assert_called_once_with('test_endpoint', 'mongo', 'local')
+        self.mock_api.get_database_config.assert_called_once_with('test_endpoint', 'mongo', 'local', 'configuration directory')
 
     def test_edit_config_not_found(self):
         """Test database configuration edit for non-existent config"""

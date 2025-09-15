@@ -148,12 +148,15 @@ class CartolexAPI:
         endpoint = APIEndpoints.IO_CONFIGS_BY_ENDPOINT.format(endpoint=endpoint_name)
         return self._make_request('GET', endpoint)
 
-    def get_database_config(self, endpoint_name: str, db_type: str, db_kind: str) -> APIResponse:
+    def get_database_config(self, endpoint_name: str, db_type: str, db_kind: str, config_kind: str = None) -> APIResponse:
         """Get specific database configuration"""
         endpoint = APIEndpoints.IO_CONFIG_DETAIL.format(
             endpoint=endpoint_name, db_type=db_type, db_kind=db_kind
         )
-        return self._make_request('GET', endpoint)
+        params = {}
+        if config_kind:
+            params['config_kind'] = config_kind
+        return self._make_request('GET', endpoint, params=params)
 
     def update_database_config(self, endpoint_name: str, db_type: str,
                                db_kind: str, config: dict) -> APIResponse:
@@ -180,4 +183,3 @@ class CartolexAPI:
         """Update workflow configuration"""
         endpoint = APIEndpoints.WORKFLOW_CONFIG.format(name=workflow_name)
         return self._make_request('PUT', endpoint, data=config_data)
-
