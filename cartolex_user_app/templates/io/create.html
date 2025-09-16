@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="px-4 py-6 sm:px-0">
+    <!-- Header -->
+    <div class="border-b esevioz-border-dominant pb-4 mb-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-bold leading-7 esevioz-text">Create Database Configuration</h2>
+                <p class="mt-2 text-sm esevioz-text opacity-75">
+                    Based on template: {{ template_endpoint }} → {{ template_db_type }} → {{ template_db_kind }}
+                </p>
+            </div>
+            <a href="{{ url_for('io_config.index') }}"
+               class="esevioz-btn-secondary px-4 py-2 text-sm font-medium rounded-md">
+                ← Back to IO Configuration
+            </a>
+        </div>
+    </div>
+
+    <!-- Template Information -->
+    {% if template_data %}
+    <div class="esevioz-card esevioz-shadow rounded-lg mb-6">
+        <div class="px-6 py-4 border-b esevioz-border-dominant">
+            <h3 class="text-lg font-medium esevioz-text">Template Preview</h3>
+            <p class="text-sm esevioz-text opacity-75">This shows the structure that would be used for creating a new configuration</p>
+        </div>
+
+        <div class="px-6 py-4">
+            <!-- Template Metadata -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium esevioz-text mb-1">Endpoint Name</label>
+                    <div class="p-3 esevioz-bg border esevioz-border rounded-md">
+                        <code class="text-sm esevioz-text">{{ template_data.endpoint_name or 'Not specified' }}</code>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium esevioz-text mb-1">Database Type</label>
+                    <div class="p-3 esevioz-bg border esevioz-border rounded-md">
+                        <code class="text-sm esevioz-text">{{ template_data.db_type or template_db_type }}</code>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium esevioz-text mb-1">Database Kind</label>
+                    <div class="p-3 esevioz-bg border esevioz-border rounded-md">
+                        <code class="text-sm esevioz-text">{{ template_data.db_kind or template_db_kind }}</code>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Template Configuration -->
+            {% if template_data.template %}
+            <div>
+                <h4 class="text-md font-medium esevioz-text border-b esevioz-border-dominant pb-2 mb-4">Template Configuration</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% for key, value in template_data.template.items() %}
+                    <div>
+                        <label class="block text-sm font-medium esevioz-text mb-1">{{ key.replace('_', ' ').title() }}</label>
+                        <div class="p-3 esevioz-bg border esevioz-border rounded-md">
+                            {% if value is mapping %}
+                                <pre class="text-xs esevioz-text overflow-auto"><code>{{ value | tojson(indent=2) }}</code></pre>
+                            {% else %}
+                                <code class="text-sm esevioz-text">{{ value }}</code>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Full Template JSON -->
+            <div class="mt-6">
+                <details class="esevioz-card p-4 rounded-lg">
+                    <summary class="text-sm font-medium esevioz-text cursor-pointer">Full Template Data (JSON)</summary>
+                    <div class="mt-3 p-3 bg-gray-50 border rounded-md">
+                        <pre class="text-xs text-gray-600 overflow-auto"><code>{{ template_data | tojson(indent=2) }}</code></pre>
+                    </div>
+                </details>
+            </div>
+        </div>
+    </div>
+
+    <!-- Creation Status Notice -->
+    <div class="esevioz-bg border esevioz-border-highlight rounded-md p-4">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 esevioz-highlight" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium esevioz-highlight">Configuration Creation</h3>
+                <div class="mt-2 text-sm esevioz-text">
+                    <p><strong>Template Loading:</strong> ✅ Successfully loaded template from backend</p>
+                    <p><strong>Creation Form:</strong> ⏳ Awaiting backend validation rules implementation</p>
+                    <p class="mt-2">The backend team has provided template endpoints but notes that the CREATE endpoint returns HTTP 501 (Not Implemented) pending cartolex_io validation rule integration.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- No Template Data -->
+    <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 esevioz-text opacity-50" fill="none" stroke="currentColor" viewBox="0 0 48 48">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5h6m-6 4h6m2-10h6m-6 4h6"/>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium esevioz-text">No Template Available</h3>
+        <p class="mt-1 text-sm esevioz-text opacity-75">
+            Could not load template data for the requested configuration.
+        </p>
+        <div class="mt-6">
+            <a href="{{ url_for('io_config.index') }}"
+               class="esevioz-btn-primary px-4 py-2 text-sm font-medium rounded-md">
+                Return to IO Configuration
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

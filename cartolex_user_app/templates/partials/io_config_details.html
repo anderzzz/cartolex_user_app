@@ -30,7 +30,7 @@
             </div>
         </div>
 
-        <!-- Entry Count (Placeholder for future backend endpoint) -->
+        <!-- Entry Count -->
         <div class="esevioz-card p-4 rounded-lg">
             <div class="flex items-center">
                 <svg class="w-4 h-4 esevioz-highlight mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -38,7 +38,12 @@
                 </svg>
                 <div>
                     <p class="text-sm font-medium esevioz-text">Entries</p>
-                    <p class="text-xs esevioz-text opacity-75">Loading...</p>
+                    <div id="entry-count-{{ endpoint_name }}-{{ db_type }}-{{ db_kind }}"
+                         hx-get="{{ url_for('io_config.get_entry_count', endpoint_name=endpoint_name, db_type=db_type, db_kind=db_kind) }}{{ '?config_kind=' + config_kind if config_kind else '' }}"
+                         hx-trigger="load"
+                         hx-swap="innerHTML">
+                        <p class="text-xs esevioz-text opacity-75">Loading...</p>
+                    </div>
                 </div>
             </div>
         </div>

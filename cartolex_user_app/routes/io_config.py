@@ -121,7 +121,67 @@ def view_config_details(endpoint_name, db_type, db_kind):
                            config=response.data.get('configuration', {}),
                            endpoint_name=endpoint_name,
                            db_type=db_type,
-                           db_kind=db_kind)
+                           db_kind=db_kind,
+                           config_kind=config_kind)
+
+
+@bp.route('/<endpoint_name>/<db_type>/<db_kind>/count')
+def get_entry_count(endpoint_name, db_type, db_kind):
+    """Get entry count for a specific database configuration"""
+    api = current_app.api_client
+    config_kind = request.args.get('config_kind', ConfigurationKinds.CONFIGURATION_DIRECTORY)
+
+    # Validate config_kind
+    if config_kind not in ConfigurationKinds.IO_SUPPORTED:
+        config_kind = ConfigurationKinds.CONFIGURATION_DIRECTORY
+
+    try:
+        response = api.get_database_entries_count(endpoint_name, db_type, db_kind, config_kind)
+
+        if response.success:
+            count = response.data.get('count', 0)
+            last_updated = response.data.get('last_updated', '')
+
+            # Format the count nicely
+            if count >= 1000000:
+                formatted_count = f"{count/1000000:.1f}M"
+            elif count >= 1000:
+                formatted_count = f"{count/1000:.1f}K"
+            else:
+                formatted_count = str(count)
+
+            return f'''
+                <p class="text-xs font-medium esevioz-text">{formatted_count} entries</p>
+                {f'<p class="text-xs esevioz-text opacity-50">Updated: {last_updated[:10] if last_updated else "Unknown"}</p>' if last_updated else ''}
+            '''
+        else:
+            # Handle specific error cases based on backend team's new error codes
+            if response.status_code == 503 or response.error_code == 'DB_CONNECTION_ERROR':
+                return '''
+                    <p class="text-xs text-orange-600">Database offline</p>
+                    <p class="text-xs text-orange-400">Connection failed</p>
+                '''
+            elif response.error_code == 'DB_COUNT_ERROR':
+                return '''
+                    <p class="text-xs text-red-600">Count error</p>
+                    <p class="text-xs text-red-400">Query failed</p>
+                '''
+            elif response.error_code == 'IO_CONFIG_NOT_FOUND':
+                return '''
+                    <p class="text-xs text-gray-600">Config not found</p>
+                    <p class="text-xs text-gray-400">Check configuration</p>
+                '''
+            else:
+                return '''
+                    <p class="text-xs text-red-600">Count unavailable</p>
+                    <p class="text-xs text-red-400">Service error</p>
+                '''
+
+    except Exception as e:
+        return '''
+            <p class="text-xs text-gray-600">Count unavailable</p>
+            <p class="text-xs text-gray-400">Service error</p>
+        '''
 
 
 @bp.route('/<endpoint_name>/<db_type>/<db_kind>', methods=['PUT', 'POST'])
@@ -187,11 +247,21 @@ def delete_config(endpoint_name, db_type, db_kind):
             })
         else:
             from flask import jsonify
+            # Enhanced error handling for new backend error codes
+            error_messages = {
+                'IO_CONFIG_NOT_FOUND': f"Configuration {endpoint_name}/{db_type}/{db_kind} does not exist",
+                'DB_CONNECTION_ERROR': "Cannot delete: Database connection failed",
+                'CONFIG_HANDLER_ERROR': "Configuration system error during delete operation"
+            }
+
+            user_message = error_messages.get(response.error_code, response.error or "Unknown error occurred")
+            status_code = 404 if response.error_code == 'IO_CONFIG_NOT_FOUND' else 400
+
             return jsonify({
                 "success": False,
-                "error": response.error,
+                "error": user_message,
                 "error_code": response.error_code
-            }), 400
+            }), status_code
 
     except Exception as e:
         # Handle case where backend hasn't implemented DELETE yet
@@ -211,9 +281,30 @@ def create_config():
     template_db_type = request.args.get('template_db_type')
     template_db_kind = request.args.get('template_db_kind')
 
-    # TODO: Backend needs to implement template retrieval and creation UI
-    flash("Create configuration feature will be implemented once backend provides the necessary endpoints", 'info')
-    return redirect(url_for('io_config.index'))
+    template_data = None
+    if template_endpoint and template_db_type and template_db_kind:
+        api = current_app.api_client
+        try:
+            response = api.get_database_template(template_endpoint, template_db_type, template_db_kind)
+            if response.success:
+                template_data = response.data
+            else:
+                flash(f"Could not load template: {response.error}", 'warning')
+        except Exception as e:
+            flash(f"Template service unavailable: {str(e)}", 'warning')
+
+    # For now, show the template data and inform user about creation status
+    if template_data:
+        flash(f"Template loaded for {template_db_type}/{template_db_kind}. Creation UI will be available soon.", 'info')
+        # Could render a creation form here in the future
+        return render_template('io/create.html',
+                               template_data=template_data,
+                               template_endpoint=template_endpoint,
+                               template_db_type=template_db_type,
+                               template_db_kind=template_db_kind)
+    else:
+        flash("Create configuration feature: Creation UI will be implemented once backend provides validation rules", 'info')
+        return redirect(url_for('io_config.index'))
 
 
 @bp.route('/<endpoint_name>/<db_type>/<db_kind>/test', methods=['POST'])
