@@ -1,10 +1,10 @@
 <!-- IO Configuration Details View - Read-only detailed information -->
 <div class="border-t esevioz-border-dominant mt-4 pt-4">
     <!-- Configuration Header -->
-    <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center justify-between mb-6">
         <div>
-            <h4 class="text-lg font-medium esevioz-text">{{ db_type | title }} Database Details</h4>
-            <p class="text-sm esevioz-text opacity-75">{{ endpoint_name }} → {{ db_type }} → {{ db_kind }}</p>
+            <h4 class="text-xl font-semibold esevioz-text">{{ db_type | title }} Database Details</h4>
+            <p class="text-sm esevioz-text opacity-75 mt-1">Path: {{ endpoint_name }} → {{ db_type }} → {{ db_kind }}</p>
         </div>
         <button type="button"
                 onclick="closeIOConfig('{{ endpoint_name }}-{{ db_type }}-{{ db_kind }}')"
@@ -17,193 +17,128 @@
     </div>
 
     {% if config %}
-    <!-- Database Statistics -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <!-- Entry Count -->
-        <div class="esevioz-card p-4 rounded-lg">
-            <div class="flex items-center">
-                <svg class="w-4 h-4 esevioz-highlight mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
-                </svg>
-                <div>
-                    <p class="text-sm font-medium esevioz-text">Entries</p>
-                    <div id="entry-count-{{ endpoint_name }}-{{ db_type }}-{{ db_kind }}"
-                         hx-get="{{ url_for('io_config.get_entry_count', endpoint_name=endpoint_name, db_type=db_type, db_kind=db_kind) }}{{ '?config_kind=' + config_kind if config_kind else '' }}"
-                         hx-trigger="load"
-                         hx-swap="innerHTML">
-                        <p class="text-xs esevioz-text opacity-75">Loading...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Last Modified -->
-        <div class="esevioz-card p-4 rounded-lg">
-            <div class="flex items-center">
-                <svg class="w-4 h-4 esevioz-text mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <div>
-                    <p class="text-sm font-medium esevioz-text">Modified</p>
-                    <p class="text-xs esevioz-text opacity-75">Recently</p>
-                </div>
+    <!-- Entry Count Section -->
+    <div class="mb-6">
+        <div class="flex items-center space-x-2">
+            <span class="text-sm font-medium esevioz-text">Number of Entries:</span>
+            <div id="entry-count-{{ endpoint_name }}-{{ db_type }}-{{ db_kind }}"
+                 hx-get="{{ url_for('io_config.get_entry_count', endpoint_name=endpoint_name, db_type=db_type, db_kind=db_kind) }}{{ '?config_kind=' + config_kind if config_kind else '' }}"
+                 hx-trigger="load"
+                 hx-swap="innerHTML"
+                 class="text-sm font-semibold esevioz-text">
+                Loading...
             </div>
         </div>
     </div>
 
-    <!-- Configuration Details -->
-    <div class="space-y-6">
-        <!-- Connection Settings -->
-        <div>
-            <h5 class="text-md font-medium esevioz-text border-b esevioz-border-dominant pb-2 mb-4">Connection Settings</h5>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Host -->
-                {% if config.host %}
-                <div>
-                    <label class="block text-sm font-medium esevioz-text mb-1">Host</label>
-                    <div class="p-3 esevioz-bg border esevioz-border rounded-md">
-                        <code class="text-sm esevioz-text">{{ config.host }}</code>
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- Port -->
-                {% if config.port %}
-                <div>
-                    <label class="block text-sm font-medium esevioz-text mb-1">Port</label>
-                    <div class="p-3 esevioz-bg border esevioz-border rounded-md">
-                        <code class="text-sm esevioz-text">{{ config.port }}</code>
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- SSL -->
-                {% if config.ssl is defined %}
-                <div>
-                    <label class="block text-sm font-medium esevioz-text mb-1">SSL/TLS</label>
-                    <div class="p-3 esevioz-bg border esevioz-border rounded-md">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                     {% if config.ssl %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
-                            {% if config.ssl %}Enabled{% else %}Disabled{% endif %}
-                        </span>
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- Timeout -->
-                {% if config.timeout %}
-                <div>
-                    <label class="block text-sm font-medium esevioz-text mb-1">Timeout</label>
-                    <div class="p-3 esevioz-bg border esevioz-border rounded-md">
-                        <code class="text-sm esevioz-text">{{ config.timeout }}s</code>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
+    <!-- Database Type Section -->
+    <div class="mb-6">
+        <div class="flex items-center space-x-2">
+            <span class="text-sm font-medium esevioz-text">Database type:</span>
+            <span class="text-sm font-semibold esevioz-text">{{ db_kind | db_tech_display_name }}</span>
         </div>
+    </div>
 
-        <!-- Database-Specific Settings -->
-        {% if db_type == 'text' and db_kind == 'mongo' %}
-        <!-- MongoDB Text Database Settings -->
+    <!-- Database-Specific Configuration -->
+    <div class="space-y-6">
+        {% if (db_type == 'text' or db_type == 'token') and db_kind == 'mongo' %}
+        <!-- MongoDB Configuration for Text/Token Databases -->
         <div>
-            <h5 class="text-md font-medium esevioz-text border-b esevioz-border-dominant pb-2 mb-4">MongoDB Configuration</h5>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h5 class="text-lg font-semibold esevioz-text border-b esevioz-border-dominant pb-2 mb-4">{{ db_kind | db_tech_display_name }} Configuration</h5>
+            <div class="space-y-4">
                 <!-- Database Name -->
                 {% if config.database or config.db_name %}
-                <div>
-                    <label class="block text-sm font-medium esevioz-text mb-1">Database Name</label>
-                    <div class="p-3 esevioz-bg border esevioz-border rounded-md">
-                        <code class="text-sm esevioz-text">{{ config.database or config.db_name }}</code>
-                    </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm font-medium esevioz-text min-w-[120px]">Database Name:</span>
+                    <code class="text-sm esevioz-text">{{ config.database or config.db_name }}</code>
                 </div>
                 {% endif %}
 
-                <!-- Alias (Future backend field) -->
+                <!-- Alias -->
                 {% if config.alias %}
-                <div>
-                    <label class="block text-sm font-medium esevioz-text mb-1">Alias</label>
-                    <div class="p-3 esevioz-bg border esevioz-border rounded-md">
-                        <code class="text-sm esevioz-text">{{ config.alias }}</code>
-                    </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm font-medium esevioz-text min-w-[120px]">Alias:</span>
+                    <code class="text-sm esevioz-text">{{ config.alias }}</code>
                 </div>
                 {% endif %}
 
-                <!-- Provider (Future backend field) -->
+                <!-- Provider -->
                 {% if config.provider %}
-                <div>
-                    <label class="block text-sm font-medium esevioz-text mb-1">Provider</label>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm font-medium esevioz-text min-w-[120px]">Provider:</span>
+                    <code class="text-sm esevioz-text">{{ config.provider }}</code>
+                </div>
+                {% endif %}
+
+                <!-- Provider Configuration -->
+                {% if config.provider_config %}
+                <div class="space-y-2">
+                    <span class="text-sm font-medium esevioz-text">Provider Configuration:</span>
                     <div class="p-3 esevioz-bg border esevioz-border rounded-md">
-                        <code class="text-sm esevioz-text">{{ config.provider }}</code>
+                        <pre class="text-xs esevioz-text overflow-auto"><code>{{ config.provider_config | tojson(indent=2) | truncate(200) }}{% if (config.provider_config | tojson | length) > 200 %}...{% endif %}</code></pre>
                     </div>
                 </div>
                 {% endif %}
             </div>
-
-            <!-- Provider Config (Future backend field) -->
-            {% if config.provider_config %}
-            <div class="mt-4">
-                <label class="block text-sm font-medium esevioz-text mb-1">Provider Configuration</label>
-                <div class="p-3 esevioz-bg border esevioz-border rounded-md">
-                    <pre class="text-xs esevioz-text overflow-auto"><code>{{ config.provider_config | tojson(indent=2) }}</code></pre>
-                </div>
-            </div>
-            {% endif %}
         </div>
 
         {% elif db_type == 'vector' and db_kind == 'qdrant' %}
-        <!-- Qdrant Vector Database Settings -->
+        <!-- Qdrant Configuration for Vector Databases -->
         <div>
-            <h5 class="text-md font-medium esevioz-text border-b esevioz-border-dominant pb-2 mb-4">Qdrant Configuration</h5>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h5 class="text-lg font-semibold esevioz-text border-b esevioz-border-dominant pb-2 mb-4">{{ db_kind | db_tech_display_name }} Configuration</h5>
+            <div class="space-y-4">
                 <!-- Collection Name -->
                 {% if config.collection or config.collection_name %}
-                <div>
-                    <label class="block text-sm font-medium esevioz-text mb-1">Collection Name</label>
-                    <div class="p-3 esevioz-bg border esevioz-border rounded-md">
-                        <code class="text-sm esevioz-text">{{ config.collection or config.collection_name }}</code>
-                    </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm font-medium esevioz-text min-w-[140px]">Collection Name:</span>
+                    <code class="text-sm esevioz-text">{{ config.collection or config.collection_name }}</code>
                 </div>
                 {% endif %}
 
                 <!-- Vector Dimensions -->
                 {% if config.vector_size or config.n_vector_dimensions %}
-                <div>
-                    <label class="block text-sm font-medium esevioz-text mb-1">Vector Dimensions</label>
-                    <div class="p-3 esevioz-bg border esevioz-border rounded-md">
-                        <code class="text-sm esevioz-text">{{ config.vector_size or config.n_vector_dimensions }}</code>
-                    </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm font-medium esevioz-text min-w-[140px]">Vector Dimensions:</span>
+                    <code class="text-sm esevioz-text">{{ config.vector_size or config.n_vector_dimensions }}</code>
                 </div>
                 {% endif %}
 
-                <!-- Distance Metric -->
-                {% if config.distance %}
-                <div>
-                    <label class="block text-sm font-medium esevioz-text mb-1">Distance Metric</label>
-                    <div class="p-3 esevioz-bg border esevioz-border rounded-md">
-                        <code class="text-sm esevioz-text">{{ config.distance | title }}</code>
-                    </div>
+                <!-- Host -->
+                {% if config.host %}
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm font-medium esevioz-text min-w-[140px]">Host:</span>
+                    <code class="text-sm esevioz-text">{{ config.host }}</code>
+                </div>
+                {% endif %}
+
+                <!-- Port -->
+                {% if config.port %}
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm font-medium esevioz-text min-w-[140px]">Port:</span>
+                    <code class="text-sm esevioz-text">{{ config.port }}</code>
                 </div>
                 {% endif %}
             </div>
         </div>
 
         {% else %}
-        <!-- Generic Database Settings -->
+        <!-- Generic Database Configuration -->
         <div>
-            <h5 class="text-md font-medium esevioz-text border-b esevioz-border-dominant pb-2 mb-4">{{ db_type | title }} Database Configuration</h5>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Generic fields -->
+            <h5 class="text-lg font-semibold esevioz-text border-b esevioz-border-dominant pb-2 mb-4">{{ db_kind | db_tech_display_name }} Configuration</h5>
+            <div class="space-y-4">
                 {% for key, value in config.items() %}
-                    {% if key not in ['host', 'port', 'ssl', 'timeout'] and value %}
-                    <div>
-                        <label class="block text-sm font-medium esevioz-text mb-1">{{ key.replace('_', ' ').title() }}</label>
-                        <div class="p-3 esevioz-bg border esevioz-border rounded-md">
-                            {% if value is mapping %}
-                                <pre class="text-xs esevioz-text overflow-auto"><code>{{ value | tojson(indent=2) }}</code></pre>
-                            {% else %}
-                                <code class="text-sm esevioz-text">{{ value }}</code>
-                            {% endif %}
-                        </div>
+                    {% if value and value != '' %}
+                    <div class="flex items-start space-x-2">
+                        <span class="text-sm font-medium esevioz-text min-w-[140px]">{{ key.replace('_', ' ').title() }}:</span>
+                        {% if value is mapping %}
+                            <div class="flex-1">
+                                <div class="p-3 esevioz-bg border esevioz-border rounded-md">
+                                    <pre class="text-xs esevioz-text overflow-auto"><code>{{ value | tojson(indent=2) | truncate(200) }}{% if (value | tojson | length) > 200 %}...{% endif %}</code></pre>
+                                </div>
+                            </div>
+                        {% else %}
+                            <code class="text-sm esevioz-text">{{ value }}</code>
+                        {% endif %}
                     </div>
                     {% endif %}
                 {% endfor %}
@@ -211,10 +146,11 @@
         </div>
         {% endif %}
 
-        <!-- Raw Configuration (for debugging) -->
+        <!-- Raw Configuration (Debug) -->
         <div>
+            <h5 class="text-lg font-semibold esevioz-text border-b esevioz-border-dominant pb-2 mb-4">Raw Configuration (Debug)</h5>
             <details class="esevioz-card p-4 rounded-lg">
-                <summary class="text-sm font-medium esevioz-text cursor-pointer">Raw Configuration (Debug)</summary>
+                <summary class="text-sm font-medium esevioz-text cursor-pointer hover:opacity-75">Show raw configuration data</summary>
                 <div class="mt-3 p-3 bg-gray-50 border rounded-md">
                     <pre class="text-xs text-gray-600 overflow-auto"><code>{{ config | tojson(indent=2) }}</code></pre>
                 </div>

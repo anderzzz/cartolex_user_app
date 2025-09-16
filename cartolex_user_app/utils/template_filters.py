@@ -40,3 +40,24 @@ def register_filters(app):
         if isinstance(value, (list, dict)):
             return json.dumps(value, separators=(',', ':'))
         return str(value) if value is not None else ''
+
+    @app.template_filter('db_tech_display_name')
+    def db_tech_display_name(db_kind):
+        """
+        Map database technology kinds to proper display names.
+
+        Args:
+            db_kind: The database technology (e.g., 'mongo', 'qdrant')
+
+        Returns:
+            Proper display name (e.g., 'MongoDB', 'Qdrant')
+        """
+        tech_names = {
+            'mongo': 'MongoDB',
+            'qdrant': 'Qdrant',
+            'json': 'JSON',
+            'sqlite': 'SQLite',
+            'postgresql': 'PostgreSQL',
+            'mysql': 'MySQL'
+        }
+        return tech_names.get(db_kind.lower() if db_kind else '', db_kind.title() if db_kind else '')
