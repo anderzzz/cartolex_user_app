@@ -64,7 +64,7 @@
                                 </p>
                                 <div class="mt-2 flex items-center space-x-4 text-xs esevioz-text opacity-60">
                                     <!-- Show database types in this endpoint -->
-                                    {% set db_types = endpoint_configs | map('get', 'db_type') | list | unique %}
+                                    {% set db_types = endpoint_configs | map(attribute='configuration.db_type') | list | unique %}
                                     <span>Types: {{ db_types | join(', ') }}</span>
                                 </div>
                             </div>
@@ -90,35 +90,35 @@
                         <div class="px-6 py-4">
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {% for config in endpoint_configs %}
-                                    {% set config_key = endpoint_name + '-' + config['db_type'] + '-' + config['db_kind'] %}
+                                    {% set config_key = endpoint_name + '-' + config['configuration']['db_type'] + '-' + config['configuration']['db_kind'] %}
                                     <div class="esevioz-db-card rounded-lg p-4">
                                         <div class="flex items-center justify-between mb-3">
                                             <div class="flex items-center">
                                                 <!-- Database Type Icon -->
                                                 <div class="w-8 h-8 esevioz-dominant-bg rounded-full flex items-center justify-center mr-3">
-                                                    {% if config['db_type'] == 'text' %}
+                                                    {% if config['configuration']['db_type'] == 'text' %}
                                                         <svg class="w-4 h-4 esevioz-bg" fill="currentColor" viewBox="0 0 20 20">
                                                             <path d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 2v2h8V6H6zm0 4v2h8v-2H6zm0 4v2h5v-2H6z"/>
                                                         </svg>
-                                                    {% elif config['db_type'] == 'vector' %}
+                                                    {% elif config['configuration']['db_type'] == 'vector' %}
                                                         <svg class="w-4 h-4 esevioz-bg" fill="currentColor" viewBox="0 0 20 20">
                                                             <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
                                                         </svg>
-                                                    {% elif config['db_type'] == 'token' %}
+                                                    {% elif config['configuration']['db_type'] == 'token' %}
                                                         <svg class="w-4 h-4 esevioz-bg" fill="currentColor" viewBox="0 0 20 20">
                                                             <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
                                                         </svg>
                                                     {% else %}
                                                         <span class="esevioz-bg font-medium text-xs">
-                                                            {{ config['db_type'][:2].upper() }}
+                                                            {{ config['configuration']['db_type'][:2].upper() }}
                                                         </span>
                                                     {% endif %}
                                                 </div>
                                                 <div>
-                                                    <h4 class="text-sm font-medium esevioz-text">{{ config['db_type'] | title }} Database</h4>
+                                                    <h4 class="text-sm font-medium esevioz-text">{{ config['configuration']['db_type'] | title }} Database</h4>
                                                     <div class="flex items-center space-x-1 mt-1">
-                                                        <span class="esevioz-db-badge esevioz-db-badge-{{ config['db_type'] }}">{{ config['db_type'] }}</span>
-                                                        <span class="esevioz-db-badge esevioz-db-kind-{{ config['db_kind'] }}">{{ config['db_kind'] }}</span>
+                                                        <span class="esevioz-db-badge esevioz-db-badge-{{ config['configuration']['db_type'] }}">{{ config['configuration']['db_type'] }}</span>
+                                                        <span class="esevioz-db-badge esevioz-db-kind-{{ config['configuration']['db_kind'] }}">{{ config['configuration']['db_kind'] }}</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -137,7 +137,7 @@
                                             <!-- View Details Button -->
                                             <button type="button"
                                                     @click="if (!openConfigs['config-{{ config_key }}']) {
-                                                              htmx.ajax('GET', '{{ url_for('io_config.view_config_details', endpoint_name=config['endpoint_name'], db_type=config['db_type'], db_kind=config['db_kind'], config_kind=config_kind) }}', {
+                                                              htmx.ajax('GET', '{{ url_for('io_config.view_config_details', endpoint_name=config['endpoint_name'], db_type=config['configuration']['db_type'], db_kind=config['configuration']['db_kind'], config_kind=config_kind) }}', {
                                                                 target: '#io-config-{{ config_key }}',
                                                                 swap: 'innerHTML'
                                                               });
@@ -155,7 +155,7 @@
 
                                             <!-- Create From Button -->
                                             <button type="button"
-                                                    onclick="createFromConfig('{{ config['endpoint_name'] }}', '{{ config['db_type'] }}', '{{ config['db_kind'] }}')"
+                                                    onclick="createFromConfig('{{ config['endpoint_name'] }}', '{{ config['configuration']['db_type'] }}', '{{ config['configuration']['db_kind'] }}')"
                                                     class="px-2 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
                                                     title="Create new configuration based on this one">
                                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -165,7 +165,7 @@
 
                                             <!-- Delete Button -->
                                             <button type="button"
-                                                    onclick="deleteConfig('{{ config['endpoint_name'] }}', '{{ config['db_type'] }}', '{{ config['db_kind'] }}')"
+                                                    onclick="deleteConfig('{{ config['endpoint_name'] }}', '{{ config['configuration']['db_type'] }}', '{{ config['configuration']['db_kind'] }}')"
                                                     class="px-2 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
                                                     title="Delete this configuration">
                                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
