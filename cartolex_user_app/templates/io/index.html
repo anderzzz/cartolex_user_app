@@ -72,10 +72,10 @@
                         <div class="flex items-center justify-between">
                             <div class="flex-1">
                                 <h3 class="text-lg font-medium esevioz-text">{{ endpoint_name }}</h3>
-                                {% if endpoint_config.description %}
-                                    <p class="mt-1 text-sm esevioz-text opacity-75">{{ endpoint_config.description }}</p>
+                                {% if endpoint_config.configuration.description %}
+                                    <p class="mt-1 text-sm esevioz-text opacity-75">{{ endpoint_config.configuration.description }}</p>
                                 {% endif %}
-                                <p class="{% if endpoint_config.description %}mt-2{% else %}mt-1{% endif %} text-sm esevioz-text opacity-75">
+                                <p class="{% if endpoint_config.configuration.description %}mt-2{% else %}mt-1{% endif %} text-sm esevioz-text opacity-75">
                                     {{ db_configs|length }} database {{ 'configuration' if db_configs|length == 1 else 'configurations' }}
                                 </p>
                                 <div class="mt-2 flex items-center space-x-4 text-xs esevioz-text opacity-60">
