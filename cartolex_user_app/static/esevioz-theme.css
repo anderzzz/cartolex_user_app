@@ -10,7 +10,8 @@
   --color-text: #191919; /* black */
   --color-dominant: #1B5420; /* pine */
   --color-highlight: #E0993D; /* butterscotch */
-  
+  --color-alert: #E44628; /* vermilion */
+
   /* Typography */
   --font-family: 'Montserrat', Arial, sans-serif;
 }
@@ -22,6 +23,7 @@
     --color-text: #FCFCFC; /* white */
     --color-dominant: #FFF2DE; /* antique white */
     --color-highlight: #486F38; /* fern */
+    --color-alert: #E44628; /* vermilion */
   }
 }
 
@@ -31,6 +33,7 @@
   --color-text: #FCFCFC; /* white */
   --color-dominant: #FFF2DE; /* antique white */
   --color-highlight: #486F38; /* fern */
+  --color-alert: #E44628; /* vermilion */
 }
 
 [data-theme="light"] {
@@ -38,6 +41,7 @@
   --color-text: #191919; /* black */
   --color-dominant: #1B5420; /* pine */
   --color-highlight: #E0993D; /* butterscotch */
+  --color-alert: #E44628; /* vermilion */
 }
 
 /* Base Typography */
@@ -295,48 +299,6 @@ a.esevioz-btn-details:hover,
   border-color: var(--color-highlight) !important;
 }
 
-/* Database Type Badges */
-.esevioz-db-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.375rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-}
-
-.esevioz-db-badge-text {
-  background-color: #3B82F6 !important; /* blue-500 */
-  color: white !important;
-}
-
-.esevioz-db-badge-vector {
-  background-color: #10B981 !important; /* green-500 */
-  color: white !important;
-}
-
-.esevioz-db-badge-token {
-  background-color: #8B5CF6 !important; /* purple-500 */
-  color: white !important;
-}
-
-/* Database Kind Styling */
-.esevioz-db-kind-mongo {
-  background-color: #059669 !important; /* emerald-600 */
-  color: white !important;
-}
-
-.esevioz-db-kind-qdrant {
-  background-color: #DC2626 !important; /* red-600 */
-  color: white !important;
-}
-
-.esevioz-db-kind-json {
-  background-color: #D97706 !important; /* amber-600 */
-  color: white !important;
-}
 
 /* Hover effects for database configuration cards */
 .esevioz-db-card {
@@ -386,10 +348,10 @@ a.esevioz-btn-config-db:hover,
 button.esevioz-btn-delete,
 a.esevioz-btn-delete,
 .esevioz-btn-delete {
-  background-color: #E44628 !important; /* faded red */
+  background-color: var(--color-alert) !important; /* vermilion */
   color: #FFF5EB !important; /* linen/white */
-  border: 2px solid #E44628 !important;
-  border-color: #E44628 !important;
+  border: 2px solid var(--color-alert) !important;
+  border-color: var(--color-alert) !important;
   padding: 0.5rem 1rem !important;
   border-radius: 0.375rem !important;
   font-family: var(--font-family) !important;
@@ -405,8 +367,8 @@ button.esevioz-btn-delete:hover,
 a.esevioz-btn-delete:hover,
 .esevioz-btn-delete:hover {
   background-color: #FFF5EB !important;
-  color: #E44628 !important;
-  border-color: #E44628 !important;
+  color: var(--color-alert) !important;
+  border-color: var(--color-alert) !important;
   opacity: 1 !important;
   box-shadow: 0 2px 4px rgba(228, 70, 40, 0.2) !important;
 }
@@ -441,17 +403,17 @@ a.esevioz-btn-delete:hover,
 [data-theme="dark"] button.esevioz-btn-delete,
 [data-theme="dark"] a.esevioz-btn-delete,
 [data-theme="dark"] .esevioz-btn-delete {
-  background-color: #E44628 !important; /* same faded red works in dark mode */
+  background-color: var(--color-alert) !important; /* same vermilion works in dark mode */
   color: #FCFCFC !important; /* white text in dark mode */
-  border-color: #E44628 !important;
+  border-color: var(--color-alert) !important;
 }
 
 [data-theme="dark"] button.esevioz-btn-delete:hover,
 [data-theme="dark"] a.esevioz-btn-delete:hover,
 [data-theme="dark"] .esevioz-btn-delete:hover {
   background-color: #191919 !important;
-  color: #E44628 !important;
-  border-color: #E44628 !important;
+  color: var(--color-alert) !important;
+  border-color: var(--color-alert) !important;
 }
 
 /* Utility Classes */
