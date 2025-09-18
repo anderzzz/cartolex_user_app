@@ -55,7 +55,7 @@
                 {% set provider_list = [] %}
                 {% set total_configs = 0 %}
                 {% for provider, tiers in configuration.items() %}
-                    {% if tiers is mapping %}
+                    {% if tiers is mapping and not provider.startswith('_') and provider != 'description' %}
                         {% set _ = provider_list.append(provider) %}
                         {% set total_configs = total_configs + (tiers.keys() | list | length) %}
                     {% endif %}
@@ -103,7 +103,7 @@
                         <div class="px-6 py-4">
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {% for provider, tiers in configuration.items() %}
-                                    {% if tiers is mapping %}
+                                    {% if tiers is mapping and not provider.startswith('_') and provider != 'description' %}
                                         {% set config_key = endpoint_name + '-' + provider %}
                                         <div class="esevioz-db-card rounded-lg p-4">
                                             <!-- Provider Name -->
@@ -117,7 +117,7 @@
                                                 <!-- View Details Button -->
                                                 <button type="button"
                                                         @click="if (!openConfigs['config-{{ config_key }}']) {
-                                                                  htmx.ajax('GET', '{{ url_for('semantics.endpoint_configs', endpoint_name=endpoint_name) }}{{ '?config_kind=' + config_kind if config_kind else '' }}', {
+                                                                  htmx.ajax('GET', '{{ url_for('semantics.provider_configs', endpoint_name=endpoint_name, provider=provider) }}{{ '?config_kind=' + config_kind if config_kind else '' }}', {
                                                                     target: '#semantics-config-{{ config_key }}',
                                                                     swap: 'innerHTML'
                                                                   });
