@@ -115,26 +115,44 @@ class CartolexAPI:
         endpoint = APIEndpoints.JOB_STATUS.format(job_id=job_id)
         return self._make_request('GET', endpoint)
 
-    # Semantics methods
-    def get_llm_models(self, config_kind: str = None) -> APIResponse:
-        """Get LLM models"""
+    # Semantics methods (read-only)
+    def get_semantics_configs(self, config_kind: str = None) -> APIResponse:
+        """Get all semantics configuration endpoints"""
         params = {}
         if config_kind:
             params['config_kind'] = config_kind
-        return self._make_request('GET', APIEndpoints.LLM_MODELS_LIST, params=params)
+        return self._make_request('GET', APIEndpoints.SEMANTICS_CONFIGS_LIST, params=params)
 
-    def get_llm_model(self, provider: str, tier: str, config_kind: str = None) -> APIResponse:
-        """Get specific LLM model configuration"""
-        endpoint = APIEndpoints.LLM_MODEL_CONFIG.format(provider=provider, tier=tier)
+    def get_semantics_endpoint_configs(self, endpoint: str, config_kind: str = None) -> APIResponse:
+        """Get all configurations for a specific semantics endpoint"""
+        endpoint_url = APIEndpoints.SEMANTICS_CONFIGS_BY_ENDPOINT.format(endpoint=endpoint)
         params = {}
         if config_kind:
             params['config_kind'] = config_kind
-        return self._make_request('GET', endpoint, params=params)
+        return self._make_request('GET', endpoint_url, params=params)
 
-    def update_llm_model(self, provider: str, tier: str, config: dict) -> APIResponse:
-        """Update LLM model configuration"""
-        endpoint = APIEndpoints.LLM_MODEL_CONFIG.format(provider=provider, tier=tier)
-        return self._make_request('PUT', endpoint, data=config)
+    def get_semantics_provider_configs(self, endpoint: str, provider: str, config_kind: str = None) -> APIResponse:
+        """Get all tier configurations for a specific provider"""
+        endpoint_url = APIEndpoints.SEMANTICS_CONFIG_DETAIL_PROVIDER.format(endpoint=endpoint, provider=provider)
+        params = {}
+        if config_kind:
+            params['config_kind'] = config_kind
+        return self._make_request('GET', endpoint_url, params=params)
+
+    def get_semantics_config_detail(self, endpoint: str, provider: str, tier: str, config_kind: str = None) -> APIResponse:
+        """Get specific provider/tier configuration details"""
+        endpoint_url = APIEndpoints.SEMANTICS_CONFIG_DETAIL_PROVIDER_TIER.format(
+            endpoint=endpoint, provider=provider, tier=tier
+        )
+        params = {}
+        if config_kind:
+            params['config_kind'] = config_kind
+        return self._make_request('GET', endpoint_url, params=params)
+
+    def delete_semantics_endpoint(self, endpoint: str) -> APIResponse:
+        """Delete entire semantics endpoint configuration"""
+        endpoint_url = APIEndpoints.SEMANTICS_ENDPOINT_DELETE.format(endpoint=endpoint)
+        return self._make_request('DELETE', endpoint_url)
 
     def get_database_configs(self, config_kind: str = None) -> APIResponse:
         """Get all database configurations"""
@@ -189,12 +207,6 @@ class CartolexAPI:
         endpoint = "/api/v1/io/configs/create"
         return self._make_request('POST', endpoint, data=config_data)
 
-    def get_embedding_models(self, config_kind: str = None) -> APIResponse:
-        """Get embedding model configurations"""
-        params = {}
-        if config_kind:
-            params['config_kind'] = config_kind
-        return self._make_request('GET', APIEndpoints.EMBEDDING_MODELS_LIST, params=params)
 
     def get_workflow_config(self, workflow_name: str, config_kind: str = 'configuration directory') -> APIResponse:
         """Get workflow configuration"""

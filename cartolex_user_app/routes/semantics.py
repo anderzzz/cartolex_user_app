@@ -9,12 +9,6 @@ bp = Blueprint('semantics', __name__)
 @bp.route('/')
 def index():
     """Semantics configuration main page"""
-    return render_template('semantics/index.html')
-
-
-@bp.route('/llm-models')
-def llm_models():
-    """List LLM model configurations"""
     api = current_app.api_client
     config_kind = request.args.get('config_kind', ConfigurationKinds.CONFIGURATION_DIRECTORY)
 
@@ -23,102 +17,108 @@ def llm_models():
         flash(f"Invalid configuration kind: {config_kind}", 'error')
         config_kind = ConfigurationKinds.CONFIGURATION_DIRECTORY
 
-    response = api.get_llm_models(config_kind)
+    response = api.get_semantics_configs(config_kind)
 
     if not response.success:
         # Handle specific error codes
         if response.error_code == ErrorCodes.CONFIG_HANDLER_ERROR:
             flash("Configuration system unavailable. Please try again later.", 'error')
         else:
-            flash(f"Error loading LLM models: {response.error}", 'error')
-        return render_template('semantics/llm_models.html', models=None, config_kind=config_kind)
+            flash(f"Error loading semantics configurations: {response.error}", 'error')
+        return render_template('semantics/index.html', configs=[], config_kind=config_kind)
 
-    return render_template('semantics/llm_models.html',
-                           models=response.data,
+    return render_template('semantics/index.html',
+                           configs=response.data.get('configurations', []),
                            config_kind=config_kind,
                            supported_kinds=ConfigurationKinds.SEMANTICS_SUPPORTED)
 
 
-@bp.route('/llm-models/<provider>/<tier>')
-def edit_llm_model(provider, tier):
-    """Edit specific LLM model configuration"""
+@bp.route('/<endpoint_name>')
+def endpoint_configs(endpoint_name):
+    """List all configurations for a specific semantics endpoint"""
     api = current_app.api_client
     config_kind = request.args.get('config_kind', ConfigurationKinds.CONFIGURATION_DIRECTORY)
 
-    response = api.get_llm_model(provider, tier, config_kind)
+    # Validate config_kind
+    if config_kind not in ConfigurationKinds.SEMANTICS_SUPPORTED:
+        config_kind = ConfigurationKinds.CONFIGURATION_DIRECTORY
+
+    response = api.get_semantics_endpoint_configs(endpoint_name, config_kind)
 
     if not response.success:
-        if response.error_code == ErrorCodes.LLM_MODEL_NOT_FOUND:
-            flash(f"LLM model {provider}/{tier} not found", 'error')
+        if response.error_code == ErrorCodes.ENDPOINT_NOT_FOUND:
+            flash(f"Semantics endpoint '{endpoint_name}' not found", 'error')
+            return redirect(url_for('semantics.index'))
+        else:
+            flash(f"Error loading endpoint configurations: {response.error}", 'error')
+
+    configs = response.data if response.success else {}
+    return render_template('semantics/endpoint_configs.html',
+                           endpoint_name=endpoint_name,
+                           configs=configs,
+                           config_kind=config_kind)
+
+
+@bp.route('/<endpoint_name>/<provider>')
+def provider_configs(endpoint_name, provider):
+    """View all tier configurations for a specific provider"""
+    api = current_app.api_client
+    config_kind = request.args.get('config_kind', ConfigurationKinds.CONFIGURATION_DIRECTORY)
+
+    # Validate config_kind
+    if config_kind not in ConfigurationKinds.SEMANTICS_SUPPORTED:
+        config_kind = ConfigurationKinds.CONFIGURATION_DIRECTORY
+
+    response = api.get_semantics_provider_configs(endpoint_name, provider, config_kind)
+
+    if not response.success:
+        if response.error_code == ErrorCodes.CONFIG_NOT_FOUND:
+            flash(f"Provider '{provider}' not found in endpoint '{endpoint_name}'", 'error')
         elif response.error_code == ErrorCodes.CONFIG_HANDLER_ERROR:
             flash("Configuration system unavailable", 'error')
         else:
-            flash(f"Error loading model configuration: {response.error}", 'error')
-        return redirect(url_for('semantics.llm_models'))
+            flash(f"Error loading provider configurations: {response.error}", 'error')
+        return redirect(url_for('semantics.endpoint_configs', endpoint_name=endpoint_name))
 
-    return render_template('semantics/edit_llm_model.html',
-                           model=response.data,
+    return render_template('semantics/provider_configs.html',
+                           endpoint_name=endpoint_name,
                            provider=provider,
-                           tier=tier)
+                           configs=response.data,
+                           config_kind=config_kind)
 
 
-@bp.route('/llm-models/<provider>/<tier>', methods=['PUT', 'POST'])
-def update_llm_model(provider, tier):
-    """Update LLM model configuration (HTMX endpoint)"""
+@bp.route('/<endpoint_name>/<provider>/<tier>/details')
+def config_details(endpoint_name, provider, tier):
+    """View detailed configuration information (read-only)"""
     api = current_app.api_client
+    config_kind = request.args.get('config_kind', ConfigurationKinds.CONFIGURATION_DIRECTORY)
 
-    # Extract configuration from form
-    config = {}
-    if 'model' in request.form:
-        config['model'] = request.form['model'].strip()
+    # Validate config_kind
+    if config_kind not in ConfigurationKinds.SEMANTICS_SUPPORTED:
+        config_kind = ConfigurationKinds.CONFIGURATION_DIRECTORY
 
-    # Handle chat completion parameters
-    chat_params = {}
-    if 'temperature' in request.form:
-        try:
-            chat_params['temperature'] = float(request.form['temperature'])
-        except ValueError:
-            return render_template('partials/config_error.html',
-                                   error="Temperature must be a valid number")
+    response = api.get_semantics_config_detail(endpoint_name, provider, tier, config_kind)
 
-    if 'max_completion_tokens' in request.form:
-        try:
-            chat_params['max_completion_tokens'] = int(request.form['max_completion_tokens'])
-        except ValueError:
-            return render_template('partials/config_error.html',
-                                   error="Max completion tokens must be a valid integer")
-
-    if chat_params:
-        config['chat_completion_parameters'] = chat_params
-
-    response = api.update_llm_model(provider, tier, config)
-
-    if response.success:
-        return render_template('partials/config_success.html',
-                               message="LLM model configuration updated successfully")
-    else:
-        # Handle specific error codes
-        if response.error_code == ErrorCodes.VALIDATION_ERROR:
-            validation_errors = response.data.get('validation_errors', []) if response.data else []
-            error_message = "Validation failed: " + "; ".join([
-                f"{err.get('field', 'unknown')}: {err.get('message', 'invalid')}"
-                for err in validation_errors
-            ])
-        elif response.error_code == ErrorCodes.LLM_MODEL_NOT_FOUND:
-            error_message = f"LLM model {provider}/{tier} not found"
+    if not response.success:
+        if response.error_code == ErrorCodes.CONFIG_NOT_FOUND:
+            error_message = f"Configuration {endpoint_name}/{provider}/{tier} not found"
+        elif response.error_code == ErrorCodes.CONFIG_HANDLER_ERROR:
+            error_message = "Configuration system unavailable"
         else:
-            error_message = response.error
+            error_message = f"Error loading configuration: {response.error}"
 
         return render_template('partials/config_error.html', error=error_message)
+
+    return render_template('partials/semantics_config_details.html',
+                           config=response.data.get('configuration', {}),
+                           endpoint_name=endpoint_name,
+                           provider=provider,
+                           tier=tier,
+                           config_kind=config_kind)
 
 
 @bp.route('/embedding-models')
 def embedding_models():
-    """List embedding model configurations (placeholder)"""
-    # Using shared constants for future implementation
-    config_kind = request.args.get('config_kind', ConfigurationKinds.CONFIGURATION_DIRECTORY)
-
-    return render_template('semantics/embedding_models.html',
-                           config_kind=config_kind,
-                           message="Embedding model configuration coming soon")
+    """Redirect to main semantics page"""
+    return redirect(url_for('semantics.index'))
 
