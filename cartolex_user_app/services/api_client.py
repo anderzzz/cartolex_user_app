@@ -166,11 +166,9 @@ class CartolexAPI:
         )
         return self._make_request('PUT', endpoint, data=config)
 
-    def delete_database_config(self, endpoint_name: str, db_type: str, db_kind: str) -> APIResponse:
-        """Delete database configuration"""
-        endpoint = APIEndpoints.IO_CONFIG_DETAIL.format(
-            endpoint=endpoint_name, db_type=db_type, db_kind=db_kind
-        )
+    def delete_endpoint_config(self, endpoint_name: str) -> APIResponse:
+        """Delete entire endpoint configuration"""
+        endpoint = APIEndpoints.IO_ENDPOINT_DELETE.format(endpoint=endpoint_name)
         return self._make_request('DELETE', endpoint)
 
     def get_database_entries_count(self, endpoint_name: str, db_type: str, db_kind: str, config_kind: str = None) -> APIResponse:

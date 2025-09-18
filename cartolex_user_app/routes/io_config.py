@@ -1,6 +1,6 @@
 """IO configuration routes using shared constants"""
 
-from flask import Blueprint, render_template, request, current_app, flash, redirect, url_for
+from flask import Blueprint, render_template, request, current_app, flash, redirect, url_for, jsonify
 from cartolex_endpoint_server.constants import ErrorCodes, ConfigurationKinds
 
 bp = Blueprint('io_config', __name__)
@@ -231,31 +231,31 @@ def update_config(endpoint_name, db_type, db_kind):
         return render_template('partials/config_error.html', error=error_message)
 
 
-@bp.route('/<endpoint_name>/<db_type>/<db_kind>', methods=['DELETE'])
-def delete_config(endpoint_name, db_type, db_kind):
-    """Delete database configuration"""
+@bp.route('/endpoint/<endpoint_name>', methods=['DELETE'])
+def delete_endpoint(endpoint_name):
+    """Delete entire endpoint configuration"""
     api = current_app.api_client
 
     try:
-        response = api.delete_database_config(endpoint_name, db_type, db_kind)
+        response = api.delete_endpoint_config(endpoint_name)
 
         if response.success:
-            from flask import jsonify
             return jsonify({
                 "success": True,
-                "message": f"Configuration {endpoint_name}/{db_type}/{db_kind} deleted successfully"
+                "message": f"Endpoint '{endpoint_name}' deleted successfully",
+                "endpoint_name": endpoint_name,
+                "deleted_at": response.data.get('deleted_at') if response.data else None
             })
         else:
-            from flask import jsonify
-            # Enhanced error handling for new backend error codes
+            # Enhanced error handling for endpoint deletion
             error_messages = {
-                'IO_CONFIG_NOT_FOUND': f"Configuration {endpoint_name}/{db_type}/{db_kind} does not exist",
+                'ENDPOINT_NOT_FOUND': f"Endpoint '{endpoint_name}' does not exist",
                 'DB_CONNECTION_ERROR': "Cannot delete: Database connection failed",
                 'CONFIG_HANDLER_ERROR': "Configuration system error during delete operation"
             }
 
             user_message = error_messages.get(response.error_code, response.error or "Unknown error occurred")
-            status_code = 404 if response.error_code == 'IO_CONFIG_NOT_FOUND' else 400
+            status_code = 404 if response.error_code == 'ENDPOINT_NOT_FOUND' else 400
 
             return jsonify({
                 "success": False,
@@ -264,14 +264,12 @@ def delete_config(endpoint_name, db_type, db_kind):
             }), status_code
 
     except Exception as e:
-        # Handle case where backend hasn't implemented DELETE yet
-        from flask import jsonify
         return jsonify({
             "success": False,
-            "error": "Delete operation not yet implemented by backend",
-            "message": f"Backend needs to implement DELETE /api/v1/io/configs/{endpoint_name}/{db_type}/{db_kind}",
+            "error": "Delete operation failed",
+            "message": f"Failed to delete endpoint '{endpoint_name}'",
             "technical_error": str(e)
-        }), 501
+        }), 500
 
 
 @bp.route('/create')

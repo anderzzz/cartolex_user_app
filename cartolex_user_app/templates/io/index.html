@@ -77,20 +77,32 @@
                                     <span>Types: {{ db_types | join(', ') }}</span>
                                 </div>
                             </div>
-                            <!-- Expand/Collapse Button -->
-                            <button type="button"
-                                    @click="if (!openConfigs['{{ endpoint_name }}']) {
-                                              openConfigs['{{ endpoint_name }}'] = true;
-                                            } else {
-                                              openConfigs['{{ endpoint_name }}'] = false;
-                                            }"
-                                    class="flex items-center px-3 py-1 text-sm font-medium rounded-md esevioz-btn-config"
-                                    title="Show database configurations">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21 3.582 4 8 4s8-1.79 8-4V7m0 0c0 2.21 3.582 4 8 4s8-1.79 8-4V7m0 0c0-2.21 3.582-4 8-4s8 1.79 8 4v5M28 7h8"></path>
-                                </svg>
-                                <span x-text="openConfigs['{{ endpoint_name }}'] ? 'Hide' : 'Show'">Show</span>
-                            </button>
+                            <div class="flex items-center space-x-2">
+                                <!-- Delete Endpoint Button -->
+                                <button type="button"
+                                        onclick="deleteEndpoint('{{ endpoint_name }}')"
+                                        class="px-2 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
+                                        title="Delete entire endpoint">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+
+                                <!-- Expand/Collapse Button -->
+                                <button type="button"
+                                        @click="if (!openConfigs['{{ endpoint_name }}']) {
+                                                  openConfigs['{{ endpoint_name }}'] = true;
+                                                } else {
+                                                  openConfigs['{{ endpoint_name }}'] = false;
+                                                }"
+                                        class="flex items-center px-3 py-1 text-sm font-medium rounded-md esevioz-btn-config"
+                                        title="Show database configurations">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21 3.582 4 8 4s8-1.79 8-4V7m0 0c0 2.21 3.582 4 8 4s8-1.79 8-4V7m0 0c0-2.21 3.582-4 8-4s8 1.79 8 4v5M28 7h8"></path>
+                                    </svg>
+                                    <span x-text="openConfigs['{{ endpoint_name }}'] ? 'Hide' : 'Show'">Show</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -165,21 +177,12 @@
                                             <!-- Create From Button -->
                                             <button type="button"
                                                     onclick="createFromConfig('{{ db_config['endpoint_name'] }}', '{{ db_config['db_type'] }}', '{{ db_config['db_kind'] }}')"
-                                                    class="px-2 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
+                                                    class="flex-1 px-2 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
                                                     title="Create new configuration based on this one">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                                                 </svg>
-                                            </button>
-
-                                            <!-- Delete Button -->
-                                            <button type="button"
-                                                    onclick="deleteConfig('{{ db_config['endpoint_name'] }}', '{{ db_config['db_type'] }}', '{{ db_config['db_kind'] }}')"
-                                                    class="px-2 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
-                                                    title="Delete this configuration">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                                </svg>
+                                                Copy
                                             </button>
                                         </div>
 
@@ -247,15 +250,15 @@
         window.location.href = `/io/create?template_endpoint=${endpointName}&template_db_type=${dbType}&template_db_kind=${dbKind}`;
     };
 
-    window.deleteConfig = function(endpointName, dbType, dbKind) {
-        if (confirm(`Are you sure you want to delete the ${dbType} ${dbKind} configuration for ${endpointName}?\n\nThis action cannot be undone.`)) {
-            htmx.ajax('DELETE', `/io/${endpointName}/${dbType}/${dbKind}`, {
+    window.deleteEndpoint = function(endpointName) {
+        if (confirm(`Are you sure you want to delete the entire endpoint "${endpointName}" and all its database configurations?\n\nThis action cannot be undone.`)) {
+            htmx.ajax('DELETE', `/io/endpoint/${endpointName}`, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             }).then(() => {
                 // Reload the page to reflect changes
                 window.location.reload();
             }).catch((error) => {
-                alert('Failed to delete configuration. Please try again.');
+                alert('Failed to delete endpoint. Please try again.');
                 console.error('Delete error:', error);
             });
         }
