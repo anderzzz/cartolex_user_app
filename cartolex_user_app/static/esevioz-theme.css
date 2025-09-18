@@ -156,12 +156,14 @@ a.esevioz-btn-primary:hover,
   color: var(--color-highlight) !important;
 }
 
-/* Configuration Button - Fern Green */
+/* Configuration Button - Uses Dominant Color (Pine/Antique White) */
+button.esevioz-btn-config,
+a.esevioz-btn-config,
 .esevioz-btn-config {
-  background-color: #486F38 !important; /* fern green */
-  color: #FFF5EB !important; /* linen/white */
-  border: 2px solid #486F38 !important;
-  border-color: #486F38 !important;
+  background-color: var(--color-dominant) !important;
+  color: var(--color-background) !important;
+  border: 2px solid var(--color-dominant) !important;
+  border-color: var(--color-dominant) !important;
   padding: 0.5rem 1rem !important;
   border-radius: 0.375rem !important;
   font-family: var(--font-family) !important;
@@ -173,10 +175,44 @@ a.esevioz-btn-primary:hover,
   box-shadow: none !important;
 }
 
+button.esevioz-btn-config:hover,
+a.esevioz-btn-config:hover,
 .esevioz-btn-config:hover {
-  background-color: #FFF5EB !important;
-  color: #486F38 !important;
-  border-color: #486F38 !important;
+  background-color: var(--color-background) !important;
+  color: var(--color-dominant) !important;
+  border-color: var(--color-dominant) !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+}
+
+/* Details Button - Same styling as config button */
+button.esevioz-btn-details,
+a.esevioz-btn-details,
+.esevioz-btn-details {
+  background-color: var(--color-dominant) !important;
+  color: var(--color-background) !important;
+  border: 2px solid var(--color-dominant) !important;
+  border-color: var(--color-dominant) !important;
+  padding: 0.375rem 0.75rem !important;
+  border-radius: 0.375rem !important;
+  font-family: var(--font-family) !important;
+  font-weight: 500 !important;
+  font-size: 0.75rem !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+  width: 100% !important;
+}
+
+button.esevioz-btn-details:hover,
+a.esevioz-btn-details:hover,
+.esevioz-btn-details:hover {
+  background-color: var(--color-background) !important;
+  color: var(--color-dominant) !important;
+  border-color: var(--color-dominant) !important;
   opacity: 1 !important;
   box-shadow: none !important;
 }
