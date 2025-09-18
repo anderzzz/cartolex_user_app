@@ -1,19 +1,9 @@
 <!-- IO Configuration Details View - Read-only detailed information -->
 <div class="border-t esevioz-border-dominant mt-4 pt-4">
     <!-- Configuration Header -->
-    <div class="flex items-center justify-between mb-6">
-        <div>
-            <h4 class="text-xl font-semibold esevioz-text">{{ db_type | title }} Database Details</h4>
-            <p class="text-sm esevioz-text opacity-75 mt-1">Path: {{ endpoint_name }} → {{ db_type }} → {{ db_kind }}</p>
-        </div>
-        <button type="button"
-                onclick="closeIOConfig('{{ endpoint_name }}-{{ db_type }}-{{ db_kind }}')"
-                class="text-sm esevioz-text opacity-75 hover:opacity-100"
-                title="Close details">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-        </button>
+    <div class="mb-6">
+        <h4 class="text-xl font-semibold esevioz-text">{{ db_type | title }} Database Details</h4>
+        <p class="text-sm esevioz-text opacity-75 mt-1">Path: {{ endpoint_name }} → {{ db_type }} → {{ db_kind }}</p>
     </div>
 
     {% if config %}
@@ -183,12 +173,3 @@
     </div>
 </div>
 
-<script>
-    // Global function to close IO configuration details
-    window.closeIOConfig = function(configKey) {
-        // Dispatch custom event that the Alpine component can listen to
-        window.dispatchEvent(new CustomEvent('close-io-config', {
-            detail: { configKey: configKey }
-        }));
-    };
-</script>
