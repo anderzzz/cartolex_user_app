@@ -346,6 +346,35 @@ a.esevioz-btn-config-db:hover,
   box-shadow: 0 2px 4px rgba(27, 84, 32, 0.2) !important;
 }
 
+/* Delete Button - Serious Action Button */
+button.esevioz-btn-delete,
+a.esevioz-btn-delete,
+.esevioz-btn-delete {
+  background-color: #E44628 !important; /* faded red */
+  color: #FFF5EB !important; /* linen/white */
+  border: 2px solid #E44628 !important;
+  border-color: #E44628 !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 0.375rem !important;
+  font-family: var(--font-family) !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+}
+
+button.esevioz-btn-delete:hover,
+a.esevioz-btn-delete:hover,
+.esevioz-btn-delete:hover {
+  background-color: #FFF5EB !important;
+  color: #E44628 !important;
+  border-color: #E44628 !important;
+  opacity: 1 !important;
+  box-shadow: 0 2px 4px rgba(228, 70, 40, 0.2) !important;
+}
+
 /* Dark mode adjustments for database cards */
 [data-theme="dark"] .esevioz-db-card {
   border-color: var(--color-text);
@@ -370,6 +399,23 @@ a.esevioz-btn-config-db:hover,
   background-color: #191919 !important;
   color: #486F38 !important;
   border-color: #486F38 !important;
+}
+
+/* Dark mode adjustments for delete button */
+[data-theme="dark"] button.esevioz-btn-delete,
+[data-theme="dark"] a.esevioz-btn-delete,
+[data-theme="dark"] .esevioz-btn-delete {
+  background-color: #E44628 !important; /* same faded red works in dark mode */
+  color: #FCFCFC !important; /* white text in dark mode */
+  border-color: #E44628 !important;
+}
+
+[data-theme="dark"] button.esevioz-btn-delete:hover,
+[data-theme="dark"] a.esevioz-btn-delete:hover,
+[data-theme="dark"] .esevioz-btn-delete:hover {
+  background-color: #191919 !important;
+  color: #E44628 !important;
+  border-color: #E44628 !important;
 }
 
 /* Utility Classes */
