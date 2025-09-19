@@ -1,0 +1,81 @@
+<!-- Semantics Provider Tiers - Level 3 in Progressive Disclosure -->
+{% if configs and configs.configurations %}
+    {% set configurations = configs.configurations %}
+
+    <!-- Iterate through tiers for this provider -->
+    {% for tier, tier_config in configurations.items() %}
+        {% set tier_key = endpoint_name + '-' + provider + '-' + tier %}
+
+        <!-- Level 3: Tier -->
+        <div class="progressive-item-l3">
+            <!-- Tier Header -->
+            <div class="progressive-header" @click="toggleTier('{{ endpoint_name }}', '{{ provider }}', '{{ tier }}')">
+                <div class="flex-1">
+                    <h5 class="font-medium esevioz-text">{{ tier }}</h5>
+                    {% if tier_config %}
+                        <div class="progressive-meta">
+                            <!-- Quick config preview badges -->
+                            {% if tier_config.model %}
+                                <span class="progressive-meta-badge">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                                    </svg>
+                                    {{ tier_config.model }}
+                                </span>
+                            {% endif %}
+                            {% if tier_config.chat_completion_parameters %}
+                                {% set params = tier_config.chat_completion_parameters %}
+                                {% if params.temperature %}
+                                    <span class="progressive-meta-badge">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                        </svg>
+                                        T: {{ params.temperature }}
+                                    </span>
+                                {% endif %}
+                                {% if params.max_completion_tokens %}
+                                    <span class="progressive-meta-badge">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
+                                        </svg>
+                                        {{ params.max_completion_tokens }} tokens
+                                    </span>
+                                {% endif %}
+                            {% endif %}
+                            {% if tier_config.vector_size or tier_config.dimensions %}
+                                <span class="progressive-meta-badge">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    {{ tier_config.vector_size or tier_config.dimensions }}D
+                                </span>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                <svg class="progressive-chevron progressive-chevron-sm"
+                     :class="{ 'expanded': expandedTiers['{{ tier_key }}'] }"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </div>
+
+            <!-- Level 4: Details Container -->
+            <div x-show="expandedTiers['{{ tier_key }}']" x-collapse class="progressive-content progressive-content-l3">
+                <div id="details-{{ tier_key }}">
+                    <!-- Details will be loaded here via HTMX -->
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <!-- No Tiers Available -->
+    <div class="progressive-item-l3">
+        <div class="text-center py-4">
+            <svg class="mx-auto h-5 w-5 esevioz-text opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+            </svg>
+            <p class="mt-2 text-xs esevioz-text opacity-75">No tiers available for {{ provider }}</p>
+        </div>
+    </div>
+{% endif %}

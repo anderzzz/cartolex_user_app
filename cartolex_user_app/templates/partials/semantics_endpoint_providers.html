@@ -1,0 +1,60 @@
+<!-- Semantics Endpoint Providers - Level 2 in Progressive Disclosure -->
+{% if configs and configs.configuration %}
+    {% set configuration = configs.configuration %}
+
+    <!-- Iterate through providers (excluding _schema and description) -->
+    {% for provider, tiers in configuration.items() %}
+        {% if tiers is mapping and not provider.startswith('_') and provider != 'description' %}
+            {% set provider_key = endpoint_name + '-' + provider %}
+            {% set tier_count = tiers.keys() | list | length %}
+
+            <!-- Level 2: Provider -->
+            <div class="progressive-item-l2">
+                <!-- Provider Header -->
+                <div class="progressive-header" @click="toggleProvider('{{ endpoint_name }}', '{{ provider }}')">
+                    <div class="flex-1">
+                        <h4 class="font-medium esevioz-text">{{ provider | title }}</h4>
+                        <div class="progressive-meta">
+                            <span class="progressive-meta-badge">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                </svg>
+                                {{ tier_count }} {{ 'tier' if tier_count == 1 else 'tiers' }}
+                            </span>
+                            {% if tier_count > 0 %}
+                                <span class="progressive-meta-badge">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                                    </svg>
+                                    {{ tiers.keys() | list | join(', ') }}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <svg class="progressive-chevron progressive-chevron-md"
+                         :class="{ 'expanded': expandedProviders['{{ provider_key }}'] }"
+                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </div>
+
+                <!-- Level 3: Tiers Container -->
+                <div x-show="expandedProviders['{{ provider_key }}']" x-collapse class="progressive-content progressive-content-l2">
+                    <div id="tiers-{{ provider_key }}">
+                        <!-- Tiers will be loaded here via HTMX -->
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% else %}
+    <!-- No Providers Available -->
+    <div class="progressive-item-l2">
+        <div class="text-center py-6">
+            <svg class="mx-auto h-6 w-6 esevioz-text opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+            <p class="mt-2 text-sm esevioz-text opacity-75">No providers available for this endpoint</p>
+        </div>
+    </div>
+{% endif %}
