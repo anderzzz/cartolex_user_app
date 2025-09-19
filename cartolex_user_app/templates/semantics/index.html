@@ -2,7 +2,80 @@
 
 {% block content %}
 <div class="px-4 py-6 sm:px-0" x-data="{
-    openConfigs: {}
+    expandedEndpoints: {},
+    expandedProviders: {},
+    expandedTiers: {},
+
+    toggleEndpoint(endpointName) {
+        if (this.expandedEndpoints[endpointName]) {
+            this.expandedEndpoints[endpointName] = false;
+            // Close all providers when endpoint closes
+            Object.keys(this.expandedProviders).forEach(key => {
+                if (key.startsWith(endpointName + '-')) {
+                    this.expandedProviders[key] = false;
+                }
+            });
+            // Close all tiers when endpoint closes
+            Object.keys(this.expandedTiers).forEach(key => {
+                if (key.startsWith(endpointName + '-')) {
+                    this.expandedTiers[key] = false;
+                }
+            });
+        } else {
+            this.expandedEndpoints[endpointName] = true;
+            // Load providers if not already loaded
+            const providersContainer = document.getElementById('providers-' + endpointName);
+            if (providersContainer && !providersContainer.hasAttribute('data-loaded')) {
+                htmx.ajax('GET', `/semantics/${endpointName}/providers{{ '?config_kind=' + config_kind if config_kind else '' }}`, {
+                    target: '#providers-' + endpointName,
+                    swap: 'innerHTML'
+                });
+                providersContainer.setAttribute('data-loaded', 'true');
+            }
+        }
+    },
+
+    toggleProvider(endpointName, providerName) {
+        const key = endpointName + '-' + providerName;
+        if (this.expandedProviders[key]) {
+            this.expandedProviders[key] = false;
+            // Close all tiers for this provider
+            Object.keys(this.expandedTiers).forEach(tierKey => {
+                if (tierKey.startsWith(key + '-')) {
+                    this.expandedTiers[tierKey] = false;
+                }
+            });
+        } else {
+            this.expandedProviders[key] = true;
+            // Load tiers if not already loaded
+            const tiersContainer = document.getElementById('tiers-' + key);
+            if (tiersContainer && !tiersContainer.hasAttribute('data-loaded')) {
+                htmx.ajax('GET', `/semantics/${endpointName}/${providerName}/tiers{{ '?config_kind=' + config_kind if config_kind else '' }}`, {
+                    target: '#tiers-' + key,
+                    swap: 'innerHTML'
+                });
+                tiersContainer.setAttribute('data-loaded', 'true');
+            }
+        }
+    },
+
+    toggleTier(endpointName, providerName, tierName) {
+        const key = endpointName + '-' + providerName + '-' + tierName;
+        if (this.expandedTiers[key]) {
+            this.expandedTiers[key] = false;
+        } else {
+            this.expandedTiers[key] = true;
+            // Load details if not already loaded
+            const detailsContainer = document.getElementById('details-' + key);
+            if (detailsContainer && !detailsContainer.hasAttribute('data-loaded')) {
+                htmx.ajax('GET', `/semantics/${endpointName}/${providerName}/${tierName}/details{{ '?config_kind=' + config_kind if config_kind else '' }}`, {
+                    target: '#details-' + key,
+                    swap: 'innerHTML'
+                });
+                detailsContainer.setAttribute('data-loaded', 'true');
+            }
+        }
+    }
 }">
     <!-- Header -->
     <div class="border-b esevioz-border-dominant pb-4 mb-6">
@@ -44,14 +117,14 @@
         </div>
     {% endif %}
 
-    <!-- Semantics Configuration Endpoints -->
+    <!-- Progressive Disclosure Hierarchy -->
     {% if configs %}
-        <div class="grid gap-6">
+        <div class="progressive-disclosure">
             {% for endpoint_config in configs %}
                 {% set endpoint_name = endpoint_config.endpoint_name %}
                 {% set configuration = endpoint_config.configuration %}
 
-                <!-- Count providers and configurations -->
+                <!-- Count providers and configurations (excluding _schema and description) -->
                 {% set provider_list = [] %}
                 {% set total_configs = 0 %}
                 {% for provider, tiers in configuration.items() %}
@@ -61,84 +134,49 @@
                     {% endif %}
                 {% endfor %}
 
-                <div class="esevioz-card esevioz-shadow rounded-lg">
+                <!-- Level 1: Endpoint -->
+                <div class="progressive-item-l1">
                     <!-- Endpoint Header -->
-                    <div class="px-6 py-4 border-b esevioz-border-dominant">
-                        <div class="flex items-center justify-between">
-                            <div class="flex-1">
-                                <h3 class="text-lg font-medium esevioz-text">{{ endpoint_name }}</h3>
-                                {% if configuration.description %}
-                                    <p class="mt-1 text-sm esevioz-text opacity-75">{{ configuration.description }}</p>
-                                {% endif %}
-                                <p class="{% if configuration.description %}mt-2{% else %}mt-1{% endif %} text-sm esevioz-text opacity-75">
-                                    {{ provider_list|length }} {{ 'provider' if provider_list|length == 1 else 'providers' }},
-                                    {{ total_configs }} {{ 'configuration' if total_configs == 1 else 'configurations' }}
-                                </p>
-                                <div class="mt-2 flex items-center space-x-4 text-xs esevioz-text opacity-60">
-                                    <!-- Show providers in this endpoint -->
-                                    <span>Providers: {{ provider_list | join(', ') }}</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <!-- Expand/Collapse Button -->
-                                <button type="button"
-                                        @click="if (!openConfigs['{{ endpoint_name }}']) {
-                                                  openConfigs['{{ endpoint_name }}'] = true;
-                                                } else {
-                                                  openConfigs['{{ endpoint_name }}'] = false;
-                                                }"
-                                        class="flex items-center px-3 py-1 text-sm font-medium rounded-md esevioz-btn-config"
-                                        title="Show provider configurations">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="progressive-header" @click="toggleEndpoint('{{ endpoint_name }}')">
+                        <div class="flex-1">
+                            <h3 class="font-semibold esevioz-text">{{ endpoint_name }}</h3>
+                            {% if configuration.description %}
+                                <p class="mt-1 text-sm esevioz-text opacity-75">{{ configuration.description }}</p>
+                            {% endif %}
+                            <div class="progressive-meta">
+                                <span class="progressive-meta-badge">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                    </svg>
+                                    {{ provider_list|length }} {{ 'provider' if provider_list|length == 1 else 'providers' }}
+                                </span>
+                                <span class="progressive-meta-badge">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
                                     </svg>
-                                    <span x-text="openConfigs['{{ endpoint_name }}'] ? 'Hide' : 'Show'">Show</span>
-                                </button>
+                                    {{ total_configs }} {{ 'configuration' if total_configs == 1 else 'configurations' }}
+                                </span>
+                                {% if provider_list %}
+                                    <span class="progressive-meta-badge">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                        </svg>
+                                        {{ provider_list | join(', ') }}
+                                    </span>
+                                {% endif %}
                             </div>
                         </div>
+                        <svg class="progressive-chevron progressive-chevron-lg"
+                             :class="{ 'expanded': expandedEndpoints['{{ endpoint_name }}'] }"
+                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
                     </div>
 
-                    <!-- Expandable Provider Grid -->
-                    <div x-show="openConfigs['{{ endpoint_name }}']" x-collapse>
-                        <div class="px-6 py-4">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {% for provider, tiers in configuration.items() %}
-                                    {% if tiers is mapping and not provider.startswith('_') and provider != 'description' %}
-                                        {% set config_key = endpoint_name + '-' + provider %}
-                                        <div class="esevioz-db-card rounded-lg p-4">
-                                            <!-- Provider Name -->
-                                            <div class="text-center mb-4">
-                                                <h4 class="text-lg font-medium esevioz-text mb-1">{{ provider | title }}</h4>
-                                                <p class="text-sm esevioz-text opacity-75">{{ tiers.keys() | list | length }} tier{{ 's' if (tiers.keys() | list | length) != 1 else '' }}</p>
-                                            </div>
-
-                                            <!-- Action Button -->
-                                            <div>
-                                                <!-- View Details Button -->
-                                                <button type="button"
-                                                        @click="if (!openConfigs['config-{{ config_key }}']) {
-                                                                  htmx.ajax('GET', '{{ url_for('semantics.provider_configs', endpoint_name=endpoint_name, provider=provider) }}{{ '?config_kind=' + config_kind if config_kind else '' }}', {
-                                                                    target: '#semantics-config-{{ config_key }}',
-                                                                    swap: 'innerHTML'
-                                                                  });
-                                                                  openConfigs['config-{{ config_key }}'] = true;
-                                                                } else {
-                                                                  openConfigs['config-{{ config_key }}'] = false;
-                                                                  document.getElementById('semantics-config-{{ config_key }}').innerHTML = '';
-                                                                }"
-                                                        class="esevioz-btn-details">
-                                                    <span x-text="openConfigs['config-{{ config_key }}'] ? 'Hide' : 'Details'">Details</span>
-                                                </button>
-                                            </div>
-
-                                            <!-- Configuration Panel -->
-                                            <div id="semantics-config-{{ config_key }}" x-show="openConfigs['config-{{ config_key }}']" x-collapse class="mt-4">
-                                                <!-- Configuration details will be loaded here via HTMX -->
-                                            </div>
-                                        </div>
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
+                    <!-- Level 2: Providers Container -->
+                    <div x-show="expandedEndpoints['{{ endpoint_name }}']" x-collapse class="progressive-content progressive-content-l1">
+                        <div id="providers-{{ endpoint_name }}">
+                            <!-- Providers will be loaded here via HTMX -->
                         </div>
                     </div>
                 </div>
@@ -158,4 +196,9 @@
     {% endif %}
 
 </div>
+
+<!-- Pass config_kind to JavaScript for HTMX requests -->
+<script>
+    const config_kind = "{{ config_kind if config_kind else '' }}";
+</script>
 {% endblock %}

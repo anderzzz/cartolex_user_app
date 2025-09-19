@@ -117,6 +117,51 @@ def config_details(endpoint_name, provider, tier):
                            config_kind=config_kind)
 
 
+@bp.route('/<endpoint_name>/providers')
+def endpoint_providers(endpoint_name):
+    """Get providers for a specific endpoint (HTMX partial)"""
+    api = current_app.api_client
+    config_kind = request.args.get('config_kind', ConfigurationKinds.CONFIGURATION_DIRECTORY)
+
+    # Validate config_kind
+    if config_kind not in ConfigurationKinds.SEMANTICS_SUPPORTED:
+        config_kind = ConfigurationKinds.CONFIGURATION_DIRECTORY
+
+    response = api.get_semantics_endpoint_configs(endpoint_name, config_kind)
+
+    if not response.success:
+        return render_template('partials/config_error.html',
+                               error=f"Error loading providers for {endpoint_name}: {response.error}")
+
+    return render_template('partials/semantics_endpoint_providers.html',
+                           endpoint_name=endpoint_name,
+                           configs=response.data,
+                           config_kind=config_kind)
+
+
+@bp.route('/<endpoint_name>/<provider>/tiers')
+def provider_tiers(endpoint_name, provider):
+    """Get tiers for a specific provider (HTMX partial)"""
+    api = current_app.api_client
+    config_kind = request.args.get('config_kind', ConfigurationKinds.CONFIGURATION_DIRECTORY)
+
+    # Validate config_kind
+    if config_kind not in ConfigurationKinds.SEMANTICS_SUPPORTED:
+        config_kind = ConfigurationKinds.CONFIGURATION_DIRECTORY
+
+    response = api.get_semantics_provider_configs(endpoint_name, provider, config_kind)
+
+    if not response.success:
+        return render_template('partials/config_error.html',
+                               error=f"Error loading tiers for {provider}: {response.error}")
+
+    return render_template('partials/semantics_provider_tiers.html',
+                           endpoint_name=endpoint_name,
+                           provider=provider,
+                           configs=response.data,
+                           config_kind=config_kind)
+
+
 @bp.route('/embedding-models')
 def embedding_models():
     """Redirect to main semantics page"""
