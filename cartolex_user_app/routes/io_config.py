@@ -52,27 +52,25 @@ def endpoint_types(endpoint_name):
     db_types = []
     all_configs = response.data.get('configurations', [])
 
-    # Filter configurations for the specific endpoint
-    endpoint_configs = [config for config in all_configs if config['endpoint_name'] == endpoint_name]
+    # Find the specific endpoint configuration
+    endpoint_config = next((config for config in all_configs if config['endpoint_name'] == endpoint_name), None)
 
-    if endpoint_configs:
-        # Group configurations by database type
+    if endpoint_config and 'configuration' in endpoint_config:
+        configuration = endpoint_config['configuration']
         type_groups = {}
-        for config in endpoint_configs:
-            db_type = config['db_type']
-            if db_type not in type_groups:
+
+        # Process the hierarchical structure (similar to original template)
+        for db_type_key, db_type_data in configuration.items():
+            if db_type_key.endswith('_db') and db_type_data and isinstance(db_type_data, dict):
+                db_type = db_type_key.replace('_db', '')
                 type_groups[db_type] = {
                     'db_type': db_type,
-                    'kind_count': 0,
-                    'kinds': []
+                    'kind_count': len(db_type_data),
+                    'kinds': list(db_type_data.keys())
                 }
-            type_groups[db_type]['kind_count'] += 1
-            type_groups[db_type]['kinds'].append(config['db_kind'])
 
-        # Convert to list and ensure unique kinds
-        for db_type, type_info in type_groups.items():
-            type_info['kinds'] = list(set(type_info['kinds']))
-            db_types.append(type_info)
+        # Convert to list
+        db_types = list(type_groups.values())
 
     return render_template('partials/io_endpoint_types.html',
                            endpoint_name=endpoint_name,
@@ -100,14 +98,22 @@ def type_kinds(endpoint_name, db_type):
     db_kinds = []
     all_configs = response.data.get('configurations', [])
 
-    for config in all_configs:
-        if config['endpoint_name'] == endpoint_name and config['db_type'] == db_type:
-            db_kinds.append({
-                'db_kind': config['db_kind'],
-                'endpoint_name': endpoint_name,
-                'db_type': db_type,
-                'config': config.get('config', {})
-            })
+    # Find the specific endpoint configuration
+    endpoint_config = next((config for config in all_configs if config['endpoint_name'] == endpoint_name), None)
+
+    if endpoint_config and 'configuration' in endpoint_config:
+        configuration = endpoint_config['configuration']
+        db_type_key = f"{db_type}_db"
+
+        if db_type_key in configuration and isinstance(configuration[db_type_key], dict):
+            db_type_data = configuration[db_type_key]
+            for db_kind, db_config in db_type_data.items():
+                db_kinds.append({
+                    'db_kind': db_kind,
+                    'endpoint_name': endpoint_name,
+                    'db_type': db_type,
+                    'config': db_config or {}
+                })
 
     return render_template('partials/io_type_kinds.html',
                            endpoint_name=endpoint_name,
