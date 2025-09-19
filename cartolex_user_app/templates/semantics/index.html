@@ -7,7 +7,6 @@
     expandedTiers: {},
 
     toggleEndpoint(endpointName) {
-        console.log('Toggling endpoint:', endpointName, 'Current state:', this.expandedEndpoints[endpointName]);
         if (this.expandedEndpoints[endpointName]) {
             this.expandedEndpoints[endpointName] = false;
             // Close all providers when endpoint closes
@@ -26,10 +25,8 @@
             this.expandedEndpoints[endpointName] = true;
             // Load providers if not already loaded
             const providersContainer = document.getElementById('providers-' + endpointName);
-            console.log('Providers container:', providersContainer);
             if (providersContainer && !providersContainer.hasAttribute('data-loaded')) {
                 const url = '/semantics/' + endpointName + '/providers' + (config_kind ? '?config_kind=' + config_kind : '');
-                console.log('Making HTMX request to:', url);
                 htmx.ajax('GET', url, {
                     target: '#providers-' + endpointName,
                     swap: 'innerHTML'
