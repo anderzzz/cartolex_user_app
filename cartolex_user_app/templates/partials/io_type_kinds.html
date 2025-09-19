@@ -1,0 +1,40 @@
+<!-- IO Database Type Kinds - Level 3 in Progressive Disclosure -->
+{% if db_kinds %}
+    <!-- Iterate through database kinds for this type -->
+    {% for kind_info in db_kinds %}
+        {% set db_kind = kind_info.db_kind %}
+        {% set kind_key = endpoint_name + '-' + db_type + '-' + db_kind %}
+
+        <!-- Level 3: Database Kind -->
+        <div class="progressive-item-l3">
+            <!-- Database Kind Header -->
+            <div class="progressive-header" @click="toggleDatabaseKind('{{ endpoint_name }}', '{{ db_type }}', '{{ db_kind }}')">
+                <div class="flex-1">
+                    <h5 class="font-medium esevioz-text">{{ db_kind | title }}</h5>
+                </div>
+                <svg class="progressive-chevron progressive-chevron-sm"
+                     :class="{ 'expanded': expandedDatabaseKinds['{{ kind_key }}'] }"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </div>
+
+            <!-- Level 4: Details Container -->
+            <div x-show="expandedDatabaseKinds['{{ kind_key }}']" x-collapse class="progressive-content progressive-content-l3">
+                <div id="details-{{ kind_key }}">
+                    <!-- Details will be loaded here via HTMX -->
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <!-- No Database Kinds Available -->
+    <div class="progressive-item-l3">
+        <div class="text-center py-4">
+            <svg class="mx-auto h-5 w-5 esevioz-text opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21 3.582 4 8 4s8-1.79 8-4V7m0 0c0 2.21 3.582 4 8 4s8-1.79 8-4V7m0 0c0-2.21 3.582-4 8-4s8 1.79 8 4v5M28 7h8"></path>
+            </svg>
+            <p class="mt-2 text-xs esevioz-text opacity-75">No database kinds available for {{ db_type }}</p>
+        </div>
+    </div>
+{% endif %}

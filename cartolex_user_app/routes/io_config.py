@@ -32,6 +32,86 @@ def index():
                            supported_kinds=ConfigurationKinds.IO_SUPPORTED)
 
 
+@bp.route('/<endpoint_name>/types')
+def endpoint_types(endpoint_name):
+    """Get database types for a specific endpoint (HTMX partial)"""
+    api = current_app.api_client
+    config_kind = request.args.get('config_kind', ConfigurationKinds.CONFIGURATION_DIRECTORY)
+
+    # Validate config_kind
+    if config_kind not in ConfigurationKinds.IO_SUPPORTED:
+        config_kind = ConfigurationKinds.CONFIGURATION_DIRECTORY
+
+    response = api.get_endpoint_configs(endpoint_name)
+
+    if not response.success:
+        return render_template('partials/config_error.html',
+                               error=f"Error loading database types for {endpoint_name}: {response.error}")
+
+    # Process the endpoint configuration to extract database types
+    endpoint_data = response.data
+    db_types = []
+
+    if endpoint_data and 'configurations' in endpoint_data:
+        # Group configurations by database type
+        type_groups = {}
+        for config in endpoint_data['configurations']:
+            db_type = config['db_type']
+            if db_type not in type_groups:
+                type_groups[db_type] = {
+                    'db_type': db_type,
+                    'kind_count': 0,
+                    'kinds': []
+                }
+            type_groups[db_type]['kind_count'] += 1
+            type_groups[db_type]['kinds'].append(config['db_kind'])
+
+        # Convert to list and ensure unique kinds
+        for db_type, type_info in type_groups.items():
+            type_info['kinds'] = list(set(type_info['kinds']))
+            db_types.append(type_info)
+
+    return render_template('partials/io_endpoint_types.html',
+                           endpoint_name=endpoint_name,
+                           db_types=db_types,
+                           config_kind=config_kind)
+
+
+@bp.route('/<endpoint_name>/<db_type>/kinds')
+def type_kinds(endpoint_name, db_type):
+    """Get database kinds for a specific database type (HTMX partial)"""
+    api = current_app.api_client
+    config_kind = request.args.get('config_kind', ConfigurationKinds.CONFIGURATION_DIRECTORY)
+
+    # Validate config_kind
+    if config_kind not in ConfigurationKinds.IO_SUPPORTED:
+        config_kind = ConfigurationKinds.CONFIGURATION_DIRECTORY
+
+    response = api.get_endpoint_configs(endpoint_name)
+
+    if not response.success:
+        return render_template('partials/config_error.html',
+                               error=f"Error loading database kinds for {db_type}: {response.error}")
+
+    # Filter configurations for the specific database type
+    db_kinds = []
+    if response.data and 'configurations' in response.data:
+        for config in response.data['configurations']:
+            if config['db_type'] == db_type:
+                db_kinds.append({
+                    'db_kind': config['db_kind'],
+                    'endpoint_name': endpoint_name,
+                    'db_type': db_type,
+                    'config': config.get('config', {})
+                })
+
+    return render_template('partials/io_type_kinds.html',
+                           endpoint_name=endpoint_name,
+                           db_type=db_type,
+                           db_kinds=db_kinds,
+                           config_kind=config_kind)
+
+
 @bp.route('/<endpoint_name>')
 def list_endpoint_configs(endpoint_name):
     """List all configurations for a specific endpoint"""

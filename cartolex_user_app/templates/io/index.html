@@ -2,7 +2,83 @@
 
 {% block content %}
 <div class="px-4 py-6 sm:px-0" x-data="{
-    openConfigs: {}
+    expandedEndpoints: {},
+    expandedDatabaseTypes: {},
+    expandedDatabaseKinds: {},
+
+    toggleEndpoint(endpointName) {
+        if (this.expandedEndpoints[endpointName]) {
+            this.expandedEndpoints[endpointName] = false;
+            // Close all database types when endpoint closes
+            Object.keys(this.expandedDatabaseTypes).forEach(key => {
+                if (key.startsWith(endpointName + '-')) {
+                    this.expandedDatabaseTypes[key] = false;
+                }
+            });
+            // Close all database kinds when endpoint closes
+            Object.keys(this.expandedDatabaseKinds).forEach(key => {
+                if (key.startsWith(endpointName + '-')) {
+                    this.expandedDatabaseKinds[key] = false;
+                }
+            });
+        } else {
+            this.expandedEndpoints[endpointName] = true;
+            // Load database types if not already loaded
+            const typesContainer = document.getElementById('types-' + endpointName);
+            if (typesContainer && !typesContainer.hasAttribute('data-loaded')) {
+                const url = '/io/' + endpointName + '/types' + (config_kind ? '?config_kind=' + config_kind : '');
+                htmx.ajax('GET', url, {
+                    target: '#types-' + endpointName,
+                    swap: 'innerHTML'
+                });
+                typesContainer.setAttribute('data-loaded', 'true');
+            }
+        }
+    },
+
+    toggleDatabaseType(endpointName, dbType) {
+        const key = endpointName + '-' + dbType;
+        if (this.expandedDatabaseTypes[key]) {
+            this.expandedDatabaseTypes[key] = false;
+            // Close all database kinds for this type
+            Object.keys(this.expandedDatabaseKinds).forEach(kindKey => {
+                if (kindKey.startsWith(key + '-')) {
+                    this.expandedDatabaseKinds[kindKey] = false;
+                }
+            });
+        } else {
+            this.expandedDatabaseTypes[key] = true;
+            // Load database kinds if not already loaded
+            const kindsContainer = document.getElementById('kinds-' + key);
+            if (kindsContainer && !kindsContainer.hasAttribute('data-loaded')) {
+                const url = '/io/' + endpointName + '/' + dbType + '/kinds' + (config_kind ? '?config_kind=' + config_kind : '');
+                htmx.ajax('GET', url, {
+                    target: '#kinds-' + key,
+                    swap: 'innerHTML'
+                });
+                kindsContainer.setAttribute('data-loaded', 'true');
+            }
+        }
+    },
+
+    toggleDatabaseKind(endpointName, dbType, dbKind) {
+        const key = endpointName + '-' + dbType + '-' + dbKind;
+        if (this.expandedDatabaseKinds[key]) {
+            this.expandedDatabaseKinds[key] = false;
+        } else {
+            this.expandedDatabaseKinds[key] = true;
+            // Load details if not already loaded
+            const detailsContainer = document.getElementById('details-' + key);
+            if (detailsContainer && !detailsContainer.hasAttribute('data-loaded')) {
+                const url = '/io/' + endpointName + '/' + dbType + '/' + dbKind + '/details' + (config_kind ? '?config_kind=' + config_kind : '');
+                htmx.ajax('GET', url, {
+                    target: '#details-' + key,
+                    swap: 'innerHTML'
+                });
+                detailsContainer.setAttribute('data-loaded', 'true');
+            }
+        }
+    }
 }">
     <!-- Header -->
     <div class="border-b esevioz-border-dominant pb-4 mb-6">
@@ -44,115 +120,61 @@
         </div>
     {% endif %}
 
-    <!-- Database Configurations -->
+    <!-- Progressive Disclosure Hierarchy -->
     {% if configs %}
-        <div class="grid gap-6">
+        <div class="progressive-disclosure">
             {% for endpoint_config in configs %}
                 {% set endpoint_name = endpoint_config.endpoint_name %}
-                {% set db_configs = [] %}
+                {% set configuration = endpoint_config.configuration %}
 
-                {# Build flat list of database configurations from nested structure #}
-                {% for db_type_key, db_type_data in endpoint_config.configuration.items() %}
-                    {% if db_type_key.endswith('_db') %}
+                <!-- Count database types and configurations -->
+                {% set db_type_list = [] %}
+                {% set total_configs = 0 %}
+                {% for db_type_key, db_type_data in configuration.items() %}
+                    {% if db_type_key.endswith('_db') and db_type_data is mapping %}
                         {% set db_type = db_type_key.replace('_db', '') %}
-                        {% for db_kind, db_config in db_type_data.items() %}
-                            {% set _ = db_configs.append({
-                                'db_type': db_type,
-                                'db_kind': db_kind,
-                                'config': db_config,
-                                'endpoint_name': endpoint_name
-                            }) %}
-                        {% endfor %}
+                        {% set _ = db_type_list.append(db_type) %}
+                        {% set total_configs = total_configs + (db_type_data.keys() | list | length) %}
                     {% endif %}
                 {% endfor %}
 
-                <div class="esevioz-card esevioz-shadow rounded-lg">
+                <!-- Level 1: Endpoint -->
+                <div class="progressive-item-l1">
                     <!-- Endpoint Header -->
-                    <div class="px-6 py-4 border-b esevioz-border-dominant">
-                        <div class="flex items-center justify-between">
-                            <div class="flex-1">
-                                <h3 class="text-lg font-medium esevioz-text">{{ endpoint_name }}</h3>
-                                {% if endpoint_config.configuration.description %}
-                                    <p class="mt-1 text-sm esevioz-text opacity-75">{{ endpoint_config.configuration.description }}</p>
-                                {% endif %}
-                                <p class="{% if endpoint_config.configuration.description %}mt-2{% else %}mt-1{% endif %} text-sm esevioz-text opacity-75">
-                                    {{ db_configs|length }} database {{ 'configuration' if db_configs|length == 1 else 'configurations' }}
-                                </p>
-                                <div class="mt-2 flex items-center space-x-4 text-xs esevioz-text opacity-60">
-                                    <!-- Show database types in this endpoint -->
-                                    {% set db_types = db_configs | map(attribute='db_type') | list | unique %}
-                                    <span>Types: {{ db_types | join(', ') }}</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <!-- Delete Endpoint Button -->
-                                <button type="button"
-                                        onclick="deleteEndpoint('{{ endpoint_name }}')"
-                                        class="esevioz-btn-delete text-sm font-medium"
-                                        title="Delete entire endpoint">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                    </svg>
-                                    Delete
-                                </button>
-
-                                <!-- Expand/Collapse Button -->
-                                <button type="button"
-                                        @click="if (!openConfigs['{{ endpoint_name }}']) {
-                                                  openConfigs['{{ endpoint_name }}'] = true;
-                                                } else {
-                                                  openConfigs['{{ endpoint_name }}'] = false;
-                                                }"
-                                        class="flex items-center px-3 py-1 text-sm font-medium rounded-md esevioz-btn-config"
-                                        title="Show database configurations">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="progressive-header" @click="toggleEndpoint('{{ endpoint_name }}')">
+                        <div class="flex-1">
+                            <h3 class="font-semibold esevioz-text">{{ endpoint_name }}</h3>
+                            {% if configuration.description %}
+                                <p class="mt-1 text-sm esevioz-text opacity-75">{{ configuration.description }}</p>
+                            {% endif %}
+                            <div class="progressive-meta">
+                                <span class="progressive-meta-badge">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21 3.582 4 8 4s8-1.79 8-4V7m0 0c0 2.21 3.582 4 8 4s8-1.79 8-4V7m0 0c0-2.21 3.582-4 8-4s8 1.79 8 4v5M28 7h8"></path>
                                     </svg>
-                                    <span x-text="openConfigs['{{ endpoint_name }}'] ? 'Hide' : 'Show'">Show</span>
-                                </button>
+                                    {{ db_type_list|length }} {{ 'type' if db_type_list|length == 1 else 'types' }}
+                                </span>
+                                {% if db_type_list %}
+                                    <span class="progressive-meta-badge">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                        </svg>
+                                        {{ db_type_list | join(', ') }}
+                                    </span>
+                                {% endif %}
                             </div>
                         </div>
+                        <svg class="progressive-chevron progressive-chevron-lg"
+                             :class="{ 'expanded': expandedEndpoints['{{ endpoint_name }}'] }"
+                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
                     </div>
 
-                    <!-- Expandable Configuration Grid -->
-                    <div x-show="openConfigs['{{ endpoint_name }}']" x-collapse>
-                        <div class="px-6 py-4">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {% for db_config in db_configs %}
-                                    {% set config_key = endpoint_name + '-' + db_config['db_type'] + '-' + db_config['db_kind'] %}
-                                    <div class="esevioz-db-card rounded-lg p-4">
-                                        <!-- Database Type and Kind (Text Only) -->
-                                        <div class="text-center mb-4">
-                                            <h4 class="text-lg font-medium esevioz-text mb-1">{{ db_config['db_type'] | title }}</h4>
-                                            <p class="text-sm esevioz-text opacity-75">{{ db_config['db_kind'] }}</p>
-                                        </div>
-
-                                        <!-- Action Button -->
-                                        <div>
-                                            <!-- View Details Button -->
-                                            <button type="button"
-                                                    @click="if (!openConfigs['config-{{ config_key }}']) {
-                                                              htmx.ajax('GET', '{{ url_for('io_config.view_config_details', endpoint_name=db_config['endpoint_name'], db_type=db_config['db_type'], db_kind=db_config['db_kind'], config_kind=config_kind) }}', {
-                                                                target: '#io-config-{{ config_key }}',
-                                                                swap: 'innerHTML'
-                                                              });
-                                                              openConfigs['config-{{ config_key }}'] = true;
-                                                            } else {
-                                                              openConfigs['config-{{ config_key }}'] = false;
-                                                              document.getElementById('io-config-{{ config_key }}').innerHTML = '';
-                                                            }"
-                                                    class="esevioz-btn-details">
-                                                <span x-text="openConfigs['config-{{ config_key }}'] ? 'Hide' : 'Details'">Details</span>
-                                            </button>
-                                        </div>
-
-                                        <!-- Configuration Panel -->
-                                        <div id="io-config-{{ config_key }}" x-show="openConfigs['config-{{ config_key }}']" x-collapse class="mt-4">
-                                            <!-- Configuration form will be loaded here via HTMX -->
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                            </div>
+                    <!-- Level 2: Database Types Container -->
+                    <div x-show="expandedEndpoints['{{ endpoint_name }}']" x-collapse class="progressive-content progressive-content-l1">
+                        <div id="types-{{ endpoint_name }}">
+                            <!-- Database types will be loaded here via HTMX -->
                         </div>
                     </div>
                 </div>
@@ -173,21 +195,8 @@
 
 </div>
 
+<!-- Pass config_kind to JavaScript for HTMX requests -->
 <script>
-    // Global functions for database configuration operations
-
-    window.deleteEndpoint = function(endpointName) {
-        if (confirm(`Are you sure you want to delete the entire endpoint "${endpointName}" and all its database configurations?\n\nThis action cannot be undone.`)) {
-            htmx.ajax('DELETE', `/io/endpoint/${endpointName}`, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            }).then(() => {
-                // Reload the page to reflect changes
-                window.location.reload();
-            }).catch((error) => {
-                alert('Failed to delete endpoint. Please try again.');
-                console.error('Delete error:', error);
-            });
-        }
-    };
+    const config_kind = "{{ config_kind if config_kind else '' }}";
 </script>
 {% endblock %}

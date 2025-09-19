@@ -1,0 +1,49 @@
+<!-- IO Endpoint Database Types - Level 2 in Progressive Disclosure -->
+{% if db_types %}
+    <!-- Iterate through database types -->
+    {% for type_info in db_types %}
+        {% set db_type = type_info.db_type %}
+        {% set kind_count = type_info.kind_count %}
+        {% set type_key = endpoint_name + '-' + db_type %}
+
+        <!-- Level 2: Database Type -->
+        <div class="progressive-item-l2">
+            <!-- Database Type Header -->
+            <div class="progressive-header" @click="toggleDatabaseType('{{ endpoint_name }}', '{{ db_type }}')">
+                <div class="flex-1">
+                    <h4 class="font-medium esevioz-text">{{ db_type | title }} Database</h4>
+                    <div class="progressive-meta">
+                        <span class="progressive-meta-badge">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21 3.582 4 8 4s8-1.79 8-4V7m0 0c0 2.21 3.582 4 8 4s8-1.79 8-4V7m0 0c0-2.21 3.582-4 8-4s8 1.79 8 4v5M28 7h8"></path>
+                            </svg>
+                            {{ kind_count }} {{ 'database' if kind_count == 1 else 'databases' }}
+                        </span>
+                    </div>
+                </div>
+                <svg class="progressive-chevron progressive-chevron-md"
+                     :class="{ 'expanded': expandedDatabaseTypes['{{ type_key }}'] }"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </div>
+
+            <!-- Level 3: Database Kinds Container -->
+            <div x-show="expandedDatabaseTypes['{{ type_key }}']" x-collapse class="progressive-content progressive-content-l2">
+                <div id="kinds-{{ type_key }}">
+                    <!-- Database kinds will be loaded here via HTMX -->
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <!-- No Database Types Available -->
+    <div class="progressive-item-l2">
+        <div class="text-center py-6">
+            <svg class="mx-auto h-6 w-6 esevioz-text opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21 3.582 4 8 4s8-1.79 8-4V7m0 0c0 2.21 3.582 4 8 4s8-1.79 8-4V7m0 0c0-2.21 3.582-4 8-4s8 1.79 8 4v5M28 7h8"></path>
+            </svg>
+            <p class="mt-2 text-sm esevioz-text opacity-75">No database types available for this endpoint</p>
+        </div>
+    </div>
+{% endif %}
