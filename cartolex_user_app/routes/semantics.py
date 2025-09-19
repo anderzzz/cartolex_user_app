@@ -109,6 +109,24 @@ def provider_tiers(endpoint_name, provider):
                            config_kind=config_kind)
 
 
+@bp.route('/endpoint/<endpoint_name>', methods=['DELETE'])
+def delete_endpoint(endpoint_name):
+    """Delete entire semantics endpoint configuration"""
+    api = current_app.api_client
+
+    response = api.delete_semantics_endpoint(endpoint_name)
+
+    if not response.success:
+        if response.error_code == ErrorCodes.CONFIG_NOT_FOUND:
+            return {"error": f"Endpoint {endpoint_name} not found"}, 404
+        elif response.error_code == ErrorCodes.CONFIG_HANDLER_ERROR:
+            return {"error": "Configuration system unavailable"}, 503
+        else:
+            return {"error": f"Error deleting endpoint: {response.error}"}, 500
+
+    return {"message": f"Endpoint {endpoint_name} deleted successfully"}, 200
+
+
 @bp.route('/embedding-models')
 def embedding_models():
     """Redirect to main semantics page"""
