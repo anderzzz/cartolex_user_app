@@ -33,59 +33,6 @@ def index():
                            supported_kinds=ConfigurationKinds.SEMANTICS_SUPPORTED)
 
 
-@bp.route('/<endpoint_name>')
-def endpoint_configs(endpoint_name):
-    """List all configurations for a specific semantics endpoint"""
-    api = current_app.api_client
-    config_kind = request.args.get('config_kind', ConfigurationKinds.CONFIGURATION_DIRECTORY)
-
-    # Validate config_kind
-    if config_kind not in ConfigurationKinds.SEMANTICS_SUPPORTED:
-        config_kind = ConfigurationKinds.CONFIGURATION_DIRECTORY
-
-    response = api.get_semantics_endpoint_configs(endpoint_name, config_kind)
-
-    if not response.success:
-        if response.error_code == ErrorCodes.ENDPOINT_NOT_FOUND:
-            flash(f"Semantics endpoint '{endpoint_name}' not found", 'error')
-            return redirect(url_for('semantics.index'))
-        else:
-            flash(f"Error loading endpoint configurations: {response.error}", 'error')
-
-    configs = response.data if response.success else {}
-    return render_template('semantics/endpoint_configs.html',
-                           endpoint_name=endpoint_name,
-                           configs=configs,
-                           config_kind=config_kind)
-
-
-@bp.route('/<endpoint_name>/<provider>')
-def provider_configs(endpoint_name, provider):
-    """View all tier configurations for a specific provider"""
-    api = current_app.api_client
-    config_kind = request.args.get('config_kind', ConfigurationKinds.CONFIGURATION_DIRECTORY)
-
-    # Validate config_kind
-    if config_kind not in ConfigurationKinds.SEMANTICS_SUPPORTED:
-        config_kind = ConfigurationKinds.CONFIGURATION_DIRECTORY
-
-    response = api.get_semantics_provider_configs(endpoint_name, provider, config_kind)
-
-    if not response.success:
-        if response.error_code == ErrorCodes.CONFIG_NOT_FOUND:
-            flash(f"Provider '{provider}' not found in endpoint '{endpoint_name}'", 'error')
-        elif response.error_code == ErrorCodes.CONFIG_HANDLER_ERROR:
-            flash("Configuration system unavailable", 'error')
-        else:
-            flash(f"Error loading provider configurations: {response.error}", 'error')
-        return redirect(url_for('semantics.endpoint_configs', endpoint_name=endpoint_name))
-
-    return render_template('semantics/provider_configs.html',
-                           endpoint_name=endpoint_name,
-                           provider=provider,
-                           configs=response.data,
-                           config_kind=config_kind)
-
 
 @bp.route('/<endpoint_name>/<provider>/<tier>/details')
 def config_details(endpoint_name, provider, tier):
