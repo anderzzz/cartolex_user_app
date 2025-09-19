@@ -11,6 +11,18 @@
             <div class="progressive-header" @click="toggleDatabaseKind('{{ endpoint_name }}', '{{ db_type }}', '{{ db_kind }}')">
                 <div class="flex-1">
                     <h5 class="font-medium esevioz-text">{{ db_kind | title }}</h5>
+                    <div class="progressive-meta">
+                        <div id="entry-count-{{ kind_key }}"
+                             hx-get="{{ url_for('io_config.get_entry_count', endpoint_name=endpoint_name, db_type=db_type, db_kind=db_kind) }}{{ '?config_kind=' + config_kind if config_kind else '' }}"
+                             hx-trigger="load"
+                             hx-swap="innerHTML"
+                             class="progressive-meta-badge">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17h6l1.5-6H4.5L6 17zm0 0v-2a2 2 0 012-2h2a2 2 0 012 2v2M3 7h18l-2 10H5L3 7z"></path>
+                            </svg>
+                            <span class="text-xs esevioz-text opacity-60">Loading...</span>
+                        </div>
+                    </div>
                 </div>
                 <svg class="progressive-chevron progressive-chevron-sm"
                      :class="{ 'expanded': expandedDatabaseKinds['{{ kind_key }}'] }"
