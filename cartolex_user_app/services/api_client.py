@@ -189,12 +189,18 @@ class CartolexAPI:
         endpoint = APIEndpoints.IO_ENDPOINT_DELETE.format(endpoint=endpoint_name)
         return self._make_request('DELETE', endpoint)
 
-    def get_database_entries_count(self, endpoint_name: str, db_type: str, db_kind: str, config_kind: str = None) -> APIResponse:
-        """Get number of entries in database"""
-        endpoint = f"/api/v1/io/configs/{endpoint_name}/{db_type}/{db_kind}/count"
+    def get_database_inspect(self, endpoint_name: str, db_type: str, db_kind: str, config_kind: str = None, fields: str = None) -> APIResponse:
+        """Inspect database metadata including count and last_modified"""
+        endpoint = APIEndpoints.IO_CONFIG_INSPECT.format(
+            endpoint=endpoint_name,
+            db_type=db_type,
+            db_kind=db_kind
+        )
         params = {}
         if config_kind:
             params['config_kind'] = config_kind
+        if fields:
+            params['fields'] = fields
         return self._make_request('GET', endpoint, params=params)
 
     def get_database_template(self, endpoint_name: str, db_type: str, db_kind: str) -> APIResponse:

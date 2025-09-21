@@ -226,11 +226,11 @@ def get_entry_count(endpoint_name, db_type, db_kind):
         config_kind = ConfigurationKinds.CONFIGURATION_DIRECTORY
 
     try:
-        response = api.get_database_entries_count(endpoint_name, db_type, db_kind, config_kind)
+        response = api.get_database_inspect(endpoint_name, db_type, db_kind, config_kind, fields='count,last_modified')
 
         if response.success:
             count = response.data.get('count', 0)
-            last_updated = response.data.get('last_updated', '')
+            last_modified = response.data.get('last_modified', '')
 
             # Format the count nicely
             if count >= 1000000:
@@ -242,7 +242,7 @@ def get_entry_count(endpoint_name, db_type, db_kind):
 
             return f'''
                 <p class="text-xs font-medium esevioz-text">{formatted_count} entries</p>
-                {f'<p class="text-xs esevioz-text opacity-50">Updated: {last_updated[:10] if last_updated else "Unknown"}</p>' if last_updated else ''}
+                {f'<p class="text-xs esevioz-text opacity-50">Updated: {last_modified[:10] if last_modified else "Unknown"}</p>' if last_modified else ''}
             '''
         else:
             # Handle specific error cases based on backend team's new error codes
