@@ -13,7 +13,6 @@ def index():
     api = current_app.api_client
 
     context = {
-        'page_title': 'Dashboard',
         'current_time': datetime.now(),
         'workflow_count': 0,
         'recent_jobs': [],
