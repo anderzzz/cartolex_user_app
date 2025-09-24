@@ -1,0 +1,24 @@
+# API Metadata Directory
+
+This directory stores API contract metadata fetched from the Cartolex backend.
+
+## Structure
+
+- `endpoints.json` - Complete endpoint listing with methods, URLs, parameters
+- `schemas.json` - All Pydantic model schemas for request/response validation
+- `constants.json` - URL constants exactly as backend defines them
+- `openapi.json` - Full OpenAPI 3.0 specification
+- `_metadata.json` - Update tracking and summary information
+- `modules/` - Module-specific API contracts
+  - `workflow.json` - Workflow API metadata
+  - `semantics.json` - Semantics API metadata
+  - `io.json` - IO configuration API metadata
+
+## Usage
+
+Generate these files using:
+```bash
+python scripts/update_api_metadata.py update
+```
+
+Files in this directory are used by Claude Code for contract-driven frontend development.
