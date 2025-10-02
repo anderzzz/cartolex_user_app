@@ -190,7 +190,7 @@ def get_workflow_config(workflow_name):
 def update_workflow_config(workflow_name):
     """Update workflow configuration via HTMX"""
     api = current_app.api_client
-    
+
     # Extract configuration data from form
     config_data = {}
     for key, value in request.form.items():
@@ -208,16 +208,30 @@ def update_workflow_config(workflow_name):
             # Apply type inference to preserve JSON types (arrays, objects)
             parsed_value = _infer_and_parse_value(value)
             config_data['workflow_lander']['lander_params'][param_name] = parsed_value
-    
+
     response = api.update_workflow_config(workflow_name, config_data)
-    
+
     if response.success:
         return render_template('partials/config_save_result.html',
                                success=True,
                                message="Configuration saved successfully",
                                workflow_name=workflow_name)
     else:
+        # Handle new schema validation error codes
+        error_message = response.error
+        locked = False
+
+        if response.error_code == ErrorCodes.CONFIG_PATH_ERROR:
+            error_message = "You can only modify workflow parameters (launcher_params and lander_params). Other fields like description and launcher names are read-only."
+        elif response.error_code == ErrorCodes.CONFIG_LOCKED_ERROR:
+            error_message = "Configuration is locked and cannot be modified."
+            locked = True
+        elif response.error_code == ErrorCodes.ENDPOINT_NOT_FOUND:
+            return render_template('partials/workflow_not_found.html',
+                                   workflow_name=workflow_name)
+
         return render_template('partials/config_save_result.html',
                                success=False,
-                               message=response.error,
-                               workflow_name=workflow_name)
+                               message=error_message,
+                               workflow_name=workflow_name,
+                               locked=locked)
