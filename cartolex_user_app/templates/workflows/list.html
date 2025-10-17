@@ -38,14 +38,9 @@
                                 <div class="flex-1">
                                     <h4 class="text-lg font-medium esevioz-text">{{ workflow.name }}</h4>
                                     <p class="mt-1 text-sm esevioz-text opacity-75">{{ workflow.description or 'No description available' }}</p>
-                                    {% if workflow.launcher_name or workflow.lander_name %}
+                                    {% if workflow.workflow_kind %}
                                         <div class="mt-2 flex items-center space-x-4 text-xs esevioz-text opacity-60">
-                                            {% if workflow.launcher_name %}
-                                                <span>Launcher: {{ workflow.launcher_name }}</span>
-                                            {% endif %}
-                                            {% if workflow.lander_name %}
-                                                <span>Lander: {{ workflow.lander_name }}</span>
-                                            {% endif %}
+                                            <span>Workflow Kind: {{ workflow.workflow_kind }}</span>
                                         </div>
                                     {% endif %}
                                 </div>

@@ -97,10 +97,18 @@ class CartolexAPI:
         endpoint = APIEndpoints.WORKFLOW_DETAIL.format(name=name)
         return self._make_request('GET', endpoint)
 
-    def execute_workflow(self, name: str, parameters: dict, execution: dict) -> APIResponse:
-        """Execute workflow"""
+    def execute_workflow(self, name: str, parameters: dict) -> APIResponse:
+        """Execute workflow - submits job asynchronously
+
+        Args:
+            name: Configuration name (NOT workflow_kind)
+            parameters: Workflow parameters (merged with config parameters)
+
+        Returns:
+            Job submission response with job_id, status='pending', workflow_name
+        """
         endpoint = APIEndpoints.WORKFLOW_EXECUTE.format(name=name)
-        payload = {'parameters': parameters, 'execution': execution}
+        payload = {'parameters': parameters}
         return self._make_request('POST', endpoint, data=payload)
 
     def get_jobs(self, status: str = None, limit: int = 50) -> APIResponse:

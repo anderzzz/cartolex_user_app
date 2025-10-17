@@ -71,20 +71,15 @@ def execute_workflow(workflow_name):
     try:
         # Extract form data
         parameters = {}
-        execution = {}
         for key, value in request.form.items():
             if key.startswith('param_'):
                 param_name = key.replace('param_', '')
                 if param_name and value.strip():  # Only add non-empty parameters
                     parameters[param_name] = value.strip()
-            elif key.startswith('exec_'):
-                exec_key = key.replace('exec_', '')
-                if exec_key and value.strip():  # Only add non-empty execution options
-                    execution[exec_key] = value.strip()
 
-        current_app.logger.info(f"Executing workflow '{workflow_name}' with {len(parameters)} parameters and {len(execution)} execution options")
-        
-        response = api.execute_workflow(workflow_name, parameters, execution)
+        current_app.logger.info(f"Executing workflow '{workflow_name}' with {len(parameters)} parameters")
+
+        response = api.execute_workflow(workflow_name, parameters)
 
         if response.success:
             job_id = response.data.get('job_id')
@@ -193,21 +188,18 @@ def update_workflow_config(workflow_name):
 
     # Extract configuration data from form
     config_data = {}
+    parameters = {}
+
     for key, value in request.form.items():
-        if key.startswith('launcher_param_'):
-            param_name = key.replace('launcher_param_', '')
-            if 'workflow_launcher' not in config_data:
-                config_data['workflow_launcher'] = {'launcher_params': {}}
-            # Apply type inference to preserve JSON types (arrays, objects)
-            parsed_value = _infer_and_parse_value(value)
-            config_data['workflow_launcher']['launcher_params'][param_name] = parsed_value
-        elif key.startswith('lander_param_'):
-            param_name = key.replace('lander_param_', '')
-            if 'workflow_lander' not in config_data:
-                config_data['workflow_lander'] = {'lander_params': {}}
-            # Apply type inference to preserve JSON types (arrays, objects)
-            parsed_value = _infer_and_parse_value(value)
-            config_data['workflow_lander']['lander_params'][param_name] = parsed_value
+        if key.startswith('param_'):
+            param_name = key.replace('param_', '')
+            if param_name and value.strip():
+                # Apply type inference to preserve JSON types (arrays, objects)
+                parsed_value = _infer_and_parse_value(value)
+                parameters[param_name] = parsed_value
+
+    if parameters:
+        config_data['parameters'] = parameters
 
     response = api.update_workflow_config(workflow_name, config_data)
 
@@ -222,7 +214,7 @@ def update_workflow_config(workflow_name):
         locked = False
 
         if response.error_code == ErrorCodes.CONFIG_PATH_ERROR:
-            error_message = "You can only modify workflow parameters (launcher_params and lander_params). Other fields like description and launcher names are read-only."
+            error_message = "You can only modify workflow parameters. Fields like 'workflow_kind' and 'description' are read-only."
         elif response.error_code == ErrorCodes.CONFIG_LOCKED_ERROR:
             error_message = "Configuration is locked and cannot be modified."
             locked = True

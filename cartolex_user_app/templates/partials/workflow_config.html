@@ -6,7 +6,7 @@
           @htmx:before-request="saving = true"
           @htmx:after-request="saving = false"
           class="space-y-6">
-        
+
         <!-- Configuration Header -->
         <div class="flex items-center justify-between">
             <div>
@@ -36,7 +36,18 @@
         </div>
         {% endif %}
 
-        <!-- Workflow Basic Info (Read-only) -->
+        <!-- Workflow Kind (Read-only) -->
+        {% if config.workflow_kind %}
+        <div>
+            <label class="block text-sm font-medium esevioz-text mb-2">Workflow Kind</label>
+            <div class="p-3 esevioz-bg rounded-md border esevioz-border-dominant">
+                <p class="text-sm esevioz-text opacity-75">{{ config.workflow_kind }}</p>
+            </div>
+            <p class="mt-1 text-xs esevioz-text opacity-60">The type of workflow to execute (read-only)</p>
+        </div>
+        {% endif %}
+
+        <!-- Description (Read-only) -->
         {% if config.description %}
         <div>
             <label class="block text-sm font-medium esevioz-text mb-2">Description</label>
@@ -46,85 +57,52 @@
         </div>
         {% endif %}
 
-        <!-- Workflow Launcher Section -->
-        {% if config.workflow_launcher %}
+        <!-- Workflow Parameters Section -->
+        {% if config.parameters %}
         <div class="space-y-4">
-            <h5 class="text-md font-medium esevioz-text border-b esevioz-border-dominant pb-2">Launcher Configuration</h5>
-            
-            <!-- Launcher Name (Read-only) -->
-            <div>
-                <label class="block text-sm font-medium esevioz-text mb-2">Launcher Type</label>
-                <div class="p-3 esevioz-bg rounded-md border esevioz-border-dominant">
-                    <p class="text-sm esevioz-text opacity-75">{{ config.workflow_launcher.launcher_name or 'Not specified' }}</p>
-                </div>
-            </div>
+            <h5 class="text-md font-medium esevioz-text border-b esevioz-border-dominant pb-2">Workflow Parameters</h5>
 
-            <!-- Launcher Parameters (Editable) -->
-            {% if config.workflow_launcher.launcher_params %}
+            <!-- Parameters Grid -->
             <div>
-                <label class="block text-sm font-medium esevioz-text mb-3">Launcher Parameters</label>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {% for param_name, param_value in config.workflow_launcher.launcher_params.items() %}
+                    {% for param_name, param_value in config.parameters.items() %}
+                    {% set editable_paths = config._schema.editable_paths if config._schema else [] %}
+                    {% set is_editable = 'parameters.*' in editable_paths or ('parameters.' + param_name) in editable_paths %}
+                    {% set is_locked = config._schema.locked if config._schema else false %}
+                    {% set field_disabled = is_locked or not is_editable %}
+
                     <div>
-                        <label for="launcher_param_{{ param_name }}" class="block text-sm font-medium esevioz-text">
+                        <label for="param_{{ param_name }}" class="block text-sm font-medium esevioz-text">
                             {{ param_name.replace('_', ' ').title() }}
+                            {% if not is_editable %}
+                                <span class="text-xs opacity-60">(read-only)</span>
+                            {% endif %}
                         </label>
                         <input type="text"
-                               id="launcher_param_{{ param_name }}"
-                               name="launcher_param_{{ param_name }}"
+                               id="param_{{ param_name }}"
+                               name="param_{{ param_name }}"
                                value="{{ param_value | to_form_value }}"
                                placeholder="{% if param_value is iterable and param_value is not string %}JSON format: arrays like [&quot;item1&quot;,&quot;item2&quot;], objects like {&quot;key&quot;:&quot;value&quot;}{% endif %}"
-                               {% if config._schema and config._schema.locked %}disabled{% endif %}
-                               class="mt-1 block w-full esevioz-input rounded-md shadow-sm sm:text-sm {% if config._schema and config._schema.locked %}bg-gray-50 cursor-not-allowed opacity-75{% endif %}">
+                               {% if field_disabled %}disabled{% endif %}
+                               class="mt-1 block w-full esevioz-input rounded-md shadow-sm sm:text-sm {% if field_disabled %}bg-gray-50 cursor-not-allowed opacity-75{% endif %}"
+                               data-param-name="{{ param_name }}">
+                        {% if not is_editable and not is_locked %}
+                        <p class="mt-1 text-xs esevioz-text opacity-60">This parameter is not editable according to the schema</p>
+                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>
             </div>
-            {% endif %}
         </div>
-        {% endif %}
-
-        <!-- Workflow Lander Section -->
-        {% if config.workflow_lander %}
-        <div class="space-y-4">
-            <h5 class="text-md font-medium esevioz-text border-b esevioz-border-dominant pb-2">Lander Configuration</h5>
-            
-            <!-- Lander Name (Read-only) -->
-            <div>
-                <label class="block text-sm font-medium esevioz-text mb-2">Lander Type</label>
-                <div class="p-3 esevioz-bg rounded-md border esevioz-border-dominant">
-                    <p class="text-sm esevioz-text opacity-75">{{ config.workflow_lander.lander_name or 'Not specified' }}</p>
-                </div>
-            </div>
-
-            <!-- Lander Parameters (Editable) -->
-            {% if config.workflow_lander.lander_params %}
-            <div>
-                <label class="block text-sm font-medium esevioz-text mb-3">Lander Parameters</label>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {% for param_name, param_value in config.workflow_lander.lander_params.items() %}
-                    <div>
-                        <label for="lander_param_{{ param_name }}" class="block text-sm font-medium esevioz-text">
-                            {{ param_name.replace('_', ' ').title() }}
-                        </label>
-                        <input type="text"
-                               id="lander_param_{{ param_name }}"
-                               name="lander_param_{{ param_name }}"
-                               value="{{ param_value | to_form_value }}"
-                               placeholder="{% if param_value is iterable and param_value is not string %}JSON format: arrays like [&quot;item1&quot;,&quot;item2&quot;], objects like {&quot;key&quot;:&quot;value&quot;}{% endif %}"
-                               {% if config._schema and config._schema.locked %}disabled{% endif %}
-                               class="mt-1 block w-full esevioz-input rounded-md shadow-sm sm:text-sm {% if config._schema and config._schema.locked %}bg-gray-50 cursor-not-allowed opacity-75{% endif %}">
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
+        {% else %}
+        <div class="text-center py-8 esevioz-bg rounded-md border esevioz-border-dominant">
+            <p class="text-sm esevioz-text opacity-75">No parameters configured for this workflow</p>
         </div>
         {% endif %}
 
         <!-- Action Buttons -->
         <div class="flex justify-end space-x-3 pt-4 border-t esevioz-border-dominant">
-            <button type="button" 
+            <button type="button"
                     onclick="closeWorkflowConfig('{{ workflow_name }}')"
                     class="px-4 py-2 text-sm font-medium rounded-md esevioz-btn-secondary">
                 Cancel
@@ -185,7 +163,7 @@
     // Add event listeners when the config panel loads
     document.addEventListener('DOMContentLoaded', function() {
         // Find all parameter inputs and add validation
-        const paramInputs = document.querySelectorAll('input[name^="launcher_param_"], input[name^="lander_param_"]');
+        const paramInputs = document.querySelectorAll('input[name^="param_"]');
         paramInputs.forEach(input => {
             input.addEventListener('input', () => validateJSONInput(input));
             input.addEventListener('blur', () => validateJSONInput(input));

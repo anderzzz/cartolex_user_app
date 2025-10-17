@@ -39,7 +39,7 @@
             <!-- Workflow Selection -->
             <div>
                 <label for="selected-workflow" class="block text-sm font-medium esevioz-text">Select Workflow</label>
-                <select id="selected-workflow" 
+                <select id="selected-workflow"
                         name="selected_workflow"
                         x-model="selectedWorkflow"
                         @change="formReady = !!selectedWorkflow; $nextTick(() => { if (typeof htmx !== 'undefined') htmx.process(document.getElementById('launch-pad-form')); })"
@@ -50,33 +50,11 @@
                         <option value="{{ workflow.name }}">{{ workflow.name }}</option>
                     {% endfor %}
                 </select>
+                <p class="mt-2 text-xs esevioz-text opacity-60">
+                    Select a workflow to launch. Parameters are configured in the workflow's configuration.
+                </p>
             </div>
 
-            
-            <!-- Execution Options -->
-            <div>
-                <h4 class="text-sm font-medium esevioz-text mb-3">Execution Options</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="launch_priority" class="block text-sm font-medium esevioz-text">Priority</label>
-                        <select name="exec_priority" id="launch_priority" class="mt-1 block w-full esevioz-input rounded-md shadow-sm sm:text-sm">
-                            <option value="normal">Normal</option>
-                            <option value="high">High</option>
-                            <option value="low">Low</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="launch_timeout" class="block text-sm font-medium esevioz-text">Timeout (seconds)</label>
-                        <input type="number" 
-                               name="exec_timeout" 
-                               id="launch_timeout"
-                               class="mt-1 block w-full esevioz-input rounded-md shadow-sm sm:text-sm"
-                               placeholder="300" 
-                               min="1">
-                    </div>
-                </div>
-            </div>
-            
             <!-- Launch Button -->
             <div class="flex justify-end">
                 <button type="submit" 
