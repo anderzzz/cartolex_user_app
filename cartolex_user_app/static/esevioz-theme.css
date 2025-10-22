@@ -132,7 +132,7 @@ a.esevioz-btn-primary:hover,
 [data-theme="dark"] a.esevioz-btn-primary,
 [data-theme="dark"] .esevioz-btn-primary {
   background-color: #486F38 !important; /* fern green for dark mode */
-  color: #191919 !important; /* black background in dark mode */
+  color: #FCFCFC !important; /* white text for dark mode */
   border-color: #486F38 !important;
   box-shadow: none !important;
 }
@@ -438,6 +438,21 @@ a.esevioz-btn-details:hover,
   outline: none;
 }
 
+/* Select dropdown option styling */
+.esevioz-input option {
+  background-color: var(--color-background) !important;
+  color: var(--color-text) !important;
+  padding: 0.5rem !important;
+}
+
+/* Hover state for dropdown options */
+.esevioz-input option:hover,
+.esevioz-input option:focus,
+.esevioz-input option:checked {
+  background-color: var(--color-dominant) !important;
+  color: var(--color-background) !important;
+}
+
 .esevioz-label {
   color: var(--color-text) !important;
   font-family: var(--font-family);
@@ -537,7 +552,7 @@ a.esevioz-btn-config-db:hover,
 [data-theme="dark"] a.esevioz-btn-config-db,
 [data-theme="dark"] .esevioz-btn-config-db {
   background-color: #486F38 !important; /* fern green for dark mode */
-  color: #191919 !important;
+  color: #FCFCFC !important; /* white text for dark mode */
   border-color: #486F38 !important;
 }
 
