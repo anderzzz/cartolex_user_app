@@ -275,21 +275,21 @@ a.esevioz-btn-details:hover,
 }
 
 [data-theme="dark"] .esevioz-notification-success-text {
-  color: #191919 !important; /* black */
+  color: #FCFCFC !important; /* white */
 }
 
 [data-theme="dark"] .esevioz-notification-success-icon {
-  color: #191919 !important; /* black */
+  color: #FCFCFC !important; /* white */
 }
 
 [data-theme="dark"] .esevioz-notification-success-button {
-  color: #191919 !important;
-  border-color: rgba(25, 25, 25, 0.3) !important;
+  color: #FCFCFC !important;
+  border-color: rgba(252, 252, 252, 0.3) !important;
 }
 
 [data-theme="dark"] .esevioz-notification-success-button:hover {
-  background-color: rgba(25, 25, 25, 0.1) !important;
-  border-color: rgba(25, 25, 25, 0.5) !important;
+  background-color: rgba(252, 252, 252, 0.1) !important;
+  border-color: rgba(252, 252, 252, 0.5) !important;
 }
 
 /* Error Notifications - Same appearance in light and dark modes */
