@@ -1,25 +1,25 @@
 <!-- Workflow Execution Error -->
-<div class="bg-red-50 border border-red-200 rounded-md p-4 mb-4" 
-     x-data="{ show: true }" 
-     x-show="show" 
+<div class="esevioz-notification-error mb-4"
+     x-data="{ show: true }"
+     x-show="show"
      x-transition>
     <div class="flex">
         <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+            <svg class="h-5 w-5 esevioz-notification-error-icon" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
             </svg>
         </div>
-        <div class="ml-3">
-            <h3 class="text-sm font-medium text-red-800">Workflow Launch Failed</h3>
-            <div class="mt-2 text-sm text-red-700">
+        <div class="ml-3 flex-1">
+            <h3 class="text-sm font-medium esevioz-notification-error-text">Workflow Launch Failed</h3>
+            <div class="mt-2 text-sm esevioz-notification-error-text">
                 <p><strong>Error:</strong> {{ error or 'An error occurred while launching the workflow.' }}</p>
                 <p class="mt-1">Please check your workflow configuration and try again.</p>
             </div>
             <div class="mt-4">
                 <div class="-mx-2 -my-1.5 flex space-x-2">
-                    <button type="button" 
+                    <button type="button"
                             @click="show = false"
-                            class="bg-red-50 px-2 py-1.5 rounded-md text-sm font-medium text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-50 focus:ring-red-600">
+                            class="esevioz-notification-error-button">
                         Dismiss
                     </button>
                 </div>

@@ -1,35 +1,35 @@
 <!-- Workflow Launch Success Notification -->
-<div class="rounded-md esevioz-dominant-bg p-4 border esevioz-border-dominant mb-4" 
-     x-data="{ show: true }" 
-     x-show="show" 
+<div class="esevioz-notification-success mb-4"
+     x-data="{ show: true }"
+     x-show="show"
      x-transition
      x-init="
         // Trigger job monitoring refresh after workflow submission
         setTimeout(() => {
             window.dispatchEvent(new CustomEvent('refresh-job-monitoring'));
         }, 500);
-        
+
         // Auto-hide success message after 10 seconds
         setTimeout(() => show = false, 10000);
      ">
     <div class="flex">
         <div class="flex-shrink-0">
-            <svg class="h-5 w-5 esevioz-bg" fill="currentColor" viewBox="0 0 20 20">
+            <svg class="h-5 w-5 esevioz-notification-success-icon" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
             </svg>
         </div>
-        <div class="ml-3">
-            <h3 class="text-sm font-medium esevioz-bg">Workflow Launched Successfully!</h3>
-            <div class="mt-2 text-sm esevioz-bg">
+        <div class="ml-3 flex-1">
+            <h3 class="text-sm font-medium esevioz-notification-success-text">Workflow Launched Successfully!</h3>
+            <div class="mt-2 text-sm esevioz-notification-success-text">
                 <p><strong>Workflow:</strong> {{ workflow_name }}</p>
-                <p><strong>Job ID:</strong> <code class="esevioz-bg opacity-75 px-2 py-1 rounded font-mono text-xs border esevioz-border">{{ job_id }}</code></p>
+                <p><strong>Job ID:</strong> <code class="esevioz-notification-success-text opacity-75 px-2 py-1 rounded font-mono text-xs border border-white border-opacity-30">{{ job_id }}</code></p>
                 <p class="mt-2">Your workflow is now running. Check the <strong>Job Monitoring</strong> section below for real-time status updates.</p>
             </div>
             <div class="mt-3">
                 <div class="-mx-2 -my-1.5 flex">
-                    <button type="button" 
+                    <button type="button"
                             @click="show = false"
-                            class="esevioz-bg esevioz-dominant px-2 py-1.5 rounded-md text-sm font-medium hover:opacity-75 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-opacity">
+                            class="esevioz-notification-success-button">
                         Dismiss
                     </button>
                 </div>

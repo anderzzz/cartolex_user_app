@@ -1,22 +1,22 @@
 <!-- Connection test result -->
-<div class="{% if success %}bg-green-50 border-green-200{% else %}bg-yellow-50 border-yellow-200{% endif %} border rounded-md p-3 mt-2">
+<div class="{% if success %}esevioz-notification-success{% else %}esevioz-notification-warning{% endif %} mt-2">
     <div class="flex">
         <div class="flex-shrink-0">
             {% if success %}
-                <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="h-5 w-5 esevioz-notification-success-icon" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                 </svg>
             {% else %}
-                <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="h-5 w-5 esevioz-notification-warning-icon" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                 </svg>
             {% endif %}
         </div>
         <div class="ml-3">
-            <h4 class="text-sm font-medium {% if success %}text-green-800{% else %}text-yellow-800{% endif %}">
+            <h4 class="text-sm font-medium {% if success %}esevioz-notification-success-text{% else %}esevioz-notification-warning-text{% endif %}">
                 Connection Test {% if success %}Successful{% else %}Failed{% endif %}
             </h4>
-            <div class="mt-1 text-sm {% if success %}text-green-700{% else %}text-yellow-700{% endif %}">
+            <div class="mt-1 text-sm {% if success %}esevioz-notification-success-text{% else %}esevioz-notification-warning-text{% endif %}">
                 <p>{{ message or ('Connection established successfully.' if success else 'Could not establish connection.') }}</p>
             </div>
         </div>

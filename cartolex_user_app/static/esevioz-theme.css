@@ -221,7 +221,7 @@ a.esevioz-btn-details:hover,
   box-shadow: none !important;
 }
 
-/* Alert/Flash Message Styles */
+/* Alert/Flash Message Styles (Legacy - use notification classes below) */
 .esevioz-alert-success {
   background-color: var(--color-dominant) !important;
   color: var(--color-background) !important;
@@ -232,6 +232,184 @@ a.esevioz-btn-details:hover,
   background-color: var(--color-highlight) !important;
   color: var(--color-background) !important;
   border: 1px solid var(--color-highlight) !important;
+}
+
+/* Notification System - Dieter Rams Inspired */
+/* High-contrast, bold communication with proper dark mode support */
+
+/* Success Notifications - Adapts between light/dark modes */
+.esevioz-notification-success {
+  background-color: #1B5420 !important; /* pine green */
+  border-radius: 0.375rem !important;
+  padding: 1rem !important;
+  border: none !important;
+}
+
+.esevioz-notification-success-text {
+  color: #FCFCFC !important; /* white */
+}
+
+.esevioz-notification-success-icon {
+  color: #FCFCFC !important; /* white */
+}
+
+.esevioz-notification-success-button {
+  color: #FCFCFC !important;
+  background-color: transparent !important;
+  border: 1px solid rgba(252, 252, 252, 0.3) !important;
+  padding: 0.375rem 0.75rem !important;
+  border-radius: 0.375rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+.esevioz-notification-success-button:hover {
+  background-color: rgba(252, 252, 252, 0.1) !important;
+  border-color: rgba(252, 252, 252, 0.5) !important;
+}
+
+/* Dark mode adjustments for success notifications */
+[data-theme="dark"] .esevioz-notification-success {
+  background-color: #486F38 !important; /* fern green */
+}
+
+[data-theme="dark"] .esevioz-notification-success-text {
+  color: #191919 !important; /* black */
+}
+
+[data-theme="dark"] .esevioz-notification-success-icon {
+  color: #191919 !important; /* black */
+}
+
+[data-theme="dark"] .esevioz-notification-success-button {
+  color: #191919 !important;
+  border-color: rgba(25, 25, 25, 0.3) !important;
+}
+
+[data-theme="dark"] .esevioz-notification-success-button:hover {
+  background-color: rgba(25, 25, 25, 0.1) !important;
+  border-color: rgba(25, 25, 25, 0.5) !important;
+}
+
+/* Error Notifications - Same appearance in light and dark modes */
+.esevioz-notification-error {
+  background-color: #E44628 !important; /* vermilion */
+  border-radius: 0.375rem !important;
+  padding: 1rem !important;
+  border: none !important;
+}
+
+.esevioz-notification-error-text {
+  color: #FCFCFC !important; /* white */
+}
+
+.esevioz-notification-error-icon {
+  color: #FCFCFC !important; /* white */
+}
+
+.esevioz-notification-error-button {
+  color: #FCFCFC !important;
+  background-color: transparent !important;
+  border: 1px solid rgba(252, 252, 252, 0.3) !important;
+  padding: 0.375rem 0.75rem !important;
+  border-radius: 0.375rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+.esevioz-notification-error-button:hover {
+  background-color: rgba(252, 252, 252, 0.1) !important;
+  border-color: rgba(252, 252, 252, 0.5) !important;
+}
+
+/* Warning Notifications - Same appearance in light and dark modes */
+.esevioz-notification-warning {
+  background-color: #E0993D !important; /* butterscotch */
+  border-radius: 0.375rem !important;
+  padding: 1rem !important;
+  border: none !important;
+}
+
+.esevioz-notification-warning-text {
+  color: #191919 !important; /* black */
+}
+
+.esevioz-notification-warning-icon {
+  color: #191919 !important; /* black */
+}
+
+.esevioz-notification-warning-button {
+  color: #191919 !important;
+  background-color: transparent !important;
+  border: 1px solid rgba(25, 25, 25, 0.3) !important;
+  padding: 0.375rem 0.75rem !important;
+  border-radius: 0.375rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+.esevioz-notification-warning-button:hover {
+  background-color: rgba(25, 25, 25, 0.1) !important;
+  border-color: rgba(25, 25, 25, 0.5) !important;
+}
+
+/* Info Notifications - Subtle variant for low-priority messages */
+.esevioz-notification-info {
+  background-color: #FFF5EB !important; /* linen */
+  border-radius: 0.375rem !important;
+  padding: 1rem !important;
+  border: 2px solid #1B5420 !important; /* pine border */
+}
+
+.esevioz-notification-info-text {
+  color: #1B5420 !important; /* pine */
+}
+
+.esevioz-notification-info-icon {
+  color: #1B5420 !important; /* pine */
+}
+
+.esevioz-notification-info-button {
+  color: #1B5420 !important;
+  background-color: transparent !important;
+  border: 1px solid rgba(27, 84, 32, 0.3) !important;
+  padding: 0.375rem 0.75rem !important;
+  border-radius: 0.375rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+.esevioz-notification-info-button:hover {
+  background-color: rgba(27, 84, 32, 0.05) !important;
+  border-color: rgba(27, 84, 32, 0.5) !important;
+}
+
+/* Dark mode adjustments for info notifications */
+[data-theme="dark"] .esevioz-notification-info {
+  background-color: #191919 !important; /* black */
+  border-color: #FFF2DE !important; /* antique white border */
+}
+
+[data-theme="dark"] .esevioz-notification-info-text {
+  color: #FFF2DE !important; /* antique white */
+}
+
+[data-theme="dark"] .esevioz-notification-info-icon {
+  color: #FFF2DE !important; /* antique white */
+}
+
+[data-theme="dark"] .esevioz-notification-info-button {
+  color: #FFF2DE !important;
+  border-color: rgba(255, 242, 222, 0.3) !important;
+}
+
+[data-theme="dark"] .esevioz-notification-info-button:hover {
+  background-color: rgba(255, 242, 222, 0.05) !important;
+  border-color: rgba(255, 242, 222, 0.5) !important;
 }
 
 /* Card/Panel Styles */
