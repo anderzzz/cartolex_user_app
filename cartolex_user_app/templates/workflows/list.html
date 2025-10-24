@@ -3,7 +3,7 @@
 {% block content %}
 <div class="px-4 py-6 sm:px-0" x-data="{
     expandedWorkflows: {},
-    workflows: {{ workflows|tojson }},
+    workflows: {{ workflows|tojson|safe }},
     searchTerm: '',
     get filteredWorkflows() {
         if (!this.searchTerm || this.searchTerm.trim() === '') {
