@@ -24,7 +24,6 @@
             <div class="mt-2 text-sm text-red-700 dark:text-red-300">
                 <p>Are you sure you want to delete the workflow <strong class="font-mono">{{ workflow.name }}</strong>?</p>
                 <p class="mt-2"><strong>This action cannot be undone.</strong></p>
-                <p class="mt-2 text-xs opacity-75">The configuration file will be permanently removed from the system.</p>
             </div>
 
             <form hx-delete="/workflows/{{ workflow.name }}/delete"

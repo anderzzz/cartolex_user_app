@@ -58,10 +58,13 @@
         <div class="flex flex-wrap gap-2">
             <!-- Launch (Primary Action - First) -->
             <button type="button"
-                    @click="launching = !launching; if (launching) {
+                    @click="if (!launching) {
+                                launching = true;
                                 htmx.ajax('POST', '/workflows/{{ workflow.name }}/execute', {
                                     target: '#launch-result-{{ workflow.name }}',
                                     swap: 'innerHTML'
+                                }).then(() => {
+                                    launching = false;
                                 });
                             }"
                     :disabled="launching"
