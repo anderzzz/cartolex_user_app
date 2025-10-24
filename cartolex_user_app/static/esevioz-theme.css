@@ -221,6 +221,55 @@ a.esevioz-btn-details:hover,
   box-shadow: none !important;
 }
 
+/* Warning Button - For unusual/cautious operations like Delete */
+button.esevioz-btn-warning,
+a.esevioz-btn-warning,
+.esevioz-btn-warning {
+  /* Light mode: butterscotch background with white text */
+  background-color: #E0993D !important; /* butterscotch */
+  color: #FCFCFC !important; /* white text */
+  border: 2px solid #E0993D !important;
+  border-color: #E0993D !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 0.375rem !important;
+  font-family: var(--font-family) !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+}
+
+button.esevioz-btn-warning:hover,
+a.esevioz-btn-warning:hover,
+.esevioz-btn-warning:hover {
+  background-color: #FFF5EB !important; /* linen */
+  color: #E0993D !important;
+  border-color: #E0993D !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+}
+
+/* Dark mode: antique white background with black text */
+[data-theme="dark"] button.esevioz-btn-warning,
+[data-theme="dark"] a.esevioz-btn-warning,
+[data-theme="dark"] .esevioz-btn-warning {
+  background-color: #FFF2DE !important; /* antique white */
+  color: #191919 !important; /* black text */
+  border-color: #FFF2DE !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] button.esevioz-btn-warning:hover,
+[data-theme="dark"] a.esevioz-btn-warning:hover,
+[data-theme="dark"] .esevioz-btn-warning:hover {
+  background-color: #191919 !important; /* black */
+  color: #FFF2DE !important; /* antique white */
+  border-color: #FFF2DE !important;
+  box-shadow: none !important;
+}
+
 /* Alert/Flash Message Styles (Legacy - use notification classes below) */
 .esevioz-alert-success {
   background-color: var(--color-dominant) !important;

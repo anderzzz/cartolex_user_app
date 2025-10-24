@@ -3,7 +3,16 @@
     editingConfig: false,
     cloning: false,
     deleting: false,
-    launching: false
+    launching: false,
+    init() {
+        // Listen for close event from config panel
+        window.addEventListener('close-workflow-config', (event) => {
+            if (event.detail.workflowName === '{{ workflow.name }}') {
+                this.editingConfig = false;
+                document.getElementById('edit-config-{{ workflow.name }}').innerHTML = '';
+            }
+        });
+    }
 }">
     <!-- Configuration Summary -->
     <div class="space-y-3">
@@ -47,45 +56,7 @@
     <div class="border-t esevioz-border-dominant pt-4">
         <p class="text-xs esevioz-text opacity-60 mb-3">Actions:</p>
         <div class="flex flex-wrap gap-2">
-            <!-- Edit Configuration -->
-            <button type="button"
-                    @click="editingConfig = !editingConfig;
-                            if (editingConfig) {
-                                htmx.ajax('GET', '/workflows/{{ workflow.name }}/config', {
-                                    target: '#edit-config-{{ workflow.name }}',
-                                    swap: 'innerHTML'
-                                });
-                            } else {
-                                document.getElementById('edit-config-{{ workflow.name }}').innerHTML = '';
-                            }"
-                    class="esevioz-btn-config text-sm px-4 py-2 rounded-md">
-                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
-                </svg>
-                <span x-text="editingConfig ? 'Hide Config' : 'Edit Configuration'"></span>
-            </button>
-
-            <!-- Clone -->
-            <button type="button"
-                    @click="cloning = !cloning; deleting = false;"
-                    class="esevioz-btn-secondary text-sm px-4 py-2 rounded-md">
-                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                </svg>
-                <span x-text="cloning ? 'Cancel Clone' : 'Clone'"></span>
-            </button>
-
-            <!-- Delete -->
-            <button type="button"
-                    @click="deleting = !deleting; cloning = false;"
-                    class="text-sm px-4 py-2 rounded-md border esevioz-border-dominant esevioz-text hover:bg-red-50 dark:hover:bg-red-900 dark:hover:bg-opacity-20 transition">
-                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                </svg>
-                <span x-text="deleting ? 'Cancel Delete' : 'Delete'"></span>
-            </button>
-
-            <!-- Launch -->
+            <!-- Launch (Primary Action - First) -->
             <button type="button"
                     @click="launching = !launching; if (launching) {
                                 htmx.ajax('POST', '/workflows/{{ workflow.name }}/execute', {
@@ -99,6 +70,44 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                 </svg>
                 <span x-text="launching ? 'Launching...' : 'Launch Workflow'"></span>
+            </button>
+
+            <!-- Edit Configuration -->
+            <button type="button"
+                    @click="editingConfig = !editingConfig;
+                            if (editingConfig) {
+                                htmx.ajax('GET', '/workflows/{{ workflow.name }}/config', {
+                                    target: '#edit-config-{{ workflow.name }}',
+                                    swap: 'innerHTML'
+                                });
+                            } else {
+                                document.getElementById('edit-config-{{ workflow.name }}').innerHTML = '';
+                            }"
+                    class="esevioz-btn-primary text-sm px-4 py-2 rounded-md">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+                </svg>
+                <span x-text="editingConfig ? 'Hide Config' : 'Edit Configuration'"></span>
+            </button>
+
+            <!-- Clone -->
+            <button type="button"
+                    @click="cloning = !cloning; deleting = false;"
+                    class="esevioz-btn-primary text-sm px-4 py-2 rounded-md">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                </svg>
+                <span x-text="cloning ? 'Hide Clone' : 'Clone'"></span>
+            </button>
+
+            <!-- Delete (Warning Action - Last) -->
+            <button type="button"
+                    @click="deleting = !deleting; cloning = false;"
+                    class="esevioz-btn-warning text-sm px-4 py-2 rounded-md">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                <span x-text="deleting ? 'Hide Delete' : 'Delete'"></span>
             </button>
         </div>
     </div>

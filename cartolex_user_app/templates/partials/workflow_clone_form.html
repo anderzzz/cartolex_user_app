@@ -1,5 +1,5 @@
 <!-- Clone Workflow Form -->
-<div class="esevioz-card rounded-lg p-4"
+<div class="esevioz-card rounded-lg p-4 relative"
      x-data="{
         newName: '',
         description: '{{ workflow.description }}',
@@ -17,6 +17,16 @@
             return this.newName.trim() !== '' && !this.submitting;
         }
     }">
+    <!-- Close Button -->
+    <button type="button"
+            @click="cloning = false; newName = ''; description = '{{ workflow.description }}'"
+            class="absolute top-4 right-4 esevioz-text opacity-50 hover:opacity-100 transition"
+            title="Close">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+    </button>
+
     <div class="border-b esevioz-border-dominant pb-3 mb-4">
         <h5 class="text-sm font-medium esevioz-text">Clone Workflow</h5>
         <p class="text-xs esevioz-text opacity-60 mt-1">Create a copy of <strong>{{ workflow.name }}</strong></p>
@@ -73,13 +83,8 @@
             </p>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="flex justify-end gap-2 pt-2">
-            <button type="button"
-                    @click="cloning = false; newName = ''; description = '{{ workflow.description }}'"
-                    class="px-4 py-2 text-sm font-medium esevioz-btn-secondary rounded-md">
-                Cancel
-            </button>
+        <!-- Action Button -->
+        <div class="flex justify-end pt-2">
             <button type="submit"
                     :disabled="!isValid"
                     class="px-4 py-2 text-sm font-medium esevioz-btn-primary rounded-md disabled:opacity-50 disabled:cursor-not-allowed">
