@@ -2,9 +2,9 @@
 {% if workflows %}
     <div class="grid gap-4">
         {% for workflow in workflows %}
-            <div class="esevioz-card esevioz-shadow rounded-lg">
+            <div class="esevioz-card esevioz-shadow rounded-lg esevioz-workflow-card-hover">
                 <!-- Clickable Workflow Header -->
-                <div class="px-6 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:bg-opacity-30 transition rounded-t-lg"
+                <div class="px-6 py-4 cursor-pointer rounded-t-lg"
                      @click="if (!expandedWorkflows['{{ workflow.name }}']) {
                                htmx.ajax('GET', '/workflows/{{ workflow.name }}/summary', {
                                    target: '#workflow-{{ workflow.name }}-summary',

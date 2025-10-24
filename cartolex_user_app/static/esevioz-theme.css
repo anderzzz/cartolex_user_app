@@ -542,6 +542,22 @@ a.esevioz-btn-warning:hover,
 }
 
 
+/* Workflow Card Hover - Elevation effect (Dieter Rams inspired) */
+.esevioz-workflow-card-hover {
+  transition: all 0.2s ease;
+}
+
+.esevioz-workflow-card-hover:hover {
+  box-shadow: 0 4px 12px rgba(25, 25, 25, 0.15);
+  transform: translateY(-2px);
+  border-color: var(--color-highlight) !important;
+}
+
+/* Dark mode: lighter shadow for visibility */
+[data-theme="dark"] .esevioz-workflow-card-hover:hover {
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+}
+
 /* Hover effects for database configuration cards */
 .esevioz-db-card {
   transition: all 0.2s ease;
