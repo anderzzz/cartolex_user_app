@@ -232,3 +232,49 @@ class CartolexAPI:
         """Update workflow configuration"""
         endpoint = APIEndpoints.WORKFLOW_CONFIG.format(name=workflow_name)
         return self._make_request('PUT', endpoint, data=config_data)
+
+    def clone_workflow(self, source_name: str, new_workflow_name: str, description: str = None) -> APIResponse:
+        """Clone a workflow configuration to a new name
+
+        Args:
+            source_name: Name of the workflow to clone (source)
+            new_workflow_name: Name for the cloned workflow (must be unique)
+            description: Optional new description for the cloned workflow
+
+        Returns:
+            APIResponse with clone result containing:
+                - workflow_name: Name of the newly created workflow
+                - cloned_from_workflow: Name of the source workflow
+                - configuration_created: Boolean indicating success
+        """
+        endpoint = APIEndpoints.WORKFLOW_CLONE.format(name=source_name)
+        payload = {'new_workflow_name': new_workflow_name}
+        if description is not None:
+            payload['description'] = description
+        return self._make_request('POST', endpoint, data=payload)
+
+    def delete_workflow_config(self, workflow_name: str, config_kind: str = 'configuration directory') -> APIResponse:
+        """Delete workflow configuration
+
+        Args:
+            workflow_name: Name of the workflow to delete
+            config_kind: Configuration source (defaults to 'configuration directory')
+
+        Returns:
+            APIResponse indicating success or failure
+        """
+        endpoint = APIEndpoints.WORKFLOW_CONFIG.format(name=workflow_name)
+        params = {'config_kind': config_kind}
+        return self._make_request('DELETE', endpoint, params=params)
+
+    def get_workflows_with_metadata(self) -> APIResponse:
+        """Get all workflows with filesystem and schema metadata
+
+        Returns:
+            APIResponse with workflows list including:
+                - Basic workflow info (name, description, workflow_kind)
+                - Filesystem metadata (file paths, last modified)
+                - Schema information
+        """
+        params = {'include_metadata': True}
+        return self._make_request('GET', APIEndpoints.WORKFLOWS_LIST, params=params)

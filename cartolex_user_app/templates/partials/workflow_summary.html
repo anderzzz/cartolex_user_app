@@ -1,0 +1,123 @@
+<!-- Workflow Summary Panel -->
+<div class="px-6 py-4 space-y-4" x-data="{
+    editingConfig: false,
+    cloning: false,
+    deleting: false,
+    launching: false
+}">
+    <!-- Configuration Summary -->
+    <div class="space-y-3">
+        <div class="border-b esevioz-border-dominant pb-3">
+            <h4 class="text-sm font-medium esevioz-text opacity-75">Configuration Summary</h4>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+                <span class="esevioz-text opacity-60">Workflow Kind:</span>
+                <span class="esevioz-text font-medium ml-2">{{ workflow.workflow_kind }}</span>
+            </div>
+            <div>
+                <span class="esevioz-text opacity-60">Source:</span>
+                <span class="esevioz-text font-medium ml-2">{{ workflow.config_source }}</span>
+            </div>
+        </div>
+
+        {% if workflow.parameters %}
+        <div class="mt-3">
+            <p class="text-xs esevioz-text opacity-60 mb-2">Parameters ({{ workflow.parameters|length }}):</p>
+            <div class="grid grid-cols-1 gap-2">
+                {% for param_name, param_value in workflow.parameters.items() %}
+                <div class="text-xs esevioz-card px-3 py-2 rounded">
+                    <span class="font-mono esevioz-text opacity-75">{{ param_name }}:</span>
+                    <span class="esevioz-text ml-2">
+                        {% if param_value is mapping or param_value is iterable and param_value is not string %}
+                            <code class="font-mono">{{ param_value|tojson }}</code>
+                        {% else %}
+                            {{ param_value }}
+                        {% endif %}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="border-t esevioz-border-dominant pt-4">
+        <p class="text-xs esevioz-text opacity-60 mb-3">Actions:</p>
+        <div class="flex flex-wrap gap-2">
+            <!-- Edit Configuration -->
+            <button type="button"
+                    @click="editingConfig = !editingConfig;
+                            if (editingConfig) {
+                                htmx.ajax('GET', '/workflows/{{ workflow.name }}/config', {
+                                    target: '#edit-config-{{ workflow.name }}',
+                                    swap: 'innerHTML'
+                                });
+                            } else {
+                                document.getElementById('edit-config-{{ workflow.name }}').innerHTML = '';
+                            }"
+                    class="esevioz-btn-config text-sm px-4 py-2 rounded-md">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+                </svg>
+                <span x-text="editingConfig ? 'Hide Config' : 'Edit Configuration'"></span>
+            </button>
+
+            <!-- Clone -->
+            <button type="button"
+                    @click="cloning = !cloning; deleting = false;"
+                    class="esevioz-btn-secondary text-sm px-4 py-2 rounded-md">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                </svg>
+                <span x-text="cloning ? 'Cancel Clone' : 'Clone'"></span>
+            </button>
+
+            <!-- Delete -->
+            <button type="button"
+                    @click="deleting = !deleting; cloning = false;"
+                    class="text-sm px-4 py-2 rounded-md border esevioz-border-dominant esevioz-text hover:bg-red-50 dark:hover:bg-red-900 dark:hover:bg-opacity-20 transition">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                <span x-text="deleting ? 'Cancel Delete' : 'Delete'"></span>
+            </button>
+
+            <!-- Launch -->
+            <button type="button"
+                    @click="launching = !launching; if (launching) {
+                                htmx.ajax('POST', '/workflows/{{ workflow.name }}/execute', {
+                                    target: '#launch-result-{{ workflow.name }}',
+                                    swap: 'innerHTML'
+                                });
+                            }"
+                    :disabled="launching"
+                    class="esevioz-btn-primary text-sm px-4 py-2 rounded-md disabled:opacity-50">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                </svg>
+                <span x-text="launching ? 'Launching...' : 'Launch Workflow'"></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Edit Configuration Inline Panel -->
+    <div id="edit-config-{{ workflow.name }}" x-show="editingConfig" x-collapse>
+        <!-- Configuration form loads here via HTMX -->
+    </div>
+
+    <!-- Clone Form -->
+    <div x-show="cloning" x-collapse class="border-t esevioz-border-dominant pt-4 mt-4">
+        {% include 'partials/workflow_clone_form.html' %}
+    </div>
+
+    <!-- Delete Confirmation -->
+    <div x-show="deleting" x-collapse class="border-t esevioz-border-dominant pt-4 mt-4">
+        {% include 'partials/workflow_delete_confirm.html' %}
+    </div>
+
+    <!-- Launch Result -->
+    <div id="launch-result-{{ workflow.name }}"></div>
+</div>

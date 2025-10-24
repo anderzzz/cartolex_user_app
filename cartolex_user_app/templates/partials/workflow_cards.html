@@ -1,0 +1,60 @@
+<!-- Workflow Cards List -->
+{% if workflows %}
+    <div class="grid gap-4">
+        {% for workflow in workflows %}
+            <div class="esevioz-card esevioz-shadow rounded-lg">
+                <!-- Clickable Workflow Header -->
+                <div class="px-6 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:bg-opacity-30 transition rounded-t-lg"
+                     @click="if (!expandedWorkflows['{{ workflow.name }}']) {
+                               htmx.ajax('GET', '/workflows/{{ workflow.name }}/summary', {
+                                   target: '#workflow-{{ workflow.name }}-summary',
+                                   swap: 'innerHTML'
+                               });
+                               expandedWorkflows['{{ workflow.name }}'] = true;
+                             } else {
+                               expandedWorkflows['{{ workflow.name }}'] = false;
+                               document.getElementById('workflow-{{ workflow.name }}-summary').innerHTML = '';
+                             }">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center">
+                                <h4 class="text-lg font-medium esevioz-text">{{ workflow.name }}</h4>
+                                <!-- Expand/Collapse Chevron -->
+                                <svg class="ml-2 w-5 h-5 esevioz-text transition-transform"
+                                     :class="{ 'transform rotate-180': expandedWorkflows['{{ workflow.name }}'] }"
+                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </div>
+                            <p class="mt-1 text-sm esevioz-text opacity-75">{{ workflow.description or 'No description available' }}</p>
+                            {% if workflow.workflow_kind %}
+                                <div class="mt-2 flex items-center space-x-4 text-xs esevioz-text opacity-60">
+                                    <span>{{ workflow.workflow_kind }}</span>
+                                    {% if workflow.last_modified %}
+                                        <span>• Modified {{ workflow.last_modified }}</span>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expandable Summary Area -->
+                <div id="workflow-{{ workflow.name }}-summary"
+                     x-show="expandedWorkflows['{{ workflow.name }}']"
+                     x-collapse>
+                    <!-- Summary content loads here via HTMX -->
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <!-- Empty State -->
+    <div class="text-center py-12 esevioz-card rounded-lg">
+        <svg class="mx-auto h-12 w-12 esevioz-text opacity-50" fill="none" stroke="currentColor" viewBox="0 0 48 48">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M34 40h10v-4a6 6 0 00-10.712-3.714M34 40H14m20 0v-4a9.971 9.971 0 00-.712-3.714M14 40H4v-4a6 6 0 0110.712-3.714M14 40v-4a9.971 9.971 0 01.712-3.714M28 16a4 4 0 11-8 0 4 4 0 018 0zM24 20v6M8 16a4 4 0 11-8 0 4 4 0 018 0zM8 20v6m32-6a4 4 0 11-8 0 4 4 0 018 0zM40 20v6" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium esevioz-text">No workflows available</h3>
+        <p class="mt-1 text-sm esevioz-text opacity-75">Check your backend connection and configuration.</p>
+    </div>
+{% endif %}

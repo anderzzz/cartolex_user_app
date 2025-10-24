@@ -1,0 +1,97 @@
+<!-- Clone Workflow Form -->
+<div class="esevioz-card rounded-lg p-4"
+     x-data="{
+        newName: '',
+        description: '{{ workflow.description }}',
+        submitting: false,
+        get nameExists() {
+            // Check against parent's cached workflow list if available
+            if (this.newName.trim() === '') return false;
+            const parentData = this.$root?._x_dataStack?.[0];
+            if (parentData && parentData.workflows) {
+                return parentData.workflows.some(w => w.name === this.newName.trim());
+            }
+            return false;
+        },
+        get isValid() {
+            return this.newName.trim() !== '' && !this.submitting;
+        }
+    }">
+    <div class="border-b esevioz-border-dominant pb-3 mb-4">
+        <h5 class="text-sm font-medium esevioz-text">Clone Workflow</h5>
+        <p class="text-xs esevioz-text opacity-60 mt-1">Create a copy of <strong>{{ workflow.name }}</strong></p>
+    </div>
+
+    <form hx-post="/workflows/{{ workflow.name }}/clone"
+          hx-target="#workflow-list-container"
+          hx-swap="innerHTML"
+          @htmx:before-request="submitting = true"
+          @htmx:after-request="submitting = false"
+          class="space-y-4">
+
+        <!-- New Workflow Name Input -->
+        <div>
+            <label for="clone-new-name-{{ workflow.name }}"
+                   class="block text-sm font-medium esevioz-text mb-1">
+                New Workflow Name <span class="text-red-500">*</span>
+            </label>
+            <input type="text"
+                   id="clone-new-name-{{ workflow.name }}"
+                   name="new_workflow_name"
+                   x-model="newName"
+                   required
+                   class="block w-full esevioz-input rounded-md shadow-sm sm:text-sm"
+                   placeholder="e.g., {{ workflow.name }}-copy">
+
+            <!-- Client-side validation warning -->
+            <div x-show="nameExists"
+                 x-transition
+                 class="mt-2 flex items-start">
+                <svg class="h-4 w-4 text-yellow-500 mr-1 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                </svg>
+                <p class="text-xs text-yellow-600 dark:text-yellow-400">
+                    Warning: A workflow with this name already exists
+                </p>
+            </div>
+        </div>
+
+        <!-- Description (Optional) -->
+        <div>
+            <label for="clone-description-{{ workflow.name }}"
+                   class="block text-sm font-medium esevioz-text mb-1">
+                Description (Optional)
+            </label>
+            <textarea id="clone-description-{{ workflow.name }}"
+                      name="description"
+                      x-model="description"
+                      rows="3"
+                      class="block w-full esevioz-input rounded-md shadow-sm sm:text-sm"
+                      placeholder="Enter a description for the cloned workflow..."></textarea>
+            <p class="mt-1 text-xs esevioz-text opacity-60">
+                Leave empty to copy the original description
+            </p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-end gap-2 pt-2">
+            <button type="button"
+                    @click="cloning = false; newName = ''; description = '{{ workflow.description }}'"
+                    class="px-4 py-2 text-sm font-medium esevioz-btn-secondary rounded-md">
+                Cancel
+            </button>
+            <button type="submit"
+                    :disabled="!isValid"
+                    class="px-4 py-2 text-sm font-medium esevioz-btn-primary rounded-md disabled:opacity-50 disabled:cursor-not-allowed">
+                <svg x-show="submitting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-current inline" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span x-text="submitting ? 'Cloning...' : 'Create Clone'"></span>
+            </button>
+        </div>
+    </form>
+
+    <!-- Inline Error Display (for server-side validation errors) -->
+    <div id="clone-error-{{ workflow.name }}" class="mt-4"></div>
+</div>

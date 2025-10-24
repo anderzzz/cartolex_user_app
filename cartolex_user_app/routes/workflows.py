@@ -42,9 +42,9 @@ def _infer_and_parse_value(value_str: str):
 
 @bp.route('/')
 def list_workflows():
-    """List all workflows"""
+    """List all workflows with metadata"""
     api = current_app.api_client
-    response = api.get_workflows()
+    response = api.get_workflows_with_metadata()
 
     if not response.success:
         # Use shared error codes for consistent handling
@@ -54,8 +54,8 @@ def list_workflows():
             flash(f"Error loading workflows: {response.error}", 'error')
         return render_template('workflows/list.html', workflows=[])
 
-    return render_template('workflows/list.html',
-                           workflows=response.data.get('workflows', []))
+    workflows = response.data.get('workflows', [])
+    return render_template('workflows/list.html', workflows=workflows)
 
 
 @bp.route('/<workflow_name>/execute', methods=['POST'])
@@ -227,3 +227,124 @@ def update_workflow_config(workflow_name):
                                message=error_message,
                                workflow_name=workflow_name,
                                locked=locked)
+
+
+@bp.route('/<workflow_name>/summary')
+def get_workflow_summary(workflow_name):
+    """Get workflow summary with config and metadata for HTMX expansion"""
+    api = current_app.api_client
+
+    # Get workflow configuration
+    config_response = api.get_workflow_config(workflow_name)
+
+    if not config_response.success:
+        if config_response.error_code == ErrorCodes.WORKFLOW_NOT_FOUND:
+            return render_template('partials/workflow_not_found.html',
+                                   workflow_name=workflow_name)
+        return render_template('partials/config_error.html',
+                               error=config_response.error)
+
+    config_data = config_response.data
+    configuration = config_data.get('configuration', {})
+
+    # Extract summary information
+    summary_data = {
+        'name': workflow_name,
+        'description': configuration.get('description', 'No description available'),
+        'workflow_kind': configuration.get('workflow_kind', 'Unknown'),
+        'parameters': configuration.get('parameters', {}),
+        'config_source': config_data.get('configuration_source', 'configuration directory')
+    }
+
+    return render_template('partials/workflow_summary.html',
+                           workflow=summary_data)
+
+
+@bp.route('/<workflow_name>/clone', methods=['POST'])
+def clone_workflow_action(workflow_name):
+    """Clone a workflow configuration to a new name"""
+    api = current_app.api_client
+
+    # Get form data
+    new_workflow_name = request.form.get('new_workflow_name', '').strip()
+    description = request.form.get('description', '').strip()
+
+    # Basic validation
+    if not new_workflow_name:
+        return render_template('partials/clone_error.html',
+                               error="New workflow name is required",
+                               workflow_name=workflow_name)
+
+    # Call API to clone workflow
+    response = api.clone_workflow(
+        source_name=workflow_name,
+        new_workflow_name=new_workflow_name,
+        description=description if description else None
+    )
+
+    if response.success:
+        result = response.data
+        flash(f"Workflow '{new_workflow_name}' created from '{workflow_name}'", 'success')
+        current_app.logger.info(f"Cloned workflow: {workflow_name} → {new_workflow_name}")
+
+        # Return updated workflow list
+        workflows_response = api.get_workflows_with_metadata()
+        if workflows_response.success:
+            workflows = workflows_response.data.get('workflows', [])
+            return render_template('partials/workflow_cards.html', workflows=workflows)
+        else:
+            # Fallback: return success message even if list refresh fails
+            return render_template('partials/clone_success.html',
+                                   new_workflow_name=new_workflow_name,
+                                   source_workflow_name=workflow_name)
+    else:
+        # Handle specific error codes
+        if response.error_code == ErrorCodes.WORKFLOW_NOT_FOUND:
+            error_msg = f"Source workflow '{workflow_name}' not found"
+        elif response.error_code == ErrorCodes.WORKFLOW_NAME_CONFLICT:
+            error_msg = f"Workflow '{new_workflow_name}' already exists. Choose a different name."
+        else:
+            error_msg = response.error
+
+        return render_template('partials/clone_error.html',
+                               error=error_msg,
+                               workflow_name=workflow_name)
+
+
+@bp.route('/<workflow_name>/delete', methods=['DELETE', 'POST'])
+def delete_workflow_action(workflow_name):
+    """Delete a workflow configuration
+
+    Note: Accepts both DELETE and POST methods for HTMX compatibility
+    """
+    api = current_app.api_client
+
+    # Call API to delete workflow
+    response = api.delete_workflow_config(workflow_name)
+
+    if response.success:
+        flash(f"Workflow '{workflow_name}' deleted successfully", 'success')
+        current_app.logger.info(f"Deleted workflow: {workflow_name}")
+
+        # Return updated workflow list
+        workflows_response = api.get_workflows_with_metadata()
+        if workflows_response.success:
+            workflows = workflows_response.data.get('workflows', [])
+            return render_template('partials/workflow_cards.html', workflows=workflows)
+        else:
+            # Fallback: return success message
+            return render_template('partials/delete_success.html',
+                                   workflow_name=workflow_name)
+    else:
+        # Handle specific error codes
+        if response.error_code == ErrorCodes.WORKFLOW_NOT_FOUND:
+            error_msg = f"Workflow '{workflow_name}' not found"
+        elif response.error_code == ErrorCodes.CONFIG_LOCKED_ERROR:
+            error_msg = f"Workflow '{workflow_name}' is locked and cannot be deleted"
+        else:
+            error_msg = response.error
+
+        flash(error_msg, 'error')
+        return render_template('partials/delete_error.html',
+                               error=error_msg,
+                               workflow_name=workflow_name)
