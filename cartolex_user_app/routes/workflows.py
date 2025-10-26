@@ -1,7 +1,7 @@
 """Workflow routes using shared constants"""
 
 import json
-from flask import Blueprint, render_template, request, current_app, redirect, url_for
+from flask import Blueprint, render_template, request, current_app, redirect, url_for, make_response
 from cartolex_endpoint_server.constants import ErrorCodes, JobStatuses
 from cartolex_user_app.utils.flash_helpers import flash
 
@@ -39,6 +39,27 @@ def _infer_and_parse_value(value_str: str):
 
     # For simple strings, return as-is
     return value_str
+
+
+def _return_inline_error(error_msg: str, target_id: str):
+    """
+    Return an inline error that targets a specific element within a form.
+
+    Uses HTMX's HX-Retarget response header to dynamically change where the
+    error is displayed, preventing the error from replacing the entire container.
+
+    Args:
+        error_msg: The error message to display
+        target_id: The element ID to retarget (e.g., 'clone-error-workflow-name')
+
+    Returns:
+        Flask Response with HX-Retarget header set
+    """
+    response = make_response(
+        render_template('partials/clone_error_inline.html', error=error_msg)
+    )
+    response.headers['HX-Retarget'] = f'#{target_id}'
+    return response
 
 
 @bp.route('/')
@@ -272,9 +293,10 @@ def clone_workflow_action(workflow_name):
 
     # Basic validation
     if not new_workflow_name:
-        return render_template('partials/clone_error.html',
-                               error="New workflow name is required",
-                               workflow_name=workflow_name)
+        return _return_inline_error(
+            "New workflow name is required",
+            f"clone-error-{workflow_name}"
+        )
 
     # Call API to clone workflow
     response = api.clone_workflow(
@@ -307,9 +329,7 @@ def clone_workflow_action(workflow_name):
         else:
             error_msg = response.error
 
-        return render_template('partials/clone_error.html',
-                               error=error_msg,
-                               workflow_name=workflow_name)
+        return _return_inline_error(error_msg, f"clone-error-{workflow_name}")
 
 
 @bp.route('/<workflow_name>/delete', methods=['DELETE', 'POST'])
