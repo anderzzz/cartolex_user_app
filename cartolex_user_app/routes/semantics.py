@@ -1,7 +1,8 @@
 """Semantics configuration routes using shared constants"""
 
-from flask import Blueprint, render_template, request, current_app, flash, redirect, url_for
+from flask import Blueprint, render_template, request, current_app, redirect, url_for
 from cartolex_endpoint_server.constants import ErrorCodes, ConfigurationKinds
+from cartolex_user_app.utils.flash_helpers import flash
 
 bp = Blueprint('semantics', __name__)
 
