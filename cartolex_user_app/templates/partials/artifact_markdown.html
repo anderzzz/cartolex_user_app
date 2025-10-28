@@ -1,0 +1,194 @@
+<!-- Markdown Artifact Renderer -->
+<div class="artifact-content">
+    <div class="flex items-center justify-between mb-4 pb-3 border-b esevioz-border-dominant">
+        <div>
+            <h4 class="text-lg font-medium esevioz-text">{{ artifact.key }}</h4>
+            <p class="text-sm esevioz-text opacity-60 mt-1">{{ artifact.description }}</p>
+        </div>
+        <span class="px-3 py-1 text-xs font-medium rounded esevioz-badge-info">Markdown</span>
+    </div>
+
+    <!-- Markdown Content with Esevioz Styling -->
+    <div id="markdown-container" class="prose max-w-none esevioz-markdown">
+        <!-- Rendered markdown will be inserted here -->
+    </div>
+
+    <!-- Metadata -->
+    {% if artifact.metadata %}
+    <div class="mt-6 pt-4 border-t esevioz-border-dominant">
+        <details class="text-sm">
+            <summary class="cursor-pointer esevioz-text opacity-75 hover:opacity-100 font-medium">Metadata</summary>
+            <div class="mt-2 esevioz-card rounded p-3">
+                <pre class="text-xs font-mono esevioz-text opacity-75 overflow-x-auto">{{ artifact.metadata | tojson(indent=2) }}</pre>
+            </div>
+        </details>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Include marked.js for markdown parsing -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<script>
+// Configure marked with Esevioz-branded styling
+marked.setOptions({
+    breaks: true,
+    gfm: true,
+    headerIds: true,
+    mangle: false
+});
+
+// Parse and render markdown
+const markdownText = {{ artifact.data.markdown | tojson | safe }};
+const rendered = marked.parse(markdownText);
+document.getElementById('markdown-container').innerHTML = rendered;
+</script>
+
+<style>
+/* Esevioz-Branded Markdown Styles */
+.esevioz-markdown {
+    color: var(--esevioz-text);
+}
+
+.esevioz-markdown h1 {
+    font-size: 2em;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 0.75em;
+    color: var(--esevioz-pine-700, #2d4739);
+    border-bottom: 2px solid var(--esevioz-pine-300, #a5b8ac);
+    padding-bottom: 0.3em;
+}
+
+.esevioz-markdown h2 {
+    font-size: 1.5em;
+    font-weight: 600;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    color: var(--esevioz-pine-700, #2d4739);
+}
+
+.esevioz-markdown h3 {
+    font-size: 1.25em;
+    font-weight: 600;
+    margin-top: 1.25em;
+    margin-bottom: 0.5em;
+    color: var(--esevioz-pine-600, #3d5a47);
+}
+
+.esevioz-markdown h4 {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+}
+
+.esevioz-markdown p {
+    margin-top: 0;
+    margin-bottom: 1em;
+    line-height: 1.7;
+}
+
+.esevioz-markdown ul,
+.esevioz-markdown ol {
+    margin-top: 0;
+    margin-bottom: 1em;
+    padding-left: 2em;
+}
+
+.esevioz-markdown li {
+    margin-bottom: 0.25em;
+    line-height: 1.6;
+}
+
+.esevioz-markdown code {
+    background-color: var(--esevioz-pine-50, #f5f7f6);
+    border: 1px solid var(--esevioz-pine-200, #cbd5ce);
+    border-radius: 0.25rem;
+    padding: 0.125rem 0.375rem;
+    font-size: 0.875em;
+    font-family: 'Monaco', 'Courier New', monospace;
+    color: var(--esevioz-vermilion-700, #8B2500);
+}
+
+.esevioz-markdown pre {
+    background-color: var(--esevioz-pine-50, #f5f7f6);
+    border: 1px solid var(--esevioz-pine-200, #cbd5ce);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    overflow-x: auto;
+    margin-bottom: 1em;
+}
+
+.esevioz-markdown pre code {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    color: inherit;
+}
+
+.esevioz-markdown blockquote {
+    border-left: 4px solid var(--esevioz-pine-400, #7a9384);
+    padding-left: 1em;
+    margin-left: 0;
+    margin-right: 0;
+    color: var(--esevioz-text);
+    opacity: 0.85;
+    font-style: italic;
+}
+
+.esevioz-markdown table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1em;
+}
+
+.esevioz-markdown table th {
+    background-color: var(--esevioz-pine-100, #e5ebe7);
+    color: var(--esevioz-pine-900, #1a2922);
+    font-weight: 600;
+    text-align: left;
+    padding: 0.75rem;
+    border: 1px solid var(--esevioz-pine-300, #a5b8ac);
+}
+
+.esevioz-markdown table td {
+    padding: 0.75rem;
+    border: 1px solid var(--esevioz-pine-200, #cbd5ce);
+}
+
+.esevioz-markdown table tr:nth-child(even) {
+    background-color: var(--esevioz-pine-50, #f5f7f6);
+}
+
+.esevioz-markdown a {
+    color: var(--esevioz-pine-600, #3d5a47);
+    text-decoration: underline;
+}
+
+.esevioz-markdown a:hover {
+    color: var(--esevioz-pine-700, #2d4739);
+}
+
+.esevioz-markdown hr {
+    border: none;
+    border-top: 1px solid var(--esevioz-pine-300, #a5b8ac);
+    margin: 2em 0;
+}
+
+.esevioz-markdown img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    margin: 1em 0;
+}
+
+.esevioz-markdown strong {
+    font-weight: 600;
+    color: var(--esevioz-pine-700, #2d4739);
+}
+
+.esevioz-markdown em {
+    font-style: italic;
+}
+</style>

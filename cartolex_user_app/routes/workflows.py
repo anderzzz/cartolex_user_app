@@ -99,9 +99,17 @@ def execute_workflow(workflow_name):
                 if param_name and value.strip():  # Only add non-empty parameters
                     parameters[param_name] = value.strip()
 
+        # Extract and parse tags (comma-separated)
+        tags = []
+        tags_input = request.form.get('tags', '').strip()
+        if tags_input:
+            # Split by comma and clean up each tag
+            tags = [tag.strip() for tag in tags_input.split(',') if tag.strip()]
+            current_app.logger.info(f"Workflow tags: {tags}")
+
         current_app.logger.info(f"Executing workflow '{workflow_name}' with {len(parameters)} parameters")
 
-        response = api.execute_workflow(workflow_name, parameters)
+        response = api.execute_workflow(workflow_name, parameters, tags=tags if tags else None)
 
         if response.success:
             job_id = response.data.get('job_id')
@@ -175,12 +183,74 @@ def list_jobs():
     # Check if this is an HTMX request for partial content
     if request.headers.get('HX-Request'):
         return render_template('partials/job_list.html', jobs=jobs_data)
-    
+
     # Full page request
     return render_template('workflows/jobs.html',
                            jobs=jobs_data,
                            current_filter=status_filter,
                            all_statuses=JobStatuses.ALL_STATUSES)
+
+
+@bp.route('/jobs/<job_id>/results')
+def job_results(job_id):
+    """Dedicated job results page with artifacts"""
+    api = current_app.api_client
+
+    # Get job status and result
+    job_response = api.get_job_status(job_id)
+
+    if not job_response.success:
+        if job_response.error_code == ErrorCodes.JOB_NOT_FOUND:
+            flash(f"Job {job_id} not found", 'error')
+            return redirect(url_for('workflows.list_jobs'))
+        flash(f"Error loading job: {job_response.error}", 'error')
+        return redirect(url_for('workflows.list_jobs'))
+
+    job = job_response.data
+
+    # Check if job has completed
+    if not JobStatuses.is_terminal(job['status']):
+        flash("Job is still running. Redirecting to job monitoring...", 'warning')
+        return redirect(url_for('workflows.list_jobs'))
+
+    # Get artifacts if job has results
+    artifacts = []
+    if job.get('has_result'):
+        artifacts_response = api.get_job_artifacts(job_id)
+        if artifacts_response.success:
+            artifacts = artifacts_response.data.get('artifacts', [])
+
+    return render_template('workflows/job_results.html',
+                          job=job,
+                          artifacts=artifacts)
+
+
+@bp.route('/jobs/<job_id>/artifacts/<artifact_id>')
+def get_artifact(job_id, artifact_id):
+    """Get artifact detail for HTMX loading"""
+    api = current_app.api_client
+
+    response = api.get_artifact_detail(job_id, artifact_id)
+
+    if not response.success:
+        return render_template('partials/artifact_error.html',
+                             error=response.error)
+
+    artifact = response.data
+    artifact_type = artifact.get('type')
+
+    # Route to appropriate renderer based on type
+    if artifact_type == 'markdown':
+        return render_template('partials/artifact_markdown.html', artifact=artifact)
+    elif artifact_type == 'table':
+        return render_template('partials/artifact_table.html', artifact=artifact)
+    elif artifact_type == 'link':
+        return render_template('partials/artifact_link.html', artifact=artifact)
+    elif artifact_type == 'image':
+        return render_template('partials/artifact_image.html', artifact=artifact)
+    else:
+        return render_template('partials/artifact_error.html',
+                             error=f"Unsupported artifact type: {artifact_type}")
 
 
 @bp.route('/<workflow_name>/config')

@@ -97,18 +97,24 @@ class CartolexAPI:
         endpoint = APIEndpoints.WORKFLOW_DETAIL.format(name=name)
         return self._make_request('GET', endpoint)
 
-    def execute_workflow(self, name: str, parameters: dict) -> APIResponse:
+    def execute_workflow(self, name: str, parameters: dict, tags: Optional[list] = None) -> APIResponse:
         """Execute workflow - submits job asynchronously
 
         Args:
             name: Configuration name (NOT workflow_kind)
             parameters: Workflow parameters (merged with config parameters)
+            tags: Optional list of tags for organizing and filtering workflow runs
 
         Returns:
             Job submission response with job_id, status='pending', workflow_name
         """
         endpoint = APIEndpoints.WORKFLOW_EXECUTE.format(name=name)
         payload = {'parameters': parameters}
+
+        # Add execution options with tags if provided
+        if tags:
+            payload['execution'] = {'tags': tags}
+
         return self._make_request('POST', endpoint, data=payload)
 
     def get_jobs(self, status: str = None, limit: int = 50) -> APIResponse:
@@ -121,6 +127,41 @@ class CartolexAPI:
     def get_job_status(self, job_id: str) -> APIResponse:
         """Get job status"""
         endpoint = APIEndpoints.JOB_STATUS.format(job_id=job_id)
+        return self._make_request('GET', endpoint)
+
+    def get_job_artifacts(self, job_id: str, artifact_type: str = None,
+                         key: str = None, limit: int = 100, offset: int = 0) -> APIResponse:
+        """Get all artifacts for a job
+
+        Args:
+            job_id: Job ID
+            artifact_type: Filter by type (markdown, table, link, image, progress)
+            key: Filter by artifact key
+            limit: Pagination limit (max 500)
+            offset: Pagination offset
+
+        Returns:
+            List of artifacts with metadata and previews
+        """
+        endpoint = APIEndpoints.JOB_ARTIFACTS_LIST.format(job_id=job_id)
+        params = {'limit': min(limit, 500), 'offset': offset}
+        if artifact_type:
+            params['type'] = artifact_type
+        if key:
+            params['key'] = key
+        return self._make_request('GET', endpoint, params=params)
+
+    def get_artifact_detail(self, job_id: str, artifact_id: str) -> APIResponse:
+        """Get full artifact content
+
+        Args:
+            job_id: Job ID
+            artifact_id: Artifact ID
+
+        Returns:
+            Full artifact with data field containing type-specific content
+        """
+        endpoint = APIEndpoints.JOB_ARTIFACT_DETAIL.format(job_id=job_id, artifact_id=artifact_id)
         return self._make_request('GET', endpoint)
 
     # Semantics methods (read-only)
