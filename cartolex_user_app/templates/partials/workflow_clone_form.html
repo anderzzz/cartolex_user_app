@@ -27,11 +27,6 @@
         </svg>
     </button>
 
-    <div class="border-b esevioz-border-dominant pb-3 mb-4">
-        <h5 class="text-sm font-medium esevioz-text">Clone Workflow</h5>
-        <p class="text-xs esevioz-text opacity-60 mt-1">Create a copy of <strong>{{ workflow.name }}</strong></p>
-    </div>
-
     <form hx-post="/workflows/{{ workflow.name }}/clone"
           hx-target="#workflow-list-container"
           hx-swap="innerHTML"

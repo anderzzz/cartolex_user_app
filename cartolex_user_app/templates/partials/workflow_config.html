@@ -1,26 +1,21 @@
 <!-- Workflow Configuration Expansion Panel -->
-<div id="config-{{ workflow_name }}" class="border-t esevioz-border-dominant px-6 py-4 esevioz-bg-accent" x-data="{ saving: false }">
+<div id="config-{{ workflow_name }}" class="esevioz-card rounded-lg p-4 relative" x-data="{ saving: false }">
+    <!-- Close Button -->
+    <button type="button"
+            onclick="closeWorkflowConfig('{{ workflow_name }}')"
+            class="absolute top-4 right-4 esevioz-text opacity-50 hover:opacity-100 transition"
+            title="Close">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+    </button>
+
     <form hx-put="{{ url_for('workflows.update_workflow_config', workflow_name=workflow_name) }}"
           hx-target="#config-save-result-{{ workflow_name }}"
           hx-swap="innerHTML"
           @htmx:before-request="saving = true"
           @htmx:after-request="saving = false"
           class="space-y-6">
-
-        <!-- Configuration Header -->
-        <div class="flex items-center justify-between">
-            <div>
-                <h4 class="text-lg font-medium esevioz-text">Workflow Configuration</h4>
-                <p class="text-sm esevioz-text opacity-75">Source: {{ config_source }}</p>
-            </div>
-            <button type="button"
-                    onclick="closeWorkflowConfig('{{ workflow_name }}')"
-                    class="text-sm esevioz-text opacity-75 hover:opacity-100">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-        </div>
 
         <!-- Lock Status Indicator -->
         {% if config._schema and config._schema.locked %}

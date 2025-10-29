@@ -107,51 +107,53 @@
     </div>
 
     <!-- Launch Panel -->
-    <div x-show="launching" x-collapse class="border-t esevioz-border-dominant pt-4 mt-4 relative" x-data="{ tags: '' }">
-        <!-- Close Button -->
-        <button type="button"
-                @click="launching = false; tags = '';"
-                class="absolute top-4 right-4 esevioz-text opacity-50 hover:opacity-100 transition"
-                title="Close">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-        </button>
-
-        <label for="tags-{{ workflow.name }}" class="block text-sm font-medium esevioz-text mb-2">
-            Tags (optional)
-        </label>
-        <input type="text"
-               id="tags-{{ workflow.name }}"
-               x-model="tags"
-               placeholder="project_name, production, experiment_v1"
-               class="w-full px-3 py-2 text-sm border esevioz-border-dominant rounded-md esevioz-input mb-2">
-        <p class="text-xs esevioz-text opacity-60 mb-4">
-            Add comma-separated tags to organize and filter workflow runs
-        </p>
-
-        <!-- Execute Button -->
-        <div class="flex justify-end">
+    <div x-show="launching" x-collapse class="mt-4">
+        <div class="esevioz-card rounded-lg p-4 relative" x-data="{ tags: '' }">
+            <!-- Close Button -->
             <button type="button"
-                    @click="if (true) {
-                                const launchBtn = $el;
-                                launchBtn.disabled = true;
-                                htmx.ajax('POST', '/workflows/{{ workflow.name }}/execute', {
-                                    target: '#launch-result-{{ workflow.name }}',
-                                    swap: 'innerHTML',
-                                    values: tags.trim() ? { tags: tags.trim() } : {}
-                                }).then(() => {
-                                    launchBtn.disabled = false;
-                                    launching = false;
-                                    tags = '';
-                                });
-                            }"
-                    class="esevioz-btn-primary text-sm px-4 py-2 rounded-md">
-                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    @click="launching = false; tags = '';"
+                    class="absolute top-4 right-4 esevioz-text opacity-50 hover:opacity-100 transition"
+                    title="Close">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
-                Execute Workflow
             </button>
+
+            <label for="tags-{{ workflow.name }}" class="block text-sm font-medium esevioz-text mb-2">
+                Tags (optional)
+            </label>
+            <input type="text"
+                   id="tags-{{ workflow.name }}"
+                   x-model="tags"
+                   placeholder="project_name, production, experiment_v1"
+                   class="w-full px-3 py-2 text-sm border esevioz-border-dominant rounded-md esevioz-input mb-2">
+            <p class="text-xs esevioz-text opacity-60 mb-4">
+                Add comma-separated tags to organize and filter workflow runs
+            </p>
+
+            <!-- Execute Button -->
+            <div class="flex justify-end">
+                <button type="button"
+                        @click="if (true) {
+                                    const launchBtn = $el;
+                                    launchBtn.disabled = true;
+                                    htmx.ajax('POST', '/workflows/{{ workflow.name }}/execute', {
+                                        target: '#launch-result-{{ workflow.name }}',
+                                        swap: 'innerHTML',
+                                        values: tags.trim() ? { tags: tags.trim() } : {}
+                                    }).then(() => {
+                                        launchBtn.disabled = false;
+                                        launching = false;
+                                        tags = '';
+                                    });
+                                }"
+                        class="esevioz-btn-primary text-sm px-4 py-2 rounded-md">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    Execute Workflow
+                </button>
+            </div>
         </div>
     </div>
 
