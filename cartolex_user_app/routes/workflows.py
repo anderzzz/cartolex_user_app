@@ -62,6 +62,124 @@ def _return_inline_error(error_msg: str, target_id: str):
     return response
 
 
+def _normalize_table_data(data, metadata=None):
+    """
+    Normalize table data to standard format: list[dict[str, Any]]
+
+    Handles three input formats:
+
+    1. List of dicts (rows) - already normalized:
+       [{"col1": val1, "col2": val2}, {"col1": val3, "col2": val4}]
+
+    2. Dict of lists (columns) - transpose to rows:
+       {"col1": [val1, val3], "col2": [val2, val4]}
+       → [{"col1": val1, "col2": val2}, {"col1": val3, "col2": val4}]
+
+    3. List of lists (raw) - first row as headers:
+       [["col1", "col2"], [val1, val2], [val3, val4]]
+       → [{"col1": val1, "col2": val2}, {"col1": val3, "col2": val4}]
+
+    Args:
+        data: Table data in any supported format (auto-detected)
+        metadata: Optional metadata dict with hints:
+            - table_format: "rows" | "columns" | "raw" (auto-detected if omitted)
+            - column_order: ["col1", "col2"] (explicit column ordering)
+
+    Returns:
+        Normalized table as list[dict[str, Any]] (rows format)
+
+    Examples:
+        >>> # Backend sends columns format
+        >>> _normalize_table_data({"name": ["Alice", "Bob"], "age": [30, 25]})
+        [{"name": "Alice", "age": 30}, {"name": "Bob", "age": 25}]
+
+        >>> # Backend sends raw format with headers
+        >>> _normalize_table_data([["name", "age"], ["Alice", 30], ["Bob", 25]])
+        [{"name": "Alice", "age": 30}, {"name": "Bob", "age": 25}]
+
+        >>> # Backend sends rows format (no transformation needed)
+        >>> _normalize_table_data([{"name": "Alice", "age": 30}, {"name": "Bob", "age": 25}])
+        [{"name": "Alice", "age": 30}, {"name": "Bob", "age": 25}]
+    """
+    if not data:
+        return []
+
+    # Check metadata hint first
+    table_format = metadata.get('table_format') if metadata else None
+
+    # Auto-detect format if no hint provided
+    if not table_format:
+        if isinstance(data, list) and len(data) > 0:
+            if isinstance(data[0], dict):
+                table_format = 'rows'
+            elif isinstance(data[0], list):
+                table_format = 'raw'
+            else:
+                current_app.logger.warning(f"Unknown table data format: list of {type(data[0])}")
+                return []
+        elif isinstance(data, dict):
+            table_format = 'columns'
+        else:
+            current_app.logger.warning(f"Unknown table data format: {type(data)}")
+            return []
+
+    # Normalize based on detected/hinted format
+    try:
+        if table_format == 'rows':
+            # Already in correct format: [{"col1": val1, "col2": val2}, ...]
+            normalized = data
+
+        elif table_format == 'columns':
+            # Transpose columns to rows: {"col1": [v1, v2], "col2": [v3, v4]}
+            # → [{"col1": v1, "col2": v3}, {"col1": v2, "col2": v4}]
+            columns = list(data.keys())
+            if not columns:
+                return []
+
+            num_rows = len(data[columns[0]])
+            normalized = [
+                {col: data[col][i] for col in columns if i < len(data[col])}
+                for i in range(num_rows)
+            ]
+
+        elif table_format == 'raw':
+            # First row is headers: [["col1", "col2"], [v1, v3], [v2, v4]]
+            # → [{"col1": v1, "col2": v3}, {"col1": v2, "col2": v4}]
+            if len(data) < 2:
+                return []
+
+            headers = data[0]
+            if not isinstance(headers, list):
+                current_app.logger.warning(f"Raw table format expects first row as headers list")
+                return []
+
+            normalized = [
+                {str(headers[i]): row[i] for i in range(min(len(headers), len(row)))}
+                for row in data[1:]
+                if isinstance(row, list)
+            ]
+
+        else:
+            current_app.logger.warning(f"Unsupported table_format: {table_format}")
+            return []
+
+        # Apply explicit column ordering if provided
+        if metadata and 'column_order' in metadata:
+            column_order = metadata['column_order']
+            # Reorder columns in each row according to specified order
+            normalized = [
+                {col: row.get(col) for col in column_order if col in row}
+                for row in normalized
+            ]
+
+        current_app.logger.debug(f"Normalized {table_format} table with {len(normalized)} rows")
+        return normalized
+
+    except Exception as e:
+        current_app.logger.error(f"Error normalizing table data: {e}")
+        return []
+
+
 @bp.route('/')
 def list_workflows():
     """List all workflows with metadata"""
@@ -241,7 +359,15 @@ def get_artifact(job_id, artifact_id):
     artifact = response.data
     artifact_type = artifact.get('type')
 
-    # Normalize backend response structure to match frontend templates
+    # Step 1: Normalize table data to standard format (list of dicts)
+    # Handles multiple input formats: rows, columns, raw lists
+    if artifact_type == 'table' and 'data' in artifact:
+        artifact['data'] = _normalize_table_data(
+            artifact['data'],
+            artifact.get('metadata')
+        )
+
+    # Step 2: Wrap data in type-specific nested structure for templates
     # Backend returns: artifact.data = content (flat)
     # Frontend expects: artifact.data.{type} = content (nested)
     if 'data' in artifact and artifact_type:
