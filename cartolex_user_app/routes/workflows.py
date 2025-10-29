@@ -241,6 +241,12 @@ def get_artifact(job_id, artifact_id):
     artifact = response.data
     artifact_type = artifact.get('type')
 
+    # Normalize backend response structure to match frontend templates
+    # Backend returns: artifact.data = content (flat)
+    # Frontend expects: artifact.data.{type} = content (nested)
+    if 'data' in artifact and artifact_type:
+        artifact['data'] = {artifact_type: artifact['data']}
+
     # Route to appropriate renderer based on type
     if artifact_type == 'markdown':
         return render_template('partials/artifact_markdown.html', artifact=artifact)
