@@ -213,12 +213,14 @@ def job_results(job_id):
         flash("Job is still running. Redirecting to job monitoring...", 'warning')
         return redirect(url_for('workflows.list_jobs'))
 
-    # Get artifacts if job has results
+    # Always attempt to fetch artifacts for completed jobs
+    # The backend will return an empty list if none exist
     artifacts = []
-    if job.get('has_result'):
-        artifacts_response = api.get_job_artifacts(job_id)
-        if artifacts_response.success:
-            artifacts = artifacts_response.data.get('artifacts', [])
+    artifacts_response = api.get_job_artifacts(job_id)
+    if artifacts_response.success:
+        artifacts = artifacts_response.data.get('artifacts', [])
+    else:
+        current_app.logger.warning(f"Failed to fetch artifacts for job {job_id}: {artifacts_response.error}")
 
     return render_template('workflows/job_results.html',
                           job=job,
