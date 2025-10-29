@@ -107,7 +107,17 @@
     </div>
 
     <!-- Launch Panel -->
-    <div x-show="launching" x-collapse class="border-t esevioz-border-dominant pt-4 mt-4" x-data="{ tags: '' }">
+    <div x-show="launching" x-collapse class="border-t esevioz-border-dominant pt-4 mt-4 relative" x-data="{ tags: '' }">
+        <!-- Close Button -->
+        <button type="button"
+                @click="launching = false; tags = '';"
+                class="absolute top-4 right-4 esevioz-text opacity-50 hover:opacity-100 transition"
+                title="Close">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+
         <label for="tags-{{ workflow.name }}" class="block text-sm font-medium esevioz-text mb-2">
             Tags (optional)
         </label>
@@ -121,7 +131,7 @@
         </p>
 
         <!-- Execute Button -->
-        <div class="flex gap-2">
+        <div class="flex justify-end">
             <button type="button"
                     @click="if (true) {
                                 const launchBtn = $el;
@@ -141,11 +151,6 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
                 Execute Workflow
-            </button>
-            <button type="button"
-                    @click="launching = false; tags = '';"
-                    class="esevioz-btn-secondary text-sm px-4 py-2 rounded-md">
-                Cancel
             </button>
         </div>
     </div>
