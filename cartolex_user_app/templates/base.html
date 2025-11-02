@@ -139,17 +139,24 @@
         document.body.addEventListener('htmx:configRequest', function(evt) {
             evt.detail.headers['X-CSRFToken'] = '{{ csrf_token() }}';
         });
-        
+
         // Show loading indicator
         document.body.addEventListener('htmx:beforeRequest', function(evt) {
             if (evt.target.classList.contains('htmx-indicator')) {
                 evt.target.classList.add('opacity-50');
             }
         });
-        
+
         document.body.addEventListener('htmx:afterRequest', function(evt) {
             if (evt.target.classList.contains('htmx-indicator')) {
                 evt.target.classList.remove('opacity-50');
+            }
+        });
+
+        // Re-initialize Alpine.js after HTMX swaps content
+        document.body.addEventListener('htmx:afterSwap', function(evt) {
+            if (window.Alpine) {
+                Alpine.initTree(evt.detail.target);
             }
         });
         
