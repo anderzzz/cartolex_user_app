@@ -404,6 +404,11 @@ def get_artifact(job_id, artifact_id):
     artifact = response.data
     artifact_type = artifact.get('type')
 
+    # DEBUG: Log what backend sent
+    current_app.logger.info(f"Artifact type: {artifact_type}, has 'data' key: {'data' in artifact}")
+    if 'data' in artifact:
+        current_app.logger.info(f"Artifact data type: {type(artifact['data'])}, data: {artifact['data']!r}")
+
     # Step 1: Presentation transformations for different artifact types
 
     # Table: Normalize data structure (rows/columns/raw → list of dicts)
@@ -415,7 +420,9 @@ def get_artifact(job_id, artifact_id):
 
     # Markdown: Render to HTML (markdown string → dict with markdown + html)
     if artifact_type == 'markdown' and 'data' in artifact:
+        current_app.logger.info(f"Rendering markdown: {artifact['data']!r}")
         artifact['data'] = _render_markdown_artifact(artifact['data'])
+        current_app.logger.info(f"After render: {artifact['data']!r}")
 
     # Step 2: Wrap data in type-specific nested structure for templates
     # Backend returns: artifact.data = content (flat)
