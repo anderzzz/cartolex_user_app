@@ -180,6 +180,51 @@ def _normalize_table_data(data, metadata=None):
         return []
 
 
+def _render_markdown_artifact(markdown_data):
+    """
+    Render markdown to HTML for frontend display.
+
+    This is a presentation transformation that happens in the frontend
+    presentation server (not the backend data API). Follows the same
+    pattern as _normalize_table_data() - transforming data for UI consumption.
+
+    Handles markdown artifact data transformation:
+    - Input: "# Markdown string" (from backend)
+    - Output: {"markdown": "# ...", "html": "<h1>...</h1>"} (for template)
+
+    Args:
+        markdown_data: Raw markdown string from backend
+
+    Returns:
+        Dict with both markdown and html versions
+
+    Example:
+        >>> _render_markdown_artifact("# Title\\n\\n**Bold**")
+        {
+            "markdown": "# Title\\n\\n**Bold**",
+            "html": "<h1>Title</h1>\\n<p><strong>Bold</strong></p>"
+        }
+    """
+    import mistune
+    import html
+
+    if not markdown_data or not isinstance(markdown_data, str):
+        return {"markdown": "", "html": ""}
+
+    try:
+        rendered_html = mistune.html(markdown_data)
+        current_app.logger.debug(f"Rendered markdown ({len(markdown_data)} chars) to HTML ({len(rendered_html)} chars)")
+    except Exception as e:
+        current_app.logger.error(f"Markdown rendering failed: {e}")
+        # Fallback: escape and wrap in <pre> for plain text display
+        rendered_html = f"<pre>{html.escape(markdown_data)}</pre>"
+
+    return {
+        "markdown": markdown_data,  # Original for debugging/export
+        "html": rendered_html       # Rendered for display
+    }
+
+
 @bp.route('/')
 def list_workflows():
     """List all workflows with metadata"""
@@ -359,13 +404,18 @@ def get_artifact(job_id, artifact_id):
     artifact = response.data
     artifact_type = artifact.get('type')
 
-    # Step 1: Normalize table data to standard format (list of dicts)
-    # Handles multiple input formats: rows, columns, raw lists
+    # Step 1: Presentation transformations for different artifact types
+
+    # Table: Normalize data structure (rows/columns/raw → list of dicts)
     if artifact_type == 'table' and 'data' in artifact:
         artifact['data'] = _normalize_table_data(
             artifact['data'],
             artifact.get('metadata')
         )
+
+    # Markdown: Render to HTML (markdown string → dict with markdown + html)
+    if artifact_type == 'markdown' and 'data' in artifact:
+        artifact['data'] = _render_markdown_artifact(artifact['data'])
 
     # Step 2: Wrap data in type-specific nested structure for templates
     # Backend returns: artifact.data = content (flat)

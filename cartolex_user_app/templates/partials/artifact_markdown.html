@@ -8,9 +8,9 @@
         <span class="px-3 py-1 text-xs font-medium rounded esevioz-badge-info">Markdown</span>
     </div>
 
-    <!-- Markdown Content with Esevioz Styling -->
-    <div id="markdown-container" class="prose max-w-none esevioz-markdown">
-        <!-- Rendered markdown will be inserted here -->
+    <!-- Markdown Content with Esevioz Styling (Server-Rendered) -->
+    <div class="prose max-w-none esevioz-markdown">
+        {{ artifact.data.markdown.html | safe }}
     </div>
 
     <!-- Metadata -->
@@ -25,24 +25,6 @@
     </div>
     {% endif %}
 </div>
-
-<!-- Include marked.js for markdown parsing -->
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-<script>
-// Configure marked with Esevioz-branded styling
-marked.setOptions({
-    breaks: true,
-    gfm: true,
-    headerIds: true,
-    mangle: false
-});
-
-// Parse and render markdown
-const markdownText = {{ artifact.data.markdown | tojson | safe }};
-const rendered = marked.parse(markdownText);
-document.getElementById('markdown-container').innerHTML = rendered;
-</script>
 
 <style>
 /* Esevioz-Branded Markdown Styles */
