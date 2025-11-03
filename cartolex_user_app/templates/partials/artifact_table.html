@@ -1,15 +1,5 @@
 <!-- Table Artifact Renderer using DataTables -->
-
-<!-- Load jQuery and DataTables (only if not already loaded) -->
-<script>
-if (typeof jQuery === 'undefined') {
-    document.write('<script src="https://code.jquery.com/jquery-3.7.1.min.js"><\/script>');
-}
-</script>
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
-<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+<!-- Note: jQuery and DataTables are loaded in base.html -->
 
 <div class="artifact-content">
     <!-- Header -->
@@ -61,50 +51,48 @@ if (typeof jQuery === 'undefined') {
     <!-- Initialize DataTable -->
     <script>
     (function() {
-        // Wait for DataTables to be loaded
-        function initTable() {
-            if (typeof $.fn.DataTable === 'undefined') {
-                setTimeout(initTable, 100);
-                return;
+        // DataTables should already be loaded from base.html
+        // Small delay to ensure DOM is ready after HTMX swap
+        setTimeout(function() {
+            if (typeof $ !== 'undefined' && $.fn.DataTable) {
+                $('#artifact-table-{{ artifact.id }}').DataTable({
+                    pageLength: 25,
+                    lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                    order: [[0, 'asc']],
+                    dom: '<"flex items-center justify-between mb-4"<"text-sm esevioz-text opacity-75"i><"flex items-center gap-2"Bf>>rtip',
+                    buttons: [
+                        {
+                            extend: 'csv',
+                            text: 'Export CSV',
+                            filename: '{{ artifact.key }}',
+                            className: 'px-3 py-1 text-sm rounded esevioz-btn-secondary'
+                        }
+                    ],
+                    language: {
+                        search: "Search:",
+                        searchPlaceholder: "Filter table...",
+                        info: "Showing _START_ to _END_ of _TOTAL_ rows",
+                        infoEmpty: "No rows available",
+                        infoFiltered: "(filtered from _MAX_ total rows)",
+                        lengthMenu: "Show _MENU_ rows",
+                        paginate: {
+                            first: "First",
+                            last: "Last",
+                            next: "Next",
+                            previous: "Previous"
+                        }
+                    },
+                    drawCallback: function() {
+                        // Apply theme-aware styling after each draw
+                        $('.dataTables_wrapper').addClass('esevioz-text');
+                        $('.dataTables_filter input').addClass('px-3 py-2 border esevioz-border-dominant rounded-md esevioz-input text-sm');
+                        $('.dataTables_length select').addClass('px-3 py-2 border esevioz-border-dominant rounded-md esevioz-input text-sm');
+                    }
+                });
+            } else {
+                console.error('DataTables not loaded. Check base.html includes.');
             }
-
-            $('#artifact-table-{{ artifact.id }}').DataTable({
-                pageLength: 25,
-                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
-                order: [[0, 'asc']],
-                dom: '<"flex items-center justify-between mb-4"<"text-sm esevioz-text opacity-75"i><"flex items-center gap-2"Bf>>rtip',
-                buttons: [
-                    {
-                        extend: 'csv',
-                        text: 'Export CSV',
-                        filename: '{{ artifact.key }}',
-                        className: 'px-3 py-1 text-sm rounded esevioz-btn-secondary'
-                    }
-                ],
-                language: {
-                    search: "Search:",
-                    searchPlaceholder: "Filter table...",
-                    info: "Showing _START_ to _END_ of _TOTAL_ rows",
-                    infoEmpty: "No rows available",
-                    infoFiltered: "(filtered from _MAX_ total rows)",
-                    lengthMenu: "Show _MENU_ rows",
-                    paginate: {
-                        first: "First",
-                        last: "Last",
-                        next: "Next",
-                        previous: "Previous"
-                    }
-                },
-                drawCallback: function() {
-                    // Apply theme-aware styling after each draw
-                    $('.dataTables_wrapper').addClass('esevioz-text');
-                    $('.dataTables_filter input').addClass('px-3 py-2 border esevioz-border-dominant rounded-md esevioz-input text-sm');
-                    $('.dataTables_length select').addClass('px-3 py-2 border esevioz-border-dominant rounded-md esevioz-input text-sm');
-                }
-            });
-        }
-
-        initTable();
+        }, 100);
     })();
     </script>
 
