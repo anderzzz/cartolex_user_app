@@ -184,79 +184,27 @@ def _render_markdown_artifact(markdown_data):
     """
     Render markdown to HTML for frontend display.
 
-    Handles markdown artifact data transformation with proper newline
-    and whitespace normalization.
-
-    Args:
-        markdown_data: Raw markdown string from backend
-
-    Returns:
-        Dict with both markdown and html versions
+    Simple rendering since data is pre-sanitized at write time.
     """
     import mistune
     import html
-    import re
 
     if not markdown_data or not isinstance(markdown_data, str):
         return {"markdown": "", "html": ""}
 
-    # Step 1: Normalize newlines
-    processed_markdown = markdown_data
-
-    # Replace literal \n with actual newlines
-    processed_markdown = processed_markdown.replace('\\n', '\n')
-
-    # Normalize line endings
-    processed_markdown = processed_markdown.replace('\r\n', '\n')
-    processed_markdown = processed_markdown.replace('\r', '\n')
-
-    # Step 2: Fix numbered list items with inconsistent indentation
-    # Pattern: line starts with number, dot, then excessive whitespace
-    # Replace with consistent spacing (number. followed by exactly 1 space)
-    processed_markdown = re.sub(
-        r'^(\d+)\.\s+',  # Match "1." followed by one or more spaces at line start
-        r'\1. ',  # Replace with "1." followed by exactly one space
-        processed_markdown,
-        flags=re.MULTILINE
-    )
-
-    # Step 3: Remove leading spaces from lines that might be mistaken for code blocks
-    # but are actually list continuations
-    lines = processed_markdown.split('\n')
-    normalized_lines = []
-    in_list = False
-
-    for i, line in enumerate(lines):
-        # Check if this line starts a numbered list item
-        if re.match(r'^\d+\.\s', line):
-            in_list = True
-            normalized_lines.append(line)
-        # Check if we're in a list and this line has leading spaces
-        # (it's probably a continuation, not a code block)
-        elif in_list and line.startswith('    ') or line.startswith('\t'):
-            # Remove excessive indentation but keep it as part of the list
-            normalized_lines.append(line.lstrip())
-        # Empty line might end the list
-        elif not line.strip():
-            in_list = False
-            normalized_lines.append(line)
-        else:
-            normalized_lines.append(line)
-
-    processed_markdown = '\n'.join(normalized_lines)
-
     try:
-        rendered_html = mistune.html(processed_markdown)
+        rendered_html = mistune.html(markdown_data)
         current_app.logger.debug(
             f"Rendered markdown ({len(markdown_data)} chars) to HTML "
             f"({len(rendered_html)} chars)"
         )
     except Exception as e:
         current_app.logger.error(f"Markdown rendering failed: {e}")
-        rendered_html = f"<pre>{html.escape(processed_markdown)}</pre>"
+        # Fallback: escape and wrap in pre tag
+        rendered_html = f"<pre>{html.escape(markdown_data)}</pre>"
 
     return {
-        "markdown": processed_markdown,
+        "markdown": markdown_data,
         "html": rendered_html
     }
 
