@@ -211,20 +211,38 @@ def _render_markdown_artifact(markdown_data):
     if not markdown_data or not isinstance(markdown_data, str):
         return {"markdown": "", "html": ""}
 
-    # Convert literal \n sequences to actual newlines
-    # Backend may send "text\nmore text" as a JSON string with escaped newlines
-    markdown_data = markdown_data.replace('\\n', '\n')
+    # Normalize newlines - handle various escape scenarios
+    processed_markdown = markdown_data
+
+    # Check if we have literal \n strings (not actual newlines)
+    if '\\n' in processed_markdown and '\n' not in processed_markdown:
+        # Case 1: Only escaped newlines exist
+        processed_markdown = processed_markdown.replace('\\n', '\n')
+    elif '\\n' in processed_markdown:
+        # Case 2: Mix of escaped and real newlines (double-escaped scenario)
+        # This handles cases like "text\\n\\nmore" where \\n should become \n
+        processed_markdown = processed_markdown.replace('\\n', '\n')
+
+    # Handle other common escape sequences that might appear
+    processed_markdown = processed_markdown.replace('\\t', '\t')
+    processed_markdown = processed_markdown.replace('\\r', '\r')
+
+    # Clean up any Windows-style line endings to Unix style
+    processed_markdown = processed_markdown.replace('\r\n', '\n')
+
+    # Remove any stray \r characters
+    processed_markdown = processed_markdown.replace('\r', '\n')
 
     try:
-        rendered_html = mistune.html(markdown_data)
+        rendered_html = mistune.html(processed_markdown)
         current_app.logger.debug(f"Rendered markdown ({len(markdown_data)} chars) to HTML ({len(rendered_html)} chars)")
     except Exception as e:
         current_app.logger.error(f"Markdown rendering failed: {e}")
         # Fallback: escape and wrap in <pre> for plain text display
-        rendered_html = f"<pre>{html.escape(markdown_data)}</pre>"
+        rendered_html = f"<pre>{html.escape(processed_markdown)}</pre>"
 
     return {
-        "markdown": markdown_data,  # Original for debugging/export
+        "markdown": processed_markdown,  # Original for debugging/export
         "html": rendered_html       # Rendered for display
     }
 
