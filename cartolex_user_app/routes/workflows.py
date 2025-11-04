@@ -184,66 +184,80 @@ def _render_markdown_artifact(markdown_data):
     """
     Render markdown to HTML for frontend display.
 
-    This is a presentation transformation that happens in the frontend
-    presentation server (not the backend data API). Follows the same
-    pattern as _normalize_table_data() - transforming data for UI consumption.
-
-    Handles markdown artifact data transformation:
-    - Input: "# Markdown string" (from backend)
-    - Output: {"markdown": "# ...", "html": "<h1>...</h1>"} (for template)
+    Handles markdown artifact data transformation with proper newline
+    and whitespace normalization.
 
     Args:
         markdown_data: Raw markdown string from backend
 
     Returns:
         Dict with both markdown and html versions
-
-    Example:
-        >>> _render_markdown_artifact("# Title\\n\\n**Bold**")
-        {
-            "markdown": "# Title\\n\\n**Bold**",
-            "html": "<h1>Title</h1>\\n<p><strong>Bold</strong></p>"
-        }
     """
     import mistune
     import html
+    import re
 
     if not markdown_data or not isinstance(markdown_data, str):
         return {"markdown": "", "html": ""}
 
-    # Normalize newlines - handle various escape scenarios
+    # Step 1: Normalize newlines
     processed_markdown = markdown_data
 
-    # Check if we have literal \n strings (not actual newlines)
-    if '\\n' in processed_markdown and '\n' not in processed_markdown:
-        # Case 1: Only escaped newlines exist
-        processed_markdown = processed_markdown.replace('\\n', '\n')
-    elif '\\n' in processed_markdown:
-        # Case 2: Mix of escaped and real newlines (double-escaped scenario)
-        # This handles cases like "text\\n\\nmore" where \\n should become \n
-        processed_markdown = processed_markdown.replace('\\n', '\n')
+    # Replace literal \n with actual newlines
+    processed_markdown = processed_markdown.replace('\\n', '\n')
 
-    # Handle other common escape sequences that might appear
-    processed_markdown = processed_markdown.replace('\\t', '\t')
-    processed_markdown = processed_markdown.replace('\\r', '\r')
-
-    # Clean up any Windows-style line endings to Unix style
+    # Normalize line endings
     processed_markdown = processed_markdown.replace('\r\n', '\n')
-
-    # Remove any stray \r characters
     processed_markdown = processed_markdown.replace('\r', '\n')
+
+    # Step 2: Fix numbered list items with inconsistent indentation
+    # Pattern: line starts with number, dot, then excessive whitespace
+    # Replace with consistent spacing (number. followed by exactly 1 space)
+    processed_markdown = re.sub(
+        r'^(\d+)\.\s+',  # Match "1." followed by one or more spaces at line start
+        r'\1. ',  # Replace with "1." followed by exactly one space
+        processed_markdown,
+        flags=re.MULTILINE
+    )
+
+    # Step 3: Remove leading spaces from lines that might be mistaken for code blocks
+    # but are actually list continuations
+    lines = processed_markdown.split('\n')
+    normalized_lines = []
+    in_list = False
+
+    for i, line in enumerate(lines):
+        # Check if this line starts a numbered list item
+        if re.match(r'^\d+\.\s', line):
+            in_list = True
+            normalized_lines.append(line)
+        # Check if we're in a list and this line has leading spaces
+        # (it's probably a continuation, not a code block)
+        elif in_list and line.startswith('    ') or line.startswith('\t'):
+            # Remove excessive indentation but keep it as part of the list
+            normalized_lines.append(line.lstrip())
+        # Empty line might end the list
+        elif not line.strip():
+            in_list = False
+            normalized_lines.append(line)
+        else:
+            normalized_lines.append(line)
+
+    processed_markdown = '\n'.join(normalized_lines)
 
     try:
         rendered_html = mistune.html(processed_markdown)
-        current_app.logger.debug(f"Rendered markdown ({len(markdown_data)} chars) to HTML ({len(rendered_html)} chars)")
+        current_app.logger.debug(
+            f"Rendered markdown ({len(markdown_data)} chars) to HTML "
+            f"({len(rendered_html)} chars)"
+        )
     except Exception as e:
         current_app.logger.error(f"Markdown rendering failed: {e}")
-        # Fallback: escape and wrap in <pre> for plain text display
         rendered_html = f"<pre>{html.escape(processed_markdown)}</pre>"
 
     return {
-        "markdown": processed_markdown,  # Original for debugging/export
-        "html": rendered_html       # Rendered for display
+        "markdown": processed_markdown,
+        "html": rendered_html
     }
 
 
