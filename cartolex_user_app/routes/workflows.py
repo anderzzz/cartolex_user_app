@@ -193,7 +193,22 @@ def _render_markdown_artifact(markdown_data):
         return {"markdown": "", "html": ""}
 
     try:
-        rendered_html = mistune.html(markdown_data)
+        # Pre-process: Convert single newlines to markdown hard breaks
+        # In markdown, two spaces before a newline creates a <br>
+
+        # Step 1: Temporarily protect double newlines (paragraph breaks)
+        temp_placeholder = "<<<PARAGRAPH_BREAK>>>"
+        processed = markdown_data.replace('\n\n', temp_placeholder)
+
+        # Step 2: Convert single newlines to hard breaks (two spaces + newline)
+        processed = processed.replace('\n', '  \n')
+
+        # Step 3: Restore paragraph breaks
+        processed = processed.replace(temp_placeholder, '\n\n')
+
+        # Now render with standard mistune
+        rendered_html = mistune.html(processed)
+
         current_app.logger.debug(
             f"Rendered markdown ({len(markdown_data)} chars) to HTML "
             f"({len(rendered_html)} chars)"
