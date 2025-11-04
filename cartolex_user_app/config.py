@@ -93,7 +93,8 @@ class SecurityConfig:
 class DevelopmentConfig(Config):
     """Development configuration"""
     DEBUG = True
-    
+    TEMPLATES_AUTO_RELOAD = True  # Force template reloading in development
+
     # Development-specific security settings
     SECURITY_HEADERS_ENABLED = os.environ.get('SECURITY_HEADERS_ENABLED_USER_APP', 'false').lower() == 'true'
     RATELIMIT_ENABLED = os.environ.get('RATELIMIT_ENABLED_USER_APP', 'false').lower() == 'true'
