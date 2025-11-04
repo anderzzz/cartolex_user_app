@@ -211,6 +211,10 @@ def _render_markdown_artifact(markdown_data):
     if not markdown_data or not isinstance(markdown_data, str):
         return {"markdown": "", "html": ""}
 
+    # Convert literal \n sequences to actual newlines
+    # Backend may send "text\nmore text" as a JSON string with escaped newlines
+    markdown_data = markdown_data.replace('\\n', '\n')
+
     try:
         rendered_html = mistune.html(markdown_data)
         current_app.logger.debug(f"Rendered markdown ({len(markdown_data)} chars) to HTML ({len(rendered_html)} chars)")
