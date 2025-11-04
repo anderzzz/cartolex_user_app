@@ -432,16 +432,23 @@ def get_artifact(job_id, artifact_id):
 
     # Route to appropriate renderer based on type
     if artifact_type == 'markdown':
-        return render_template('partials/artifact_markdown.html', artifact=artifact)
+        response = make_response(render_template('partials/artifact_markdown.html', artifact=artifact))
     elif artifact_type == 'table':
-        return render_template('partials/artifact_table.html', artifact=artifact)
+        response = make_response(render_template('partials/artifact_table.html', artifact=artifact))
     elif artifact_type == 'link':
-        return render_template('partials/artifact_link.html', artifact=artifact)
+        response = make_response(render_template('partials/artifact_link.html', artifact=artifact))
     elif artifact_type == 'image':
-        return render_template('partials/artifact_image.html', artifact=artifact)
+        response = make_response(render_template('partials/artifact_image.html', artifact=artifact))
     else:
-        return render_template('partials/artifact_error.html',
-                             error=f"Unsupported artifact type: {artifact_type}")
+        response = make_response(render_template('partials/artifact_error.html',
+                             error=f"Unsupported artifact type: {artifact_type}"))
+
+    # Prevent browser caching of HTMX partial responses
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+
+    return response
 
 
 @bp.route('/<workflow_name>/config')
