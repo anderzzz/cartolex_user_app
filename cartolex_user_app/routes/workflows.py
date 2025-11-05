@@ -193,12 +193,20 @@ def _render_markdown_artifact(markdown_data):
         return {"markdown": "", "html": ""}
 
     try:
+        # Pre-process: Normalize list item spacing
+        # Fix excessive spaces after list numbers (e.g., "1.    " → "1. ")
+        # which can cause mistune to treat items as code blocks
+        import re
+
+        # Match list items like "1.    " or "2.     " and normalize to "1. "
+        processed = re.sub(r'^(\d+\.)\s+', r'\1 ', markdown_data, flags=re.MULTILINE)
+
         # Pre-process: Convert single newlines to markdown hard breaks
         # In markdown, two spaces before a newline creates a <br>
 
         # Step 1: Temporarily protect double newlines (paragraph breaks)
         temp_placeholder = "<<<PARAGRAPH_BREAK>>>"
-        processed = markdown_data.replace('\n\n', temp_placeholder)
+        processed = processed.replace('\n\n', temp_placeholder)
 
         # Step 2: Convert single newlines to hard breaks (two spaces + newline)
         processed = processed.replace('\n', '  \n')
@@ -405,8 +413,6 @@ def get_artifact(job_id, artifact_id):
 
     # DEBUG: Log what backend sent
     current_app.logger.info(f"Artifact type: {artifact_type}, has 'data' key: {'data' in artifact}")
-    if 'data' in artifact:
-        current_app.logger.info(f"Artifact data type: {type(artifact['data'])}, data: {artifact['data']!r}")
 
     # Step 1: Presentation transformations for different artifact types
 
@@ -419,9 +425,7 @@ def get_artifact(job_id, artifact_id):
 
     # Markdown: Render to HTML (markdown string → dict with markdown + html)
     if artifact_type == 'markdown' and 'data' in artifact:
-        current_app.logger.info(f"Rendering markdown: {artifact['data']!r}")
         artifact['data'] = _render_markdown_artifact(artifact['data'])
-        current_app.logger.info(f"After render: {artifact['data']!r}")
 
     # Step 2: Wrap data in type-specific nested structure for templates
     # Backend returns: artifact.data = content (flat)
