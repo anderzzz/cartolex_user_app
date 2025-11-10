@@ -1,49 +1,208 @@
-<!-- Jobs page using shared constants -->
 {% extends "base.html" %}
 
 {% block content %}
-<div class="px-4 py-6 sm:px-0">
-    <!-- Status filter dropdown using shared constants -->
-    <div class="mb-6">
-        <select id="status-filter" onchange="filterJobs()" class="esevioz-input rounded-md"
-            <option value="">All Statuses</option>
-            {% for status in all_statuses %}
-                <option value="{{ status }}" {% if current_filter == status %}selected{% endif %}>
-                    {{ status | title }}
-                </option>
-            {% endfor %}
-        </select>
+<div class="px-4 py-6 sm:px-0" x-data='{
+    expandedJobs: {},
+    filters: {
+        status: "{{ current_status }}",
+        workflow: "{{ current_workflow }}",
+        tags: "{{ current_tags }}"
+    },
+    currentOffset: {{ offset }},
+    limit: {{ limit }},
+    hasMore: {{ "true" if jobs|length >= limit else "false" }},
+    loading: false,
+    get activeFilterCount() {
+        let count = 0;
+        if (this.filters.status) count++;
+        if (this.filters.workflow) count++;
+        if (this.filters.tags) count++;
+        return count;
+    },
+    applyFilters() {
+        const params = new URLSearchParams();
+        if (this.filters.status) params.append("status", this.filters.status);
+        if (this.filters.workflow) params.append("workflow_name", this.filters.workflow);
+        if (this.filters.tags) params.append("tags", this.filters.tags);
+        params.append("limit", this.limit);
+        window.location.href = "/workflows/jobs?" + params.toString();
+    },
+    clearFilters() {
+        this.filters.status = "";
+        this.filters.workflow = "";
+        this.filters.tags = "";
+        window.location.href = "/workflows/jobs";
+    },
+    loadMore() {
+        this.loading = true;
+        this.currentOffset += this.limit;
+        const params = new URLSearchParams();
+        if (this.filters.status) params.append("status", this.filters.status);
+        if (this.filters.workflow) params.append("workflow_name", this.filters.workflow);
+        if (this.filters.tags) params.append("tags", this.filters.tags);
+        params.append("limit", this.limit);
+        params.append("offset", this.currentOffset);
+
+        htmx.ajax("GET", "/workflows/jobs?" + params.toString(), {
+            target: "#job-cards-container",
+            swap: "beforeend"
+        }).then(() => {
+            this.loading = false;
+        });
+    }
+}'>
+    <!-- Breadcrumb -->
+    <nav class="flex mb-6 text-sm" aria-label="Breadcrumb">
+        <ol class="flex items-center space-x-2">
+            <li><a href="{{ url_for('workflows.list_workflows') }}" class="esevioz-text opacity-75 hover:opacity-100">Workflows</a></li>
+            <li class="esevioz-text opacity-50">/</li>
+            <li class="esevioz-text font-medium">All Jobs</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="border-b esevioz-border-dominant pb-4 mb-6">
+        <div class="flex items-start justify-between">
+            <div>
+                <h2 class="text-2xl font-bold leading-7 esevioz-text">All Jobs</h2>
+                <p class="mt-2 text-sm esevioz-text opacity-75">
+                    Monitor workflow execution jobs with filtering and search
+                </p>
+            </div>
+            <a href="{{ url_for('workflows.list_workflows') }}" class="esevioz-btn-secondary px-4 py-2 text-sm rounded-md">
+                ← Back to Workflows
+            </a>
+        </div>
     </div>
 
-    <!-- Jobs table -->
-    <div class="esevioz-card esevioz-shadow rounded-lg overflow-hidden">
-        {% if jobs %}
-            <table class="min-w-full divide-y esevioz-border-dominant">
-                <tbody class="esevioz-card divide-y esevioz-border-dominant">
-                    {% for job in jobs %}
-                        <tr>
-                            <td class="px-6 py-4">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ job.status | job_status_class }}">
-                                    {{ job.status | title }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4">
-                                {% if job.status | is_active %}
-                                    <!-- Auto-update active jobs -->
-                                    <div hx-get="/workflows/jobs/{{ job.id }}/status"
-                                         hx-trigger="every 3s"
-                                         hx-swap="outerHTML">
-                                        {{ job.status }}
-                                    </div>
-                                {% else %}
-                                    {{ job.status }}
-                                {% endif %}
-                            </td>
-                        </tr>
+    <!-- Filtering Controls -->
+    <div class="mb-6 esevioz-card esevioz-shadow rounded-lg p-4">
+        <div class="flex items-center mb-3">
+            <svg class="w-5 h-5 esevioz-text mr-2 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+            </svg>
+            <h3 class="text-sm font-medium esevioz-text">Filters</h3>
+            <span x-show="activeFilterCount > 0"
+                  class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium esevioz-badge-info">
+                <span x-text="activeFilterCount"></span>
+            </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+            <!-- Status Filter -->
+            <div>
+                <label class="block text-xs font-medium esevioz-text opacity-75 mb-1">Status</label>
+                <select x-model="filters.status"
+                        class="esevioz-input rounded-md w-full text-sm">
+                    <option value="">All Statuses</option>
+                    {% for status in all_statuses %}
+                        <option value="{{ status }}">{{ status | title }}</option>
                     {% endfor %}
-                </tbody>
-            </table>
+                </select>
+            </div>
+
+            <!-- Workflow Name Filter -->
+            <div>
+                <label class="block text-xs font-medium esevioz-text opacity-75 mb-1">Workflow Name</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-4 w-4 esevioz-text opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                    <input type="text"
+                           x-model="filters.workflow"
+                           placeholder="Search by workflow name..."
+                           class="block w-full pl-10 pr-3 py-2 text-sm border esevioz-border-dominant rounded-md esevioz-input">
+                </div>
+            </div>
+
+            <!-- Tags Filter -->
+            <div>
+                <label class="block text-xs font-medium esevioz-text opacity-75 mb-1">
+                    Tags
+                    <span class="font-normal opacity-60">(comma-separated)</span>
+                </label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-4 w-4 esevioz-text opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                        </svg>
+                    </div>
+                    <input type="text"
+                           x-model="filters.tags"
+                           placeholder="e.g., test, production"
+                           class="block w-full pl-10 pr-3 py-2 text-sm border esevioz-border-dominant rounded-md esevioz-input">
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Action Buttons -->
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <button @click="applyFilters()"
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium rounded esevioz-btn-primary">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    Apply Filters
+                </button>
+                <button @click="clearFilters()"
+                        x-show="activeFilterCount > 0"
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium rounded esevioz-btn-secondary">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                    Clear All
+                </button>
+            </div>
+
+            <!-- Active Filter Badges -->
+            <div x-show="activeFilterCount > 0" class="flex items-center space-x-2">
+                <span x-show="filters.status" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium esevioz-badge-info">
+                    Status: <span x-text="filters.status" class="ml-1 font-bold"></span>
+                </span>
+                <span x-show="filters.workflow" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium esevioz-badge-info">
+                    Workflow: <span x-text="filters.workflow" class="ml-1 font-bold"></span>
+                </span>
+                <span x-show="filters.tags" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium esevioz-badge-info">
+                    Tags: <span x-text="filters.tags" class="ml-1 font-bold"></span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Jobs Count -->
+    {% if jobs %}
+    <div class="mb-4 text-sm esevioz-text opacity-75">
+        Showing {{ jobs|length }} job{{ 's' if jobs|length != 1 else '' }}
+        {% if current_status or current_workflow or current_tags %}
+            (filtered)
         {% endif %}
     </div>
+    {% endif %}
+
+    <!-- Job Cards Container -->
+    <div id="job-cards-container" class="mb-6">
+        {% include 'partials/job_cards.html' %}
+    </div>
+
+    <!-- Load More Button -->
+    {% if jobs and jobs|length >= limit %}
+    <div class="flex justify-center">
+        <button @click="loadMore()"
+                :disabled="loading"
+                class="inline-flex items-center px-6 py-3 text-sm font-medium rounded esevioz-btn-secondary disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg x-show="!loading" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+            <svg x-show="loading" class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span x-text="loading ? 'Loading...' : 'Load More Jobs'"></span>
+        </button>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

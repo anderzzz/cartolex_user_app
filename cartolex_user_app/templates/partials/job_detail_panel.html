@@ -1,0 +1,110 @@
+<!-- Job Detail Panel - Expandable Content -->
+<div class="border-t esevioz-border-dominant bg-gray-50 dark:bg-gray-800 px-6 py-4">
+    <div class="grid gap-6">
+        <!-- Execution Parameters Section -->
+        {% if job.parameters and job.parameters|length > 0 %}
+        <div>
+            <h4 class="text-sm font-medium esevioz-text mb-3 flex items-center">
+                <svg class="w-4 h-4 mr-2 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                Execution Parameters
+            </h4>
+            <div class="space-y-2">
+                {% for key, value in job.parameters.items() %}
+                <div class="flex items-start text-sm">
+                    <span class="font-medium esevioz-text opacity-75 min-w-[120px]">{{ key }}:</span>
+                    <code class="flex-1 px-2 py-1 esevioz-card rounded text-xs font-mono break-all">{{ value }}</code>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Result Metrics Summary (for completed jobs) -->
+        {% if job.status | is_terminal and job.has_result and job.result %}
+        <div>
+            <h4 class="text-sm font-medium esevioz-text mb-3 flex items-center">
+                <svg class="w-4 h-4 mr-2 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                Result Summary
+            </h4>
+            <div class="flex items-center space-x-6">
+                {% if job.result.status %}
+                <div class="flex items-center">
+                    {% if job.result.status == 'success' %}
+                    <svg class="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="text-sm font-medium text-green-700">Success</span>
+                    {% elif job.result.status == 'partial_success' %}
+                    <svg class="w-5 h-5 esevioz-text-butterscotch-dark mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="text-sm font-medium esevioz-text-butterscotch-dark">Partial Success</span>
+                    {% elif job.result.status == 'failed' %}
+                    <svg class="w-5 h-5 esevioz-text-vermilion-dark mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="text-sm font-medium esevioz-text-vermilion-dark">Failed</span>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if job.result.metrics %}
+                    {% if job.result.metrics.success is defined %}
+                    <span class="text-sm esevioz-text">
+                        <strong class="font-medium">{{ job.result.metrics.success }}</strong> success
+                    </span>
+                    {% endif %}
+                    {% if job.result.metrics.failed is defined and job.result.metrics.failed > 0 %}
+                    <span class="text-sm esevioz-text-vermilion-dark">
+                        <strong class="font-medium">{{ job.result.metrics.failed }}</strong> failed
+                    </span>
+                    {% endif %}
+                    {% if job.result.metrics.execution_time_s is defined %}
+                    <span class="text-sm esevioz-text">
+                        <strong class="font-medium">{{ job.result.metrics.execution_time_s|round(1) }}s</strong> duration
+                    </span>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Artifacts Section -->
+        <div class="flex items-center justify-between pt-4 border-t esevioz-border-dominant">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 esevioz-text opacity-60 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span class="text-sm font-medium esevioz-text">
+                    {% if artifacts_count > 0 %}
+                        {{ artifacts_count }} Artifact{{ 's' if artifacts_count != 1 else '' }} Available
+                    {% else %}
+                        No Artifacts
+                    {% endif %}
+                </span>
+            </div>
+
+            <!-- View Full Results Button -->
+            {% if job.status | is_terminal %}
+            <a href="{{ url_for('workflows.job_results', job_id=job.id) }}"
+               class="inline-flex items-center px-4 py-2 text-sm font-medium rounded esevioz-btn-primary">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                </svg>
+                View Full Results & Artifacts
+                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </a>
+            {% else %}
+            <span class="text-sm esevioz-text opacity-50 italic">Available when job completes</span>
+            {% endif %}
+        </div>
+    </div>
+</div>

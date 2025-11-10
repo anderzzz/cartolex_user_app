@@ -330,19 +330,29 @@ def job_status(job_id):
 
 @bp.route('/jobs')
 def list_jobs():
-    """Job monitoring page"""
+    """Job monitoring page with filtering and pagination"""
     api = current_app.api_client
 
     # Get filter parameters
     status_filter = request.args.get('status', '')
+    workflow_name_filter = request.args.get('workflow_name', '').strip()
+    tags_filter = request.args.get('tags', '').strip()
     limit = int(request.args.get('limit', 50))
+    offset = int(request.args.get('offset', 0))
 
     # Validate status filter using shared constants
     if status_filter and not JobStatuses.is_valid(status_filter):
         flash(f"Invalid status filter: {status_filter}", 'error')
         status_filter = ''
 
-    response = api.get_jobs(status=status_filter if status_filter else None, limit=limit)
+    # Call API with all filters
+    response = api.get_jobs(
+        status=status_filter if status_filter else None,
+        workflow_name=workflow_name_filter if workflow_name_filter else None,
+        tags_any=tags_filter if tags_filter else None,  # Using tags_any for flexible filtering
+        limit=limit,
+        offset=offset
+    )
 
     if not response.success:
         flash(f"Error loading jobs: {response.error}", 'error')
@@ -350,15 +360,46 @@ def list_jobs():
     else:
         jobs_data = response.data.get('jobs', [])
 
-    # Check if this is an HTMX request for partial content
+    # Check if this is an HTMX request for partial content (pagination)
     if request.headers.get('HX-Request'):
-        return render_template('partials/job_list.html', jobs=jobs_data)
+        return render_template('partials/job_cards.html', jobs=jobs_data)
 
     # Full page request
     return render_template('workflows/jobs.html',
                            jobs=jobs_data,
-                           current_filter=status_filter,
-                           all_statuses=JobStatuses.ALL_STATUSES)
+                           current_status=status_filter,
+                           current_workflow=workflow_name_filter,
+                           current_tags=tags_filter,
+                           all_statuses=JobStatuses.ALL_STATUSES,
+                           offset=offset,
+                           limit=limit)
+
+
+@bp.route('/jobs/<job_id>/detail')
+def job_detail(job_id):
+    """Job detail panel for HTMX expansion"""
+    api = current_app.api_client
+
+    # Get job status with full info
+    job_response = api.get_job_status(job_id)
+
+    if not job_response.success:
+        if job_response.error_code == ErrorCodes.JOB_NOT_FOUND:
+            return render_template('partials/job_not_found.html', job_id=job_id)
+        return render_template('partials/job_error.html',
+                               job_id=job_id, error=job_response.error)
+
+    job = job_response.data
+
+    # Get artifact count (lightweight call)
+    artifacts_count = 0
+    artifacts_response = api.get_job_artifacts(job_id)
+    if artifacts_response.success:
+        artifacts_count = len(artifacts_response.data.get('artifacts', []))
+
+    return render_template('partials/job_detail_panel.html',
+                          job=job,
+                          artifacts_count=artifacts_count)
 
 
 @bp.route('/jobs/<job_id>/results')

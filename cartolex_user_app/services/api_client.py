@@ -117,11 +117,33 @@ class CartolexAPI:
 
         return self._make_request('POST', endpoint, data=payload)
 
-    def get_jobs(self, status: str = None, limit: int = 50) -> APIResponse:
-        """Get job list with optional filtering"""
-        params = {'limit': limit}
+    def get_jobs(self, status: str = None, workflow_name: str = None,
+                 tags_all: str = None, tags_any: str = None,
+                 limit: int = 50, offset: int = 0) -> APIResponse:
+        """Get job list with optional filtering
+
+        Args:
+            status: Filter by job status
+            workflow_name: Filter by workflow name
+            tags_all: Filter by all tags (comma-separated)
+            tags_any: Filter by any tags (comma-separated)
+            limit: Maximum number of jobs to return (1-100)
+            offset: Pagination offset
+
+        Returns:
+            APIResponse with job list
+        """
+        params = {'limit': min(limit, 100), 'offset': offset}
+
         if status and JobStatuses.is_valid(status):  # Use shared validation
             params['status'] = status
+        if workflow_name:
+            params['workflow_name'] = workflow_name
+        if tags_all:
+            params['tags_all'] = tags_all
+        if tags_any:
+            params['tags_any'] = tags_any
+
         return self._make_request('GET', APIEndpoints.JOBS_LIST, params=params)
 
     def get_job_status(self, job_id: str) -> APIResponse:
