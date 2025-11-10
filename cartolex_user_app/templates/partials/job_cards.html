@@ -4,21 +4,21 @@
         {% for job in jobs %}
             <div class="esevioz-card esevioz-shadow rounded-lg esevioz-workflow-card-hover"
                  x-data="{ expanded: false }">
-                <!-- Clickable Job Header -->
-                <div class="px-6 py-4 cursor-pointer rounded-t-lg"
-                     @click="if (!expanded) {
-                               htmx.ajax('GET', `/workflows/jobs/{{ job.id }}/detail`, {
-                                   target: `#job-${job.id}-detail`,
-                                   swap: 'innerHTML'
-                               });
-                               expanded = true;
-                             } else {
-                               expanded = false;
-                               document.getElementById(`job-${job.id}-detail`).innerHTML = '';
-                             }">
+                <!-- Job Header -->
+                <div class="px-6 py-4 rounded-t-lg">
                     <div class="flex items-start justify-between">
-                        <!-- Left: Main Info -->
-                        <div class="flex-1">
+                        <!-- Left: Main Info (clickable to expand details) -->
+                        <div class="flex-1 cursor-pointer"
+                             @click="if (!expanded) {
+                                       htmx.ajax('GET', `/workflows/jobs/{{ job.id }}/detail`, {
+                                           target: `#job-${job.id}-detail`,
+                                           swap: 'innerHTML'
+                                       });
+                                       expanded = true;
+                                     } else {
+                                       expanded = false;
+                                       document.getElementById(`job-${job.id}-detail`).innerHTML = '';
+                                     }">
                             <div class="flex items-center space-x-3 mb-2">
                                 <h4 class="text-lg font-medium esevioz-text">{{ job.workflow_name or 'Unknown Workflow' }}</h4>
 
@@ -40,7 +40,7 @@
                                 </div>
 
                                 <!-- Expand/Collapse Chevron -->
-                                <svg class="w-5 h-5 esevioz-text transition-transform"
+                                <svg class="w-5 h-5 esevioz-text opacity-50 transition-transform"
                                      :class="{ 'transform rotate-180': expanded }"
                                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -82,6 +82,25 @@
                             <div class="mt-2 p-2 esevioz-bg-vermilion-light border esevioz-border-vermilion rounded text-xs esevioz-text-vermilion-dark">
                                 <strong>Error:</strong> {{ job.error | truncate(150) }}
                             </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Right: Action Buttons -->
+                        <div class="ml-4 flex flex-col items-end space-y-2">
+                            <!-- View Results Button (for completed jobs) -->
+                            {% if job.status | is_terminal %}
+                            <a href="{{ url_for('workflows.job_results', job_id=job.id) }}"
+                               class="inline-flex items-center px-4 py-2 text-sm font-medium rounded esevioz-btn-primary"
+                               @click.stop>
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                                View Results
+                                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </a>
                             {% endif %}
                         </div>
                     </div>
