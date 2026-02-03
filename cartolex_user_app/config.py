@@ -5,10 +5,13 @@ import os
 class Config:
     """Base configuration class"""
     DEBUG = False
-    
+
     # Core Flask settings
     SECRET_KEY = os.environ.get('FLASK_SECRET_KEY_USER_APP') or 'dev-secret-key-change-in-production'
     CARTOLEX_API_BASE_URL = os.environ.get('CARTOLEX_API_BASE_URL') or 'http://localhost:5555'
+
+    # Canvas module settings
+    CANVAS_DEV_MODE = os.environ.get('CANVAS_DEV_MODE_USER_APP', 'false').lower() == 'true'
     
     # CORS settings
     CORS_ORIGINS = os.environ.get('CORS_ORIGINS_USER_APP', 'http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000').split(',')
@@ -43,26 +46,29 @@ class SecurityConfig:
         """Get Talisman (security headers) configuration"""
         # Get CSP_MODE from app config or use 'development' as default
         csp_mode = app_config.get('CSP_MODE', 'development') if app_config else Config.CSP_MODE
-        
+        canvas_dev_mode = app_config.get('CANVAS_DEV_MODE', False) if app_config else Config.CANVAS_DEV_MODE
+
         if csp_mode == 'development':
             # Relaxed CSP for development with Tailwind CSS and HTMX support
+            # Add localhost:5173 if canvas dev mode is enabled for Vite HMR
+            vite_sources = " http://localhost:5173 ws://localhost:5173" if canvas_dev_mode else ""
             csp = {
-                'default-src': "'self' 'unsafe-inline' 'unsafe-eval'",
-                'script-src': "'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.tailwindcss.com",
-                'style-src': "'self' 'unsafe-inline' https://cdn.tailwindcss.com",
+                'default-src': f"'self' 'unsafe-inline' 'unsafe-eval'{vite_sources}",
+                'script-src': f"'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://code.jquery.com https://cdn.datatables.net{vite_sources}",
+                'style-src': f"'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.datatables.net https://fonts.googleapis.com{vite_sources}",
                 'img-src': "'self' data: blob:",
-                'connect-src': "'self'",
-                'font-src': "'self' data:"
+                'connect-src': f"'self'{vite_sources}",
+                'font-src': "'self' data: https://fonts.gstatic.com"
             }
         else:
             # Strict CSP for production
             csp = {
                 'default-src': "'self'",
-                'script-src': "'self' https://unpkg.com",
-                'style-src': "'self' 'unsafe-inline' https://cdn.tailwindcss.com",
+                'script-src': "'self' https://unpkg.com https://cdn.jsdelivr.net https://code.jquery.com https://cdn.datatables.net",
+                'style-src': "'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.datatables.net https://fonts.googleapis.com",
                 'img-src': "'self' data:",
                 'connect-src': "'self'",
-                'font-src': "'self' data:"
+                'font-src': "'self' data: https://fonts.gstatic.com"
             }
         
         return {

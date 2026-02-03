@@ -8,7 +8,7 @@ from flask_wtf.csrf import CSRFProtect
 from cartolex_endpoint_server.constants import ConfigurationKinds, JobStatuses
 from cartolex_user_app.services.api_client import CartolexAPI
 from cartolex_user_app.utils.template_filters import register_filters
-from cartolex_user_app.routes import dashboard, workflows, semantics, io_config
+from cartolex_user_app.routes import dashboard, workflows, semantics, io_config, canvas
 from cartolex_user_app.config import SecurityConfig
 
 # Initialize logger
@@ -119,6 +119,7 @@ def create_app(config_class=None):
     app.register_blueprint(workflows.bp, url_prefix='/workflows')
     app.register_blueprint(semantics.bp, url_prefix='/semantics')
     app.register_blueprint(io_config.bp, url_prefix='/io')
+    app.register_blueprint(canvas.bp, url_prefix='/canvas')
 
     # Make shared constants available to templates
     @app.context_processor

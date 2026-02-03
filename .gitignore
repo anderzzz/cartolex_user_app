@@ -149,3 +149,7 @@ api_metadata/schemas.json
 api_metadata/constants.json
 api_metadata/openapi.json
 api_metadata/modules/*.json
+
+# Canvas module
+canvas/node_modules/
+canvas/dist/

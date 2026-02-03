@@ -7,11 +7,15 @@ Usage:
     python cli.py config-check
     python cli.py health-check
     python cli.py routes
+    python cli.py canvas-build
+    python cli.py canvas-dev
 
 """
 import typer
 import os
 import ssl
+import subprocess
+import shutil
 from typing import Optional
 from enum import Enum
 from rich.console import Console
@@ -54,8 +58,9 @@ def _print_startup_banner(config_name: str, host: str, port: int, debug: bool = 
 [yellow]Available Routes:[/yellow]
 • Dashboard: {url}/
 • Workflows: {url}/workflows
-• Semantics: {url}/semantics  
-• IO Config: {url}/io"""
+• Semantics: {url}/semantics
+• IO Config: {url}/io
+• Canvas: {url}/canvas"""
 
     console.print(Panel(config_info, box=box.ROUNDED, padding=(1, 2)))
 
@@ -391,6 +396,133 @@ def routes():
         
     except Exception as e:
         console.print(f"[red]Error listing routes: {e}[/red]")
+        raise typer.Exit(1)
+
+
+def _get_canvas_dir() -> str:
+    """Get the canvas directory path."""
+    # Navigate from scripts/run.py to repo root, then to canvas/
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    repo_root = os.path.dirname(os.path.dirname(script_dir))
+    return os.path.join(repo_root, 'canvas')
+
+
+def _check_node_npm() -> bool:
+    """Check if Node.js and npm are available."""
+    node_path = shutil.which('node')
+    npm_path = shutil.which('npm')
+
+    if not node_path:
+        console.print("[red]Node.js not found. Please install Node.js 18+ to use canvas commands.[/red]")
+        return False
+
+    if not npm_path:
+        console.print("[red]npm not found. Please install npm to use canvas commands.[/red]")
+        return False
+
+    return True
+
+
+def _check_canvas_deps(canvas_dir: str) -> bool:
+    """Check if canvas dependencies are installed."""
+    node_modules = os.path.join(canvas_dir, 'node_modules')
+    if not os.path.exists(node_modules):
+        console.print("[yellow]Canvas dependencies not installed. Running npm install...[/yellow]")
+        result = subprocess.run(
+            ['npm', 'install'],
+            cwd=canvas_dir,
+            capture_output=False
+        )
+        if result.returncode != 0:
+            console.print("[red]Failed to install canvas dependencies.[/red]")
+            return False
+    return True
+
+
+@app.command()
+def canvas_build():
+    """Build the canvas module for production.
+
+    Compiles the React/TypeScript canvas module and outputs to
+    cartolex_user_app/static/canvas/ for production use.
+    """
+    if not _check_node_npm():
+        raise typer.Exit(1)
+
+    canvas_dir = _get_canvas_dir()
+
+    if not os.path.exists(canvas_dir):
+        console.print(f"[red]Canvas directory not found: {canvas_dir}[/red]")
+        raise typer.Exit(1)
+
+    if not _check_canvas_deps(canvas_dir):
+        raise typer.Exit(1)
+
+    console.print("\n[bold blue]Building Canvas Module[/bold blue]")
+    console.print(f"[dim]Source: {canvas_dir}[/dim]")
+
+    try:
+        result = subprocess.run(
+            ['npm', 'run', 'build'],
+            cwd=canvas_dir,
+            capture_output=False
+        )
+
+        if result.returncode == 0:
+            console.print("\n[bold green]Canvas build complete![/bold green]")
+            console.print("[dim]Output: cartolex_user_app/static/canvas/[/dim]")
+        else:
+            console.print("\n[bold red]Canvas build failed![/bold red]")
+            raise typer.Exit(1)
+
+    except Exception as e:
+        console.print(f"[red]Error building canvas: {e}[/red]")
+        raise typer.Exit(1)
+
+
+@app.command()
+def canvas_dev():
+    """Start Vite dev server for canvas development.
+
+    Runs the Vite development server on http://localhost:5173
+    with hot module replacement for rapid development.
+
+    Set CANVAS_DEV_MODE_USER_APP=true to load from dev server.
+    """
+    if not _check_node_npm():
+        raise typer.Exit(1)
+
+    canvas_dir = _get_canvas_dir()
+
+    if not os.path.exists(canvas_dir):
+        console.print(f"[red]Canvas directory not found: {canvas_dir}[/red]")
+        raise typer.Exit(1)
+
+    if not _check_canvas_deps(canvas_dir):
+        raise typer.Exit(1)
+
+    dev_info = """[bold blue]Canvas Development Server[/bold blue]
+
+[green]Vite URL:[/green] http://localhost:5173
+[green]Canvas Dir:[/green] {canvas_dir}
+
+[yellow]To use with Flask app:[/yellow]
+  export CANVAS_DEV_MODE_USER_APP=true
+
+Press Ctrl+C to stop the server.""".format(canvas_dir=canvas_dir)
+
+    console.print(Panel(dev_info, box=box.ROUNDED, padding=(1, 2)))
+
+    try:
+        subprocess.run(
+            ['npm', 'run', 'dev'],
+            cwd=canvas_dir,
+            capture_output=False
+        )
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Canvas dev server stopped.[/yellow]")
+    except Exception as e:
+        console.print(f"[red]Error starting canvas dev server: {e}[/red]")
         raise typer.Exit(1)
 
 

@@ -1,0 +1,205 @@
+/**
+ * Canvas-specific styles using Esevioz CSS variables
+ *
+ * These styles integrate with the Flask app's theming system by referencing
+ * CSS variables defined in esevioz-theme.css
+ */
+
+/* React Flow container */
+.react-flow {
+  background-color: var(--color-background, #FFF5EB);
+}
+
+/* Custom node styling */
+.canvas-node {
+  background: var(--color-background, #FFF5EB);
+  border: 2px solid var(--color-dominant, #1B5420);
+  border-radius: 0.375rem;
+  padding: 0;
+  min-width: 150px;
+  font-family: var(--font-family, 'Montserrat', Arial, sans-serif);
+  box-shadow: 0 2px 4px rgba(25, 25, 25, 0.1);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.canvas-node:hover {
+  border-color: var(--color-highlight, #E0993D);
+  box-shadow: 0 4px 8px rgba(25, 25, 25, 0.15);
+}
+
+.canvas-node-header {
+  background-color: var(--color-dominant, #1B5420);
+  color: var(--color-background, #FFF5EB);
+  padding: 0.5rem 0.75rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 0.25rem 0.25rem 0 0;
+}
+
+.canvas-node-content {
+  padding: 0.75rem;
+  color: var(--color-text, #191919);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+/* Handle styling */
+.react-flow__handle {
+  width: 10px;
+  height: 10px;
+  background-color: var(--color-highlight, #E0993D);
+  border: 2px solid var(--color-background, #FFF5EB);
+}
+
+.react-flow__handle:hover {
+  background-color: var(--color-dominant, #1B5420);
+}
+
+/* Edge styling */
+.react-flow__edge-path {
+  stroke: var(--color-dominant, #1B5420);
+  stroke-width: 2;
+}
+
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__edge:focus .react-flow__edge-path,
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke: var(--color-highlight, #E0993D);
+}
+
+/* Connection line (while dragging) */
+.react-flow__connection-line {
+  stroke: var(--color-highlight, #E0993D);
+  stroke-width: 2;
+}
+
+/* Selection box */
+.react-flow__selection {
+  background: rgba(224, 153, 61, 0.1);
+  border: 1px solid var(--color-highlight, #E0993D);
+}
+
+/* Mini map */
+.react-flow__minimap {
+  background-color: var(--color-background, #FFF5EB);
+  border: 1px solid var(--color-dominant, #1B5420);
+  border-radius: 0.375rem;
+}
+
+.react-flow__minimap-mask {
+  fill: rgba(27, 84, 32, 0.1);
+}
+
+.react-flow__minimap-node {
+  fill: var(--color-dominant, #1B5420);
+}
+
+/* Controls */
+.react-flow__controls {
+  border: 1px solid var(--color-dominant, #1B5420);
+  border-radius: 0.375rem;
+  overflow: hidden;
+}
+
+.react-flow__controls-button {
+  background-color: var(--color-background, #FFF5EB);
+  border-bottom: 1px solid var(--color-dominant, #1B5420);
+  color: var(--color-text, #191919);
+}
+
+.react-flow__controls-button:hover {
+  background-color: var(--color-dominant, #1B5420);
+  color: var(--color-background, #FFF5EB);
+}
+
+.react-flow__controls-button:last-child {
+  border-bottom: none;
+}
+
+.react-flow__controls-button svg {
+  fill: currentColor;
+}
+
+/* Panel styling for save/clear buttons */
+.react-flow__panel {
+  margin: 10px;
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .react-flow {
+  background-color: var(--color-background, #191919);
+}
+
+[data-theme="dark"] .canvas-node {
+  background: var(--color-background, #191919);
+  border-color: var(--color-dominant, #FFF2DE);
+}
+
+[data-theme="dark"] .canvas-node:hover {
+  border-color: var(--color-highlight, #486F38);
+}
+
+[data-theme="dark"] .canvas-node-header {
+  background-color: var(--color-dominant, #FFF2DE);
+  color: var(--color-background, #191919);
+}
+
+[data-theme="dark"] .canvas-node-content {
+  color: var(--color-text, #FCFCFC);
+}
+
+[data-theme="dark"] .react-flow__handle {
+  background-color: var(--color-highlight, #486F38);
+  border-color: var(--color-background, #191919);
+}
+
+[data-theme="dark"] .react-flow__handle:hover {
+  background-color: var(--color-dominant, #FFF2DE);
+}
+
+[data-theme="dark"] .react-flow__edge-path {
+  stroke: var(--color-dominant, #FFF2DE);
+}
+
+[data-theme="dark"] .react-flow__edge.selected .react-flow__edge-path,
+[data-theme="dark"] .react-flow__edge:focus .react-flow__edge-path,
+[data-theme="dark"] .react-flow__edge:hover .react-flow__edge-path {
+  stroke: var(--color-highlight, #486F38);
+}
+
+[data-theme="dark"] .react-flow__connection-line {
+  stroke: var(--color-highlight, #486F38);
+}
+
+[data-theme="dark"] .react-flow__selection {
+  background: rgba(72, 111, 56, 0.1);
+  border-color: var(--color-highlight, #486F38);
+}
+
+[data-theme="dark"] .react-flow__minimap {
+  background-color: var(--color-background, #191919);
+  border-color: var(--color-dominant, #FFF2DE);
+}
+
+[data-theme="dark"] .react-flow__minimap-mask {
+  fill: rgba(255, 242, 222, 0.1);
+}
+
+[data-theme="dark"] .react-flow__minimap-node {
+  fill: var(--color-dominant, #FFF2DE);
+}
+
+[data-theme="dark"] .react-flow__controls {
+  border-color: var(--color-dominant, #FFF2DE);
+}
+
+[data-theme="dark"] .react-flow__controls-button {
+  background-color: var(--color-background, #191919);
+  border-bottom-color: var(--color-dominant, #FFF2DE);
+  color: var(--color-text, #FCFCFC);
+}
+
+[data-theme="dark"] .react-flow__controls-button:hover {
+  background-color: var(--color-dominant, #FFF2DE);
+  color: var(--color-background, #191919);
+}
