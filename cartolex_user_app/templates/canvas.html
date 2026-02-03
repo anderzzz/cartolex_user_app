@@ -3,6 +3,11 @@
 {% block title %}{{ page_title or 'Canvas - Cartolex' }}{% endblock %}
 
 {% block content %}
+<!-- Canvas CSS -->
+{% if not canvas_dev_mode %}
+<link rel="stylesheet" href="{{ url_for('static', filename='canvas/style.css') }}">
+{% endif %}
+
 <div class="px-4 sm:px-0">
     <!-- Page Header -->
     <div class="mb-6">
@@ -20,6 +25,15 @@
 
 <!-- Canvas Module Script -->
 {% if canvas_dev_mode %}
+<!-- Development: Load Vite client and React preamble first -->
+<script type="module" src="http://localhost:5173/@vite/client"></script>
+<script type="module">
+    import RefreshRuntime from 'http://localhost:5173/@react-refresh'
+    RefreshRuntime.injectIntoGlobalHook(window)
+    window.$RefreshReg$ = () => {}
+    window.$RefreshSig$ = () => (type) => type
+    window.__vite_plugin_react_preamble_installed__ = true
+</script>
 <!-- Development: Load from Vite dev server -->
 <script type="module">
     import { mountCanvas } from 'http://localhost:5173/src/index.tsx'

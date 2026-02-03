@@ -14,23 +14,44 @@ cd canvas
 npm install
 ```
 
-### Development Mode
-Start the Vite dev server:
+### Development Mode with Hot Reload
+For active canvas development with instant updates:
+
+**Terminal 1** - Start the Vite dev server:
 ```bash
+cd canvas
 npm run dev
 ```
 This runs on http://localhost:5173
 
-To use the dev server with the Flask app, set the environment variable:
+**Terminal 2** - Start Flask with dev mode enabled:
 ```bash
 export CANVAS_DEV_MODE_USER_APP=true
+python -m cartolex_user_app.scripts.run dev
 ```
+
+**Browser** - Open http://localhost:3000/canvas/
+
+Changes to files in `canvas/src/` will hot-reload in the browser without refresh.
 
 ### Production Build
 Build for production (outputs to `cartolex_user_app/static/canvas/`):
 ```bash
 npm run build
 ```
+
+### Using Flask CLI (Alternative)
+The Flask app CLI provides wrapper commands that handle directory navigation:
+
+```bash
+# From repo root - build canvas
+python -m cartolex_user_app.scripts.run canvas-build
+
+# From repo root - start Vite dev server
+python -m cartolex_user_app.scripts.run canvas-dev
+```
+
+These commands automatically install dependencies if `node_modules/` is missing.
 
 ## Architecture
 

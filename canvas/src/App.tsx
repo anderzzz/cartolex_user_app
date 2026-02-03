@@ -4,7 +4,7 @@
  * Provides a React Flow canvas with custom node types and Esevioz theming.
  */
 
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import {
   ReactFlow,
   Controls,
@@ -43,7 +43,7 @@ const defaultEdges: CanvasEdgeType[] = []
 
 export function App({ initialGraph, onSave }: AppProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState(
-    initialGraph?.nodes ?? defaultNodes
+    initialGraph?.nodes?.length ? initialGraph.nodes : defaultNodes
   )
   const [edges, setEdges, onEdgesChange] = useEdgesState(
     initialGraph?.edges ?? defaultEdges
