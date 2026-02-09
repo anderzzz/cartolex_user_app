@@ -10,11 +10,20 @@
 
 <div class="px-4 sm:px-0">
     <!-- Page Header -->
-    <div class="mb-6">
-        <h1 class="text-2xl font-semibold esevioz-text">Canvas</h1>
-        <p class="mt-1 text-sm esevioz-text opacity-60">
-            Visual workspace for workflow design and experimentation
-        </p>
+    <div class="mb-4 flex items-center gap-4">
+        <a href="{{ url_for('canvas.index') }}"
+           class="esevioz-text opacity-50 hover:opacity-100 transition"
+           title="Back to workspaces">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+        </a>
+        <div>
+            <h1 class="text-2xl font-semibold esevioz-text">{{ workspace_data.name if workspace_data else 'Canvas' }}</h1>
+            {% if workspace_data and workspace_data.description %}
+            <p class="mt-0.5 text-sm esevioz-text opacity-60">{{ workspace_data.description }}</p>
+            {% endif %}
+        </div>
     </div>
 
     <!-- Canvas Container -->
@@ -42,9 +51,8 @@
         try {
             const canvas = mountCanvas({
                 containerId: 'canvas-root',
-                onSave: (graph) => {
-                    console.log('Canvas graph saved:', graph)
-                }
+                workspaceId: {{ workspace_id | tojson }},
+                initialGraph: {{ workspace_data | tojson }},
             })
 
             // Expose API globally for debugging
@@ -72,9 +80,8 @@
         try {
             const canvas = mountCanvas({
                 containerId: 'canvas-root',
-                onSave: (graph) => {
-                    console.log('Canvas graph saved:', graph)
-                }
+                workspaceId: {{ workspace_id | tojson }},
+                initialGraph: {{ workspace_data | tojson }},
             })
 
             // Expose API globally for debugging

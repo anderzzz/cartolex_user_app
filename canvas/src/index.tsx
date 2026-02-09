@@ -19,7 +19,7 @@ let currentGraph: CanvasGraph = { nodes: [], edges: [] }
  * @returns Canvas API for interacting with the mounted canvas
  */
 export function mountCanvas(options: CanvasMountOptions): CanvasAPI {
-  const { containerId, initialGraph, onSave } = options
+  const { containerId, workspaceId, initialGraph, onSave } = options
 
   const container = document.getElementById(containerId)
   if (!container) {
@@ -38,6 +38,7 @@ export function mountCanvas(options: CanvasMountOptions): CanvasAPI {
   currentRoot = createRoot(container)
   currentRoot.render(
     <App
+      workspaceId={workspaceId}
       initialGraph={currentGraph}
       onSave={(graph) => {
         currentGraph = graph
@@ -56,6 +57,7 @@ export function mountCanvas(options: CanvasMountOptions): CanvasAPI {
       if (currentRoot && container) {
         currentRoot.render(
           <App
+            workspaceId={workspaceId}
             initialGraph={graph}
             onSave={(g) => {
               currentGraph = g
@@ -72,6 +74,7 @@ export function mountCanvas(options: CanvasMountOptions): CanvasAPI {
       if (currentRoot && container) {
         currentRoot.render(
           <App
+            workspaceId={workspaceId}
             initialGraph={currentGraph}
             onSave={(g) => {
               currentGraph = g

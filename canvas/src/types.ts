@@ -28,6 +28,7 @@ export interface CanvasGraph {
 /** Mount options for the canvas */
 export interface CanvasMountOptions {
   containerId: string
+  workspaceId?: string
   initialGraph?: CanvasGraph
   onSave?: (graph: CanvasGraph) => void
 }

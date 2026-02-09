@@ -56,10 +56,12 @@ class CartolexAPI:
                 json=data, timeout=self.timeout
             )
 
-            if response.status_code == HTTPStatusCodes.OK:
+            if response.status_code in (200, 201, 204):
+                # 204 No Content has no body to parse
+                data = response.json() if response.content else None
                 return APIResponse(
                     success=True,
-                    data=response.json(),
+                    data=data,
                     status_code=response.status_code
                 )
             else:
@@ -329,6 +331,39 @@ class CartolexAPI:
         endpoint = APIEndpoints.WORKFLOW_CONFIG.format(name=workflow_name)
         params = {'config_kind': config_kind}
         return self._make_request('DELETE', endpoint, params=params)
+
+    # --- Canvas workspace methods ---
+
+    def get_canvas_workspaces(self) -> APIResponse:
+        """List all canvas workspaces"""
+        return self._make_request('GET', APIEndpoints.CANVAS_WORKSPACES_LIST)
+
+    def create_canvas_workspace(self, name: str, description: str = None) -> APIResponse:
+        """Create a new canvas workspace"""
+        payload = {'name': name}
+        if description:
+            payload['description'] = description
+        return self._make_request('POST', APIEndpoints.CANVAS_WORKSPACE_CREATE, data=payload)
+
+    def get_canvas_workspace(self, workspace_id: str) -> APIResponse:
+        """Get full workspace with all nodes and edges"""
+        endpoint = APIEndpoints.CANVAS_WORKSPACE_DETAIL.format(workspace_id=workspace_id)
+        return self._make_request('GET', endpoint)
+
+    def save_canvas_workspace(self, workspace_id: str, workspace_data: dict) -> APIResponse:
+        """Full overwrite save of workspace state. Must include edges."""
+        endpoint = APIEndpoints.CANVAS_WORKSPACE_SAVE.format(workspace_id=workspace_id)
+        return self._make_request('PUT', endpoint, data=workspace_data)
+
+    def delete_canvas_workspace(self, workspace_id: str) -> APIResponse:
+        """Delete workspace. Backend returns 204 No Content."""
+        endpoint = APIEndpoints.CANVAS_WORKSPACE_DELETE.format(workspace_id=workspace_id)
+        return self._make_request('DELETE', endpoint)
+
+    def validate_canvas_workspace(self, workspace_id: str) -> APIResponse:
+        """Validate workspace. Always returns 200, check data.valid for result."""
+        endpoint = APIEndpoints.CANVAS_WORKSPACE_VALIDATE.format(workspace_id=workspace_id)
+        return self._make_request('POST', endpoint)
 
     def get_workflows_with_metadata(self) -> APIResponse:
         """Get all workflows with filesystem and schema metadata

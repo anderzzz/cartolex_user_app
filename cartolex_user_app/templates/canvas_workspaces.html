@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title or 'Canvas Workspaces - Cartolex' }}{% endblock %}
+
+{% block content %}
+<div class="px-4 py-6 sm:px-0" x-data="{
+    showCreate: false,
+    newName: '',
+    newDescription: '',
+    creating: false,
+    deleteConfirm: null,
+    deleting: false,
+}">
+    <!-- Header -->
+    <div class="border-b esevioz-border-dominant pb-4 mb-6 flex items-end justify-between">
+        <div>
+            <h2 class="text-2xl font-bold leading-7 esevioz-text">Canvas Workspaces</h2>
+            <p class="mt-2 text-sm esevioz-text opacity-75">
+                Visual workspaces for innovation and workflow design
+            </p>
+        </div>
+        <button @click="showCreate = !showCreate; if(showCreate) $nextTick(() => $refs.nameInput.focus())"
+                class="esevioz-btn-primary px-4 py-2 rounded-md text-sm font-medium">
+            New Workspace
+        </button>
+    </div>
+
+    <!-- Create Workspace Panel -->
+    <div x-show="showCreate" x-transition class="mb-6">
+        <div class="esevioz-card rounded-lg p-4 relative">
+            <button type="button"
+                    @click="showCreate = false"
+                    class="absolute top-4 right-4 esevioz-text opacity-50 hover:opacity-100 transition"
+                    title="Close">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+
+            <form @submit.prevent="
+                creating = true;
+                fetch('/canvas/api/workspaces', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name: newName || 'Untitled Workspace', description: newDescription || undefined})
+                })
+                .then(r => r.json().then(d => ({ok: r.ok, data: d})))
+                .then(({ok, data}) => {
+                    creating = false;
+                    if (ok && data.workspace_id) {
+                        window.location.href = '/canvas/' + data.workspace_id;
+                    } else {
+                        alert(data.error || 'Failed to create workspace');
+                    }
+                })
+                .catch(() => { creating = false; alert('Network error'); })
+            ">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium esevioz-text mb-1">Workspace name</label>
+                        <input type="text"
+                               x-model="newName"
+                               x-ref="nameInput"
+                               placeholder="My Workspace"
+                               class="block w-full border esevioz-border-dominant rounded-md esevioz-input text-sm px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium esevioz-text mb-1">Description</label>
+                        <input type="text"
+                               x-model="newDescription"
+                               placeholder="Optional description"
+                               class="block w-full border esevioz-border-dominant rounded-md esevioz-input text-sm px-3 py-2">
+                    </div>
+                </div>
+                <div class="flex justify-end mt-4">
+                    <button type="submit"
+                            :disabled="creating"
+                            class="esevioz-btn-primary px-4 py-2 rounded-md text-sm font-medium">
+                        <span x-show="!creating">Create &amp; Open</span>
+                        <span x-show="creating">Creating...</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Workspace Grid -->
+    {% if workspaces %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for ws in workspaces %}
+        <div class="esevioz-card rounded-lg p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div>
+                <a href="{{ url_for('canvas.workspace', workspace_id=ws.workspace_id) }}"
+                   class="text-lg font-semibold esevioz-text hover:underline">
+                    {{ ws.name }}
+                </a>
+                {% if ws.description %}
+                <p class="mt-1 text-sm esevioz-text opacity-60 line-clamp-2">{{ ws.description }}</p>
+                {% endif %}
+            </div>
+            <div class="mt-4 flex items-center justify-between">
+                <span class="text-xs esevioz-text opacity-50">
+                    {{ ws.node_count }} node{{ 's' if ws.node_count != 1 else '' }}
+                </span>
+                <div class="flex items-center gap-2">
+                    <a href="{{ url_for('canvas.workspace', workspace_id=ws.workspace_id) }}"
+                       class="esevioz-btn-primary px-3 py-1 rounded text-xs font-medium">
+                        Open
+                    </a>
+                    <button @click="deleteConfirm = deleteConfirm === '{{ ws.workspace_id }}' ? null : '{{ ws.workspace_id }}'"
+                            class="esevioz-text opacity-40 hover:opacity-100 transition p-1"
+                            title="Delete workspace">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- Delete confirmation -->
+            <div x-show="deleteConfirm === '{{ ws.workspace_id }}'"
+                 x-transition
+                 class="mt-3 pt-3 border-t esevioz-border-dominant">
+                <p class="text-xs esevioz-text mb-2">Delete <strong>{{ ws.name }}</strong>?</p>
+                <div class="flex gap-2 justify-end">
+                    <button @click="deleteConfirm = null"
+                            class="px-3 py-1 rounded text-xs esevioz-text opacity-60 hover:opacity-100">
+                        Cancel
+                    </button>
+                    <button @click="
+                        deleting = true;
+                        fetch('/canvas/api/workspaces/{{ ws.workspace_id }}', {method: 'DELETE'})
+                        .then(r => {
+                            deleting = false;
+                            if (r.ok) { window.location.reload(); }
+                            else { alert('Failed to delete workspace'); }
+                        })
+                        .catch(() => { deleting = false; alert('Network error'); })
+                    "
+                            :disabled="deleting"
+                            class="px-3 py-1 rounded text-xs font-medium text-white bg-red-600 hover:bg-red-700">
+                        <span x-show="!deleting">Delete</span>
+                        <span x-show="deleting">Deleting...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty state -->
+    <div class="text-center py-16">
+        <svg class="mx-auto h-12 w-12 esevioz-text opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+        </svg>
+        <h3 class="mt-4 text-lg font-medium esevioz-text">No workspaces yet</h3>
+        <p class="mt-2 text-sm esevioz-text opacity-60">Create your first workspace to start.</p>
+        <button @click="showCreate = true; $nextTick(() => $refs.nameInput.focus())"
+                class="mt-4 esevioz-btn-primary px-4 py-2 rounded-md text-sm font-medium">
+            New Workspace
+        </button>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

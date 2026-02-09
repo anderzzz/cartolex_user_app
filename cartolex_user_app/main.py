@@ -107,6 +107,9 @@ def create_app(config_class=None):
     # Initialize CSRF protection
     csrf = CSRFProtect(app)
 
+    # Exempt canvas API routes from CSRF (called by React fetch, not HTMX forms)
+    csrf.exempt(canvas.bp)
+
     # Initialize API client
     api_client = CartolexAPI(app.config['CARTOLEX_API_BASE_URL'])
     app.api_client = api_client
