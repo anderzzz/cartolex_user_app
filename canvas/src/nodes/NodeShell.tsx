@@ -1,37 +1,16 @@
 import { useState, useCallback, useRef, useEffect, type ReactNode, type KeyboardEvent } from 'react'
 import { Handle, Position } from '@xyflow/react'
-import { NODE_ICONS } from './registry'
+import { NodeTypeIcon } from '../components/NodeTypeIcon'
 
 interface NodeShellProps {
   type: string
   label: string
-  icon: string // key into NODE_ICONS
+  icon: string // node type key for icon lookup
   headerColor: string
   selected?: boolean
   committed?: boolean
   children: ReactNode
   onLabelChange?: (newLabel: string) => void
-}
-
-function NodeIcon({ iconKey }: { iconKey: string }) {
-  const pathData = NODE_ICONS[iconKey]
-  if (!pathData) return null
-
-  return (
-    <svg
-      className="canvas-node-icon"
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d={pathData} />
-    </svg>
-  )
 }
 
 export function NodeShell({
@@ -96,7 +75,7 @@ export function NodeShell({
       <Handle type="target" position={Position.Top} />
 
       <div className="canvas-node-header" style={{ backgroundColor: headerColor }}>
-        <NodeIcon iconKey={icon} />
+        <NodeTypeIcon type={icon} size={16} color="currentColor" />
         {editingLabel ? (
           <input
             ref={inputRef}

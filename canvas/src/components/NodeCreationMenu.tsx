@@ -1,37 +1,11 @@
 import { useCallback, useEffect, useRef } from 'react'
-import { NODE_ICONS, NODE_COLORS, nodeTypeRegistry } from '../nodes/registry'
+import { nodeTypeRegistry, CREATION_MENU_ORDER } from '../nodes/registry'
+import { NodeTypeIcon } from './NodeTypeIcon'
 
 interface NodeCreationMenuProps {
   position: { x: number; y: number } // screen coordinates for the menu
   onSelect: (type: string) => void
   onClose: () => void
-}
-
-// 2x4 grid layout order
-const TYPE_ORDER = [
-  'idea', 'question', 'fact', 'constraint',
-  'thesis', 'action', 'data_collection', 'untyped',
-]
-
-function TypeIcon({ type }: { type: string }) {
-  const pathData = NODE_ICONS[type]
-  if (!pathData) return null
-  const color = NODE_COLORS[type as keyof typeof NODE_COLORS]?.light || '#9CA3AF'
-
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke={color}
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d={pathData} />
-    </svg>
-  )
 }
 
 export function NodeCreationMenu({ position, onSelect, onClose }: NodeCreationMenuProps) {
@@ -75,7 +49,7 @@ export function NodeCreationMenu({ position, onSelect, onClose }: NodeCreationMe
       }}
     >
       <div className="canvas-creation-grid">
-        {TYPE_ORDER.map((type) => {
+        {CREATION_MENU_ORDER.map((type) => {
           const def = nodeTypeRegistry[type]
           return (
             <button
@@ -84,7 +58,7 @@ export function NodeCreationMenu({ position, onSelect, onClose }: NodeCreationMe
               onClick={() => handleSelect(type)}
               title={def?.label || type}
             >
-              <TypeIcon type={type} />
+              <NodeTypeIcon type={type} size={20} />
               <span className="canvas-creation-item-label">{def?.label || type}</span>
             </button>
           )

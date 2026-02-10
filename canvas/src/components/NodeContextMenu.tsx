@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { NODE_ICONS, NODE_COLORS, nodeTypeRegistry, NODE_TYPES } from '../nodes/registry'
+import { nodeTypeRegistry, NODE_TYPES } from '../nodes/registry'
+import { NodeTypeIcon } from './NodeTypeIcon'
 
 interface NodeContextMenuProps {
   nodeId: string
@@ -9,28 +10,6 @@ interface NodeContextMenuProps {
   onDuplicate: (nodeId: string) => void
   onDelete: (nodeId: string) => void
   onClose: () => void
-}
-
-function SmallIcon({ type }: { type: string }) {
-  const pathData = NODE_ICONS[type]
-  if (!pathData) return null
-  const color = NODE_COLORS[type as keyof typeof NODE_COLORS]?.light || '#9CA3AF'
-
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke={color}
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      style={{ flexShrink: 0 }}
-    >
-      <path d={pathData} />
-    </svg>
-  )
 }
 
 export function NodeContextMenu({
@@ -102,7 +81,7 @@ export function NodeContextMenu({
                   className={`canvas-context-item${isCurrent ? ' canvas-context-item--active' : ''}`}
                   onClick={() => handleChangeType(type)}
                 >
-                  <SmallIcon type={type} />
+                  <NodeTypeIcon type={type} size={14} />
                   <span>{def?.label || type}</span>
                   {isCurrent && <span className="canvas-context-check">&#10003;</span>}
                 </button>

@@ -113,3 +113,9 @@ export const nodeTypeRegistry: Record<string, NodeTypeDefinition> = {
 
 /** All valid node type keys */
 export const NODE_TYPES = Object.keys(nodeTypeRegistry) as string[]
+
+/** Display order for the creation menu (2x4 grid) — curated, not alphabetical */
+export const CREATION_MENU_ORDER: string[] = [
+  'idea', 'question', 'fact', 'constraint',
+  'thesis', 'action', 'data_collection', 'untyped',
+]
