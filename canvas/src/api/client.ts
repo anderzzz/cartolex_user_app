@@ -82,3 +82,12 @@ export function deleteWorkspace(workspaceId: string) {
 export function validateWorkspace(workspaceId: string) {
   return request<WorkspaceValidateData>('POST', `/workspaces/${workspaceId}/validate`)
 }
+
+export type ActionExecuteData = { job_id: string; state: string }
+
+export function executeAction(workspaceId: string, nodeId: string) {
+  return request<ActionExecuteData>(
+    'POST',
+    `/workspaces/${workspaceId}/nodes/${nodeId}/execute`,
+  )
+}

@@ -175,8 +175,44 @@
    ============================================================ */
 
 .canvas-node-action-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 0.375rem 0.75rem 0.5rem;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.canvas-run-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.375rem;
+  height: 1.375rem;
+  border: none;
+  border-radius: 50%;
+  background: #0E7490;
+  color: #ffffff;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.canvas-run-btn:hover:not(:disabled) {
+  background: #0c6679;
+}
+
+.canvas-run-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+[data-theme="dark"] .canvas-run-btn {
+  background: #38B2CC;
+  color: #191919;
+}
+
+[data-theme="dark"] .canvas-run-btn:hover:not(:disabled) {
+  background: #2fa0b8;
 }
 
 .canvas-badge {
