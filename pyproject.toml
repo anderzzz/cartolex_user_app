@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools >= 64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cartolex-user-app"
+version = "0.1.0"
+description = "The web user app for the Cartolex project"
+authors = [{name = "The First Esevioz Order"}]
+requires-python = ">=3.11"
+dependencies = [
+    "requests",
+    "flask",
+    "flask-wtf",
+    "typer>=0.9.0",
+    "rich>=13.0.0",
+    "mistune>=3.0.0",
+]
+
+[project.scripts]
+cartolex-user-app = "cartolex_user_app.scripts.run:app"
+cartolex-update-api-metadata = "cartolex_user_app.scripts.update_api_metadata:app"
+
+[tool.setuptools.packages.find]
+exclude = ["tests", "docs"]
+
+[tool.setuptools.package-data]
+cartolex_user_app = [
+    "templates/*.html",
+    "templates/**/*.html",
+    "static/*",
+    "static/**/*",
+]
