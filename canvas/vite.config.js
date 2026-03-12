@@ -5,7 +5,8 @@ import { resolve } from 'path'
 export default defineConfig({
   plugins: [react()],
   define: {
-    'process.env.NODE_ENV': JSON.stringify('production')
+    'process.env.NODE_ENV': JSON.stringify('production'),
+    'process.env': JSON.stringify({ NODE_ENV: 'production' }),
   },
   build: {
     outDir: '../cartolex_user_app/static/canvas',

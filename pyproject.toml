@@ -1,6 +1,7 @@
 [build-system]
 requires = ["setuptools >= 64"]
-build-backend = "setuptools.build_meta"
+build-backend = "canvas_build_backend"
+backend-path = ["."]
 
 [project]
 name = "cartolex-user-app"
