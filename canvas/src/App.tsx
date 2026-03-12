@@ -123,6 +123,7 @@ function CanvasInner({ workspaceId, initialGraph, onSave }: AppProps) {
         onNodeContextMenu={menus.handleNodeContextMenu}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
+        zoomOnDoubleClick={false}
         fitView
         attributionPosition="bottom-left"
       >
