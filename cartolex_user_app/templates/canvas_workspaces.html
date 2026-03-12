@@ -47,8 +47,8 @@
                 .then(r => r.json().then(d => ({ok: r.ok, data: d})))
                 .then(({ok, data}) => {
                     creating = false;
-                    if (ok && data.workspace_id) {
-                        window.location.href = '/canvas/' + data.workspace_id;
+                    if (ok && data.id) {
+                        window.location.href = '/canvas/' + data.id;
                     } else {
                         alert(data.error || 'Failed to create workspace');
                     }
@@ -90,7 +90,7 @@
         {% for ws in workspaces %}
         <div class="esevioz-card rounded-lg p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
             <div>
-                <a href="{{ url_for('canvas.workspace', workspace_id=ws.workspace_id) }}"
+                <a href="{{ url_for('canvas.workspace', workspace_id=ws.id) }}"
                    class="text-lg font-semibold esevioz-text hover:underline">
                     {{ ws.name }}
                 </a>
@@ -103,11 +103,11 @@
                     {{ ws.node_count }} node{{ 's' if ws.node_count != 1 else '' }}
                 </span>
                 <div class="flex items-center gap-2">
-                    <a href="{{ url_for('canvas.workspace', workspace_id=ws.workspace_id) }}"
+                    <a href="{{ url_for('canvas.workspace', workspace_id=ws.id) }}"
                        class="esevioz-btn-primary px-3 py-1 rounded text-xs font-medium">
                         Open
                     </a>
-                    <button @click="deleteConfirm = deleteConfirm === '{{ ws.workspace_id }}' ? null : '{{ ws.workspace_id }}'"
+                    <button @click="deleteConfirm = deleteConfirm === '{{ ws.id }}' ? null : '{{ ws.id }}'"
                             class="esevioz-text opacity-40 hover:opacity-100 transition p-1"
                             title="Delete workspace">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -118,7 +118,7 @@
                 </div>
             </div>
             <!-- Delete confirmation -->
-            <div x-show="deleteConfirm === '{{ ws.workspace_id }}'"
+            <div x-show="deleteConfirm === '{{ ws.id }}'"
                  x-transition
                  class="mt-3 pt-3 border-t esevioz-border-dominant">
                 <p class="text-xs esevioz-text mb-2">Delete <strong>{{ ws.name }}</strong>?</p>
@@ -129,7 +129,7 @@
                     </button>
                     <button @click="
                         deleting = true;
-                        fetch('/canvas/api/workspaces/{{ ws.workspace_id }}', {method: 'DELETE'})
+                        fetch('/canvas/api/workspaces/{{ ws.id }}', {method: 'DELETE'})
                         .then(r => {
                             deleting = false;
                             if (r.ok) { window.location.reload(); }
