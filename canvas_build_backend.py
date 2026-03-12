@@ -1,8 +1,11 @@
 """PEP 517 build backend wrapper that builds the canvas JS bundle before packaging.
 
 Delegates all build operations to setuptools.build_meta, but runs
-``npm ci && npm run build`` in the canvas/ directory first so the
+``npm install && npm run build`` in the canvas/ directory first so the
 static/canvas/ assets are always fresh in the sdist and wheel.
+
+Uses ``npm ci`` for reproducible builds when package-lock.json is present,
+falling back to ``npm install`` otherwise.
 
 Graceful fallback:
 - If Node.js/npm is not installed, the committed bundle is used as-is.
@@ -30,7 +33,13 @@ def _build_canvas():
     if not shutil.which("npm"):
         return
 
-    subprocess.run(["npm", "ci"], cwd=canvas_dir, check=True)
+    # Prefer npm ci (reproducible) when lock file exists, else npm install
+    lock_file = os.path.join(canvas_dir, "package-lock.json")
+    if os.path.isfile(lock_file):
+        subprocess.run(["npm", "ci"], cwd=canvas_dir, check=True)
+    else:
+        subprocess.run(["npm", "install"], cwd=canvas_dir, check=True)
+
     subprocess.run(["npm", "run", "build"], cwd=canvas_dir, check=True)
 
 
