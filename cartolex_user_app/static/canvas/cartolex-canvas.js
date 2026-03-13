@@ -12234,6 +12234,7 @@ function mn({
     {
       className: `canvas-node canvas-node--${e}${o ? " canvas-node--selected" : ""}`,
       style: { opacity: w, borderStyle: x },
+      onDoubleClick: (p) => p.stopPropagation(),
       children: [
         /* @__PURE__ */ _.jsx(Nr, { type: "target", position: K.Top }),
         /* @__PURE__ */ _.jsxs("div", { className: "canvas-node-header", style: { backgroundColor: r }, children: [

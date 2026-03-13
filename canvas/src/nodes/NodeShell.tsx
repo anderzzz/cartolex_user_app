@@ -71,6 +71,7 @@ export function NodeShell({
     <div
       className={`canvas-node canvas-node--${type}${selected ? ' canvas-node--selected' : ''}`}
       style={{ opacity, borderStyle }}
+      onDoubleClick={(e) => e.stopPropagation()}
     >
       <Handle type="target" position={Position.Top} />
 
