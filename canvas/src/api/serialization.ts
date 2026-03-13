@@ -21,6 +21,37 @@ function resolveNodeType(backendType: string | undefined): string {
 }
 
 /**
+ * Map frontend node data → backend content dict.
+ *
+ * Frontend stores the main text as `content` and header as `label`.
+ * Backend content models use `text` for the main text field.
+ * The `label` is a frontend-only display field and is preserved as-is.
+ */
+function toBackendContent(data: Record<string, unknown>): Record<string, unknown> {
+  const { content, ...rest } = data
+  const out: Record<string, unknown> = { ...rest }
+  if (content !== undefined && content !== '') {
+    out.text = content
+  }
+  return out
+}
+
+/**
+ * Map backend content dict → frontend node data.
+ *
+ * Reverses the `text` → `content` mapping so React components
+ * can read `data.content` as usual.
+ */
+function fromBackendContent(content: Record<string, unknown>): Record<string, unknown> {
+  const { text, ...rest } = content
+  const out: Record<string, unknown> = { ...rest }
+  if (text !== undefined) {
+    out.content = text
+  }
+  return out
+}
+
+/**
  * Convert React Flow graph state → backend save payload.
  * Always includes edges to avoid the backend defaulting them to [].
  */
@@ -34,7 +65,7 @@ export function toBackendFormat(
     nodes: nodes.map((node) => ({
       id: node.id,
       node_type: node.type || 'untyped',
-      content: node.data,
+      content: toBackendContent(node.data),
       position: node.position,
     })),
     edges: edges.map((edge) => ({
@@ -60,7 +91,7 @@ export function fromBackendFormat(workspace: WorkspaceDetailData): CanvasGraph {
         x: Math.random() * 500,
         y: Math.random() * 500,
       },
-      data: node.content ?? {},
+      data: fromBackendContent(node.content ?? {}),
     })),
     edges: (workspace.edges || []).map((edge) => ({
       id: edge.id,

@@ -12700,13 +12700,21 @@ const UC = {
 function XC(e) {
   return e && YC.has(e) ? e : "untyped";
 }
-function KC(e, t, n) {
+function KC(e) {
+  const { content: t, ...n } = e, r = { ...n };
+  return t !== void 0 && t !== "" && (r.text = t), r;
+}
+function QC(e) {
+  const { text: t, ...n } = e, r = { ...n };
+  return t !== void 0 && (r.content = t), r;
+}
+function GC(e, t, n) {
   return {
     name: e,
     nodes: t.map((r) => ({
       id: r.id,
       node_type: r.type || "untyped",
-      content: r.data,
+      content: KC(r.data),
       position: r.position
     })),
     edges: n.map((r) => ({
@@ -12717,7 +12725,7 @@ function KC(e, t, n) {
     }))
   };
 }
-function QC(e) {
+function ZC(e) {
   return {
     nodes: (e.nodes || []).map((t) => ({
       id: t.id,
@@ -12726,7 +12734,7 @@ function QC(e) {
         x: Math.random() * 500,
         y: Math.random() * 500
       },
-      data: t.content ?? {}
+      data: QC(t.content ?? {})
     })),
     edges: (e.edges || []).map((t) => ({
       id: t.id,
@@ -12736,12 +12744,12 @@ function QC(e) {
     }))
   };
 }
-function GC(e, t, n, r = 5e3) {
+function qC(e, t, n, r = 5e3) {
   const o = P.useRef(null), i = P.useRef(!0), { setSaveStatus: s, markSaved: l, markError: u, markUnsaved: a, workspaceName: d } = qa(), c = P.useCallback(
     async (g, y) => {
       if (!e) return;
       s("saving");
-      const x = KC(d, g, y), w = await VC(e, x);
+      const x = GC(d, g, y), w = await VC(e, x);
       w.ok ? l() : u(w.error);
     },
     [e, d, s, l, u]
@@ -12765,7 +12773,7 @@ let kd = 0;
 function Ed() {
   return kd += 1, `node-${Date.now()}-${kd}`;
 }
-function ZC(e, t, n) {
+function JC(e, t, n) {
   const r = ot(), o = P.useRef(null), [i, s] = P.useState(null), [l, u] = P.useState(null), a = P.useCallback(
     (p, m) => {
       const h = it[p], v = {
@@ -12859,7 +12867,7 @@ function ZC(e, t, n) {
     closeMenus: w
   };
 }
-function qC({ position: e, onSelect: t, onClose: n }) {
+function e2({ position: e, onSelect: t, onClose: n }) {
   const r = P.useRef(null);
   P.useEffect(() => {
     const i = (l) => {
@@ -12907,7 +12915,7 @@ function qC({ position: e, onSelect: t, onClose: n }) {
     }
   );
 }
-function JC({
+function t2({
   nodeId: e,
   nodeType: t,
   position: n,
@@ -12998,11 +13006,11 @@ function JC({
   );
 }
 const Il = [], _d = [];
-function e2(e) {
+function n2(e) {
   var t;
   if (!e) return { nodes: Il, edges: _d };
   if ("workspace_id" in e) {
-    const n = QC(e);
+    const n = ZC(e);
     return {
       nodes: n.nodes.length ? n.nodes : Il,
       edges: n.edges
@@ -13013,12 +13021,12 @@ function e2(e) {
     edges: e.edges ?? _d
   };
 }
-function t2({ workspaceId: e, initialGraph: t, onSave: n }) {
-  const r = e2(t), [o, i, s] = iC(r.nodes), [l, u, a] = sC(r.edges), { saveStatus: d, setWorkspaceId: c, setWorkspaceName: f } = qa(), g = ZC(o, i, u);
+function r2({ workspaceId: e, initialGraph: t, onSave: n }) {
+  const r = n2(t), [o, i, s] = iC(r.nodes), [l, u, a] = sC(r.edges), { saveStatus: d, setWorkspaceId: c, setWorkspaceName: f } = qa(), g = JC(o, i, u);
   P.useEffect(() => {
     e && c(e), t && "name" in t && f(t.name);
   }, [e, t, c, f]);
-  const { saveNow: y } = GC(e, o, l), x = P.useCallback(
+  const { saveNow: y } = qC(e, o, l), x = P.useCallback(
     (m) => {
       u((h) => Ig(m, h));
     },
@@ -13050,7 +13058,7 @@ function t2({ workspaceId: e, initialGraph: t, onSave: n }) {
           /* @__PURE__ */ E.jsx(TC, { zoomable: !0, pannable: !0 }),
           /* @__PURE__ */ E.jsx(fC, { variant: jt.Dots, gap: 16, size: 1 }),
           /* @__PURE__ */ E.jsx(Yo, { position: "top-right", children: /* @__PURE__ */ E.jsxs("div", { style: { display: "flex", gap: "0.5rem", alignItems: "center" }, children: [
-            e && /* @__PURE__ */ E.jsx(n2, { status: d }),
+            e && /* @__PURE__ */ E.jsx(o2, { status: d }),
             /* @__PURE__ */ E.jsx(
               "button",
               {
@@ -13074,7 +13082,7 @@ function t2({ workspaceId: e, initialGraph: t, onSave: n }) {
       }
     ),
     g.creationMenu && /* @__PURE__ */ E.jsx(
-      qC,
+      e2,
       {
         position: { x: g.creationMenu.x, y: g.creationMenu.y },
         onSelect: g.handleCreationSelect,
@@ -13082,7 +13090,7 @@ function t2({ workspaceId: e, initialGraph: t, onSave: n }) {
       }
     ),
     g.contextMenu && /* @__PURE__ */ E.jsx(
-      JC,
+      t2,
       {
         nodeId: g.contextMenu.nodeId,
         nodeType: g.contextMenu.nodeType,
@@ -13096,9 +13104,9 @@ function t2({ workspaceId: e, initialGraph: t, onSave: n }) {
   ] });
 }
 function Ll(e) {
-  return /* @__PURE__ */ E.jsx(Mm, { children: /* @__PURE__ */ E.jsx(t2, { ...e }) });
+  return /* @__PURE__ */ E.jsx(Mm, { children: /* @__PURE__ */ E.jsx(r2, { ...e }) });
 }
-function n2({ status: e }) {
+function o2({ status: e }) {
   const t = {
     fontSize: "0.75rem",
     padding: "0.25rem 0.5rem",
@@ -13119,7 +13127,7 @@ function n2({ status: e }) {
   }
 }
 let lt = null, Dt = { nodes: [], edges: [] };
-function r2(e) {
+function i2(e) {
   const { containerId: t, workspaceId: n, initialGraph: r, onSave: o } = e, i = document.getElementById(t);
   if (!i)
     throw new Error(`Container element with id "${t}" not found`);
@@ -13169,7 +13177,7 @@ function r2(e) {
     }
   };
 }
-typeof window < "u" && (window.CartolexCanvas = { mountCanvas: r2 });
+typeof window < "u" && (window.CartolexCanvas = { mountCanvas: i2 });
 export {
-  r2 as mountCanvas
+  i2 as mountCanvas
 };
