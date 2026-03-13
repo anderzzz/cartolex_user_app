@@ -73,17 +73,21 @@ function CanvasInner({ workspaceId, initialGraph, onSave }: AppProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initial.nodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(initial.edges)
 
-  const { saveStatus, setWorkspaceId } = useWorkspaceStore()
+  const { saveStatus, setWorkspaceId, setWorkspaceName } = useWorkspaceStore()
 
   // Menu state and node CRUD operations
   const menus = useCanvasMenus(nodes, setNodes, setEdges)
 
-  // Register workspace ID in the store
+  // Register workspace ID and name in the store
   useEffect(() => {
     if (workspaceId) {
       setWorkspaceId(workspaceId)
     }
-  }, [workspaceId, setWorkspaceId])
+    // Extract name from raw backend data passed as initialGraph
+    if (initialGraph && 'name' in initialGraph) {
+      setWorkspaceName((initialGraph as Record<string, unknown>).name as string)
+    }
+  }, [workspaceId, initialGraph, setWorkspaceId, setWorkspaceName])
 
   // Auto-save (only active when workspaceId is present)
   const { saveNow } = useAutoSave(workspaceId, nodes, edges)

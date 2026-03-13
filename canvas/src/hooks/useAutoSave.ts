@@ -18,7 +18,7 @@ export function useAutoSave(
 ) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isFirstRender = useRef(true)
-  const { setSaveStatus, markSaved, markError, markUnsaved } =
+  const { setSaveStatus, markSaved, markError, markUnsaved, workspaceName } =
     useWorkspaceStore()
 
   const doSave = useCallback(
@@ -26,7 +26,7 @@ export function useAutoSave(
       if (!workspaceId) return
 
       setSaveStatus('saving')
-      const payload = toBackendFormat(currentNodes, currentEdges)
+      const payload = toBackendFormat(workspaceName, currentNodes, currentEdges)
       const result = await saveWorkspace(workspaceId, payload)
 
       if (result.ok) {
@@ -35,7 +35,7 @@ export function useAutoSave(
         markError(result.error)
       }
     },
-    [workspaceId, setSaveStatus, markSaved, markError],
+    [workspaceId, workspaceName, setSaveStatus, markSaved, markError],
   )
 
   // Watch for changes and debounce

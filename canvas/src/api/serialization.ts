@@ -2,7 +2,7 @@
  * Bidirectional mapper between React Flow graph state and backend workspace format.
  *
  * React Flow nodes: { id, type, position, data }
- * Backend nodes:    { node_id, type, content, position }
+ * Backend nodes:    { id, node_type, content, position }
  */
 
 import type { CanvasNodeType, CanvasEdgeType, CanvasGraph } from '../types'
@@ -25,21 +25,23 @@ function resolveNodeType(backendType: string | undefined): string {
  * Always includes edges to avoid the backend defaulting them to [].
  */
 export function toBackendFormat(
+  name: string,
   nodes: CanvasNodeType[],
   edges: CanvasEdgeType[],
 ): WorkspaceSavePayload {
   return {
+    name,
     nodes: nodes.map((node) => ({
-      node_id: node.id,
-      type: node.type || 'untyped',
+      id: node.id,
+      node_type: node.type || 'untyped',
       content: node.data,
       position: node.position,
     })),
     edges: edges.map((edge) => ({
-      edge_id: edge.id,
-      source_node_id: edge.source,
-      target_node_id: edge.target,
-      type: edge.type || 'similar_to',
+      id: edge.id,
+      source_id: edge.source,
+      target_id: edge.target,
+      edge_type: edge.type || 'similar_to',
     })),
   }
 }
@@ -52,8 +54,8 @@ export function toBackendFormat(
 export function fromBackendFormat(workspace: WorkspaceDetailData): CanvasGraph {
   return {
     nodes: (workspace.nodes || []).map((node) => ({
-      id: node.node_id,
-      type: resolveNodeType(node.type),
+      id: node.id,
+      type: resolveNodeType(node.node_type),
       position: node.position ?? {
         x: Math.random() * 500,
         y: Math.random() * 500,
@@ -61,9 +63,9 @@ export function fromBackendFormat(workspace: WorkspaceDetailData): CanvasGraph {
       data: node.content ?? {},
     })),
     edges: (workspace.edges || []).map((edge) => ({
-      id: edge.edge_id,
-      source: edge.source_node_id,
-      target: edge.target_node_id,
+      id: edge.id,
+      source: edge.source_id,
+      target: edge.target_id,
       type: 'default',
     })),
   }

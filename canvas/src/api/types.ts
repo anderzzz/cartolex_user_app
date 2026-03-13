@@ -20,17 +20,17 @@ export interface WorkspaceListData {
 }
 
 export interface CanvasNodeBackend {
-  node_id: string
-  type: string
+  id: string
+  node_type: string
   content: Record<string, unknown>
   position?: { x: number; y: number }
 }
 
 export interface CanvasEdgeBackend {
-  edge_id: string
-  source_node_id: string
-  target_node_id: string
-  type: string
+  id: string
+  source_id: string
+  target_id: string
+  edge_type: string
 }
 
 export interface WorkspaceDetailData {
@@ -44,6 +44,7 @@ export interface WorkspaceDetailData {
 }
 
 export interface WorkspaceSavePayload {
+  name: string
   nodes: CanvasNodeBackend[]
   edges: CanvasEdgeBackend[]
 }
