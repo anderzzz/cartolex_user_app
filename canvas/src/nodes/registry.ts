@@ -51,7 +51,7 @@ export const nodeTypeRegistry: Record<string, NodeTypeDefinition> = {
     headerColor: NODE_COLORS.fact.light,
     headerColorDark: NODE_COLORS.fact.dark,
     icon: 'fact',
-    defaultData: { label: '', content: '', source: '' },
+    defaultData: { label: '', text: '', source: '' },
   },
   idea: {
     component: null!,
@@ -59,7 +59,7 @@ export const nodeTypeRegistry: Record<string, NodeTypeDefinition> = {
     headerColor: NODE_COLORS.idea.light,
     headerColorDark: NODE_COLORS.idea.dark,
     icon: 'idea',
-    defaultData: { label: '', content: '' },
+    defaultData: { label: '', text: '' },
   },
   question: {
     component: null!,
@@ -67,7 +67,7 @@ export const nodeTypeRegistry: Record<string, NodeTypeDefinition> = {
     headerColor: NODE_COLORS.question.light,
     headerColorDark: NODE_COLORS.question.dark,
     icon: 'question',
-    defaultData: { label: '', content: '' },
+    defaultData: { label: '', text: '' },
   },
   constraint: {
     component: null!,
@@ -75,7 +75,7 @@ export const nodeTypeRegistry: Record<string, NodeTypeDefinition> = {
     headerColor: NODE_COLORS.constraint.light,
     headerColorDark: NODE_COLORS.constraint.dark,
     icon: 'constraint',
-    defaultData: { label: '', content: '' },
+    defaultData: { label: '', text: '' },
   },
   thesis: {
     component: null!,
@@ -83,7 +83,7 @@ export const nodeTypeRegistry: Record<string, NodeTypeDefinition> = {
     headerColor: NODE_COLORS.thesis.light,
     headerColorDark: NODE_COLORS.thesis.dark,
     icon: 'thesis',
-    defaultData: { label: '', content: '' },
+    defaultData: { label: '', text: '' },
   },
   action: {
     component: null!,
@@ -91,7 +91,7 @@ export const nodeTypeRegistry: Record<string, NodeTypeDefinition> = {
     headerColor: NODE_COLORS.action.light,
     headerColorDark: NODE_COLORS.action.dark,
     icon: 'action',
-    defaultData: { label: '', content: '', state: 'empty' },
+    defaultData: { label: '', text: '', state: 'empty' },
   },
   data_collection: {
     component: null!,
@@ -99,7 +99,7 @@ export const nodeTypeRegistry: Record<string, NodeTypeDefinition> = {
     headerColor: NODE_COLORS.data_collection.light,
     headerColorDark: NODE_COLORS.data_collection.dark,
     icon: 'data_collection',
-    defaultData: { label: '', content: '' },
+    defaultData: { label: '', text: '' },
   },
   untyped: {
     component: null!,
@@ -107,7 +107,7 @@ export const nodeTypeRegistry: Record<string, NodeTypeDefinition> = {
     headerColor: NODE_COLORS.untyped.light,
     headerColorDark: NODE_COLORS.untyped.dark,
     icon: 'untyped',
-    defaultData: { label: '', content: '' },
+    defaultData: { label: '', text: '' },
   },
 }
 

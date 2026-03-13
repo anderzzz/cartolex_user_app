@@ -1,8 +1,16 @@
 /**
  * Bidirectional mapper between React Flow graph state and backend workspace format.
  *
- * React Flow nodes: { id, type, position, data }
- * Backend nodes:    { id, node_type, content, position }
+ * React Flow nodes: { id, type, position, data: { label, text, ... } }
+ * Backend nodes:    { id, node_type, label, content: { text, ... }, position }
+ *
+ * Structural mappings (React Flow ↔ backend):
+ *   node.type       ↔ node_type
+ *   node.data.label ↔ node.label  (top-level on backend)
+ *   node.data.*     ↔ content.*   (remaining data fields = content)
+ *   edge.source     ↔ source_id
+ *   edge.target     ↔ target_id
+ *   edge.type       ↔ edge_type
  */
 
 import type { CanvasNodeType, CanvasEdgeType, CanvasGraph } from '../types'
@@ -21,37 +29,6 @@ function resolveNodeType(backendType: string | undefined): string {
 }
 
 /**
- * Map frontend node data → backend content dict.
- *
- * Frontend stores the main text as `content` and header as `label`.
- * Backend content models use `text` for the main text field.
- * The `label` is a frontend-only display field and is preserved as-is.
- */
-function toBackendContent(data: Record<string, unknown>): Record<string, unknown> {
-  const { content, ...rest } = data
-  const out: Record<string, unknown> = { ...rest }
-  if (content !== undefined && content !== '') {
-    out.text = content
-  }
-  return out
-}
-
-/**
- * Map backend content dict → frontend node data.
- *
- * Reverses the `text` → `content` mapping so React components
- * can read `data.content` as usual.
- */
-function fromBackendContent(content: Record<string, unknown>): Record<string, unknown> {
-  const { text, ...rest } = content
-  const out: Record<string, unknown> = { ...rest }
-  if (text !== undefined) {
-    out.content = text
-  }
-  return out
-}
-
-/**
  * Convert React Flow graph state → backend save payload.
  * Always includes edges to avoid the backend defaulting them to [].
  */
@@ -62,12 +39,16 @@ export function toBackendFormat(
 ): WorkspaceSavePayload {
   return {
     name,
-    nodes: nodes.map((node) => ({
-      id: node.id,
-      node_type: node.type || 'untyped',
-      content: toBackendContent(node.data),
-      position: node.position,
-    })),
+    nodes: nodes.map((node) => {
+      const { label, ...content } = node.data as Record<string, unknown>
+      return {
+        id: node.id,
+        node_type: node.type || 'untyped',
+        label: (label as string) || '',
+        content,
+        position: node.position,
+      }
+    }),
     edges: edges.map((edge) => ({
       id: edge.id,
       source_id: edge.source,
@@ -91,7 +72,7 @@ export function fromBackendFormat(workspace: WorkspaceDetailData): CanvasGraph {
         x: Math.random() * 500,
         y: Math.random() * 500,
       },
-      data: fromBackendContent(node.content ?? {}),
+      data: { label: node.label || '', ...node.content },
     })),
     edges: (workspace.edges || []).map((edge) => ({
       id: edge.id,

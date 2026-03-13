@@ -22,6 +22,7 @@ export interface WorkspaceListData {
 export interface CanvasNodeBackend {
   id: string
   node_type: string
+  label?: string
   content: Record<string, unknown>
   position?: { x: number; y: number }
 }

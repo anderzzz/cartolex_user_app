@@ -7,7 +7,7 @@ import type { Node, Edge } from '@xyflow/react'
 /** Common data fields shared by all node types */
 export type BaseNodeData = {
   label?: string
-  content?: string
+  text?: string
   committed?: boolean
 }
 

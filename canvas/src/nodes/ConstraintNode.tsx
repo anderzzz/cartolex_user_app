@@ -5,10 +5,10 @@ import { NODE_COLORS } from './registry'
 
 export function ConstraintNode({ id, data, selected }: NodeProps) {
   const { updateNodeData } = useReactFlow()
-  const [editingContent, setEditingContent] = useState(false)
-  const [contentDraft, setContentDraft] = useState('')
+  const [editingText, setEditingText] = useState(false)
+  const [textDraft, setTextDraft] = useState('')
 
-  const content = (data.content as string) || ''
+  const text = (data.text as string) || ''
   const label = (data.label as string) || ''
 
   // Structured constraint fields (optional)
@@ -19,21 +19,21 @@ export function ConstraintNode({ id, data, selected }: NodeProps) {
   const hasStructured = parameter || min !== undefined || max !== undefined
 
   const startEditing = useCallback(() => {
-    setContentDraft(content)
-    setEditingContent(true)
-  }, [content])
+    setTextDraft(text)
+    setEditingText(true)
+  }, [text])
 
-  const commitContent = useCallback(() => {
-    setEditingContent(false)
-    if (contentDraft.trim() !== content) {
-      updateNodeData(id, { content: contentDraft.trim() })
+  const commitText = useCallback(() => {
+    setEditingText(false)
+    if (textDraft.trim() !== text) {
+      updateNodeData(id, { text: textDraft.trim() })
     }
-  }, [id, contentDraft, content, updateNodeData])
+  }, [id, textDraft, text, updateNodeData])
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === 'Escape') {
-        setEditingContent(false)
+        setEditingText(false)
       }
     },
     [],
@@ -49,19 +49,19 @@ export function ConstraintNode({ id, data, selected }: NodeProps) {
       committed={data.committed as boolean | undefined}
       onLabelChange={(newLabel) => updateNodeData(id, { label: newLabel })}
     >
-      {editingContent ? (
+      {editingText ? (
         <textarea
           className="canvas-node-edit-input"
-          value={contentDraft}
-          onChange={(e) => setContentDraft(e.target.value)}
-          onBlur={commitContent}
+          value={textDraft}
+          onChange={(e) => setTextDraft(e.target.value)}
+          onBlur={commitText}
           onKeyDown={handleKeyDown}
           autoFocus
           rows={3}
         />
       ) : (
         <div onDoubleClick={startEditing} className="canvas-node-text">
-          {content || (!hasStructured && (
+          {text || (!hasStructured && (
             <span className="canvas-node-placeholder">Double-click to add content</span>
           ))}
         </div>
