@@ -108,6 +108,20 @@ def api_save_workspace(workspace_id):
     """Full overwrite save of workspace state."""
     data = request.get_json(silent=True) or {}
     api = current_app.api_client
+    # DEBUG: temporary — see what's actually arriving
+    import json, sys, requests as _req
+    from cartolex_endpoint_server.constants import APIEndpoints
+    print(f"[SAVE DEBUG] Payload keys: {list(data.keys())}", file=sys.stderr)
+    if data.get('nodes'):
+        print(f"[SAVE DEBUG] First node keys: {list(data['nodes'][0].keys())}", file=sys.stderr)
+    if data.get('edges'):
+        print(f"[SAVE DEBUG] First edge keys: {list(data['edges'][0].keys())}", file=sys.stderr)
+    _endpoint = APIEndpoints.CANVAS_WORKSPACE_SAVE.format(workspace_id=workspace_id)
+    _url = f"{api.base_url}{_endpoint}"
+    _raw = _req.put(_url, json=data, timeout=10)
+    print(f"[SAVE DEBUG] Backend status: {_raw.status_code}", file=sys.stderr)
+    if _raw.status_code != 200:
+        print(f"[SAVE DEBUG] Backend body: {_raw.text}", file=sys.stderr)
     response = api.save_canvas_workspace(workspace_id, data)
     if response.success:
         return jsonify(response.data), 200
