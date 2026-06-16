@@ -2,7 +2,7 @@
 
 import os
 import logging
-from flask import Flask, request
+from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 
 from cartolex_endpoint_server.constants import ConfigurationKinds, JobStatuses
@@ -55,28 +55,22 @@ def _init_security_middleware(app):
         try:
             from flask_limiter import Limiter
             from flask_limiter.util import get_remote_address
-            
+
             limiter_config = SecurityConfig.get_limiter_config(app.config)
             limiter = Limiter(
-                key_func=get_remote_address,  # Use IP-based rate limiting
+                key_func=get_remote_address,  # IP-based rate limiting
                 default_limits=limiter_config['default_limits'],
                 storage_uri=limiter_config['storage_uri'],
                 headers_enabled=limiter_config['headers_enabled']
             )
             limiter.init_app(app)
-            
-            # Apply API-specific rate limits to all /api/ routes if needed
-            api_rate_limit = app.config.get('RATELIMIT_API', '500 per hour')
-            
-            @limiter.limit(api_rate_limit)
-            def api_rate_limit_func():
-                pass
-            
-            # Register rate limit for any potential API routes
-            app.before_request_funcs.setdefault(None, []).append(
-                lambda: api_rate_limit_func() if '/api/' in (getattr(request, 'path', '') or '') else None
-            )
-            
+
+            # Apply the stricter API limit to the canvas JSON proxy — the only
+            # real API surface here. Page/HTMX routes get default_limits only.
+            # Per-route, per-IP. (The blueprint is registered below; decorating
+            # it here attaches the limit before registration.)
+            limiter.limit(app.config.get('RATELIMIT_API', '500 per hour'))(canvas.bp)
+
             logger.info(f"Rate limiting initialized with limits: {limiter_config['default_limits']}")
         except ImportError:
             logger.warning("flask-limiter not available, rate limiting not initialized")
