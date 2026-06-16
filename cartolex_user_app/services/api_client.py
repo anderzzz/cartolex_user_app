@@ -276,17 +276,6 @@ class CartolexAPI:
             params['fields'] = fields
         return self._make_request('GET', endpoint, params=params)
 
-    def get_database_template(self, endpoint_name: str, db_type: str, db_kind: str) -> APIResponse:
-        """Get configuration template for creating new databases"""
-        endpoint = f"/api/v1/io/templates/{endpoint_name}/{db_type}/{db_kind}"
-        return self._make_request('GET', endpoint)
-
-    def create_database_config(self, config_data: dict) -> APIResponse:
-        """Create new database configuration"""
-        endpoint = "/api/v1/io/configs/create"
-        return self._make_request('POST', endpoint, data=config_data)
-
-
     def get_workflow_config(self, workflow_name: str, config_kind: str = 'configuration directory') -> APIResponse:
         """Get workflow configuration"""
         endpoint = APIEndpoints.WORKFLOW_CONFIG.format(name=workflow_name)

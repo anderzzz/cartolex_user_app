@@ -363,39 +363,6 @@ def delete_endpoint(endpoint_name):
         }), 500
 
 
-@bp.route('/create')
-def create_config():
-    """Create new database configuration (optionally from template)"""
-    template_endpoint = request.args.get('template_endpoint')
-    template_db_type = request.args.get('template_db_type')
-    template_db_kind = request.args.get('template_db_kind')
-
-    template_data = None
-    if template_endpoint and template_db_type and template_db_kind:
-        api = current_app.api_client
-        try:
-            response = api.get_database_template(template_endpoint, template_db_type, template_db_kind)
-            if response.success:
-                template_data = response.data
-            else:
-                flash(f"Could not load template: {response.error}", 'warning')
-        except Exception as e:
-            flash(f"Template service unavailable: {str(e)}", 'warning')
-
-    # For now, show the template data and inform user about creation status
-    if template_data:
-        flash(f"Template loaded for {template_db_type}/{template_db_kind}. Creation UI will be available soon.", 'info')
-        # Could render a creation form here in the future
-        return render_template('io/create.html',
-                               template_data=template_data,
-                               template_endpoint=template_endpoint,
-                               template_db_type=template_db_type,
-                               template_db_kind=template_db_kind)
-    else:
-        flash("Create configuration feature: Creation UI will be implemented once backend provides validation rules", 'info')
-        return redirect(url_for('io_config.index'))
-
-
 @bp.route('/<endpoint_name>/<db_type>/<db_kind>/test', methods=['POST'])
 def test_connection(endpoint_name, db_type, db_kind):
     """Test database connection (HTMX endpoint)"""
