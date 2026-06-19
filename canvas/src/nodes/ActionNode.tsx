@@ -1,9 +1,13 @@
-import { useState, useCallback, type KeyboardEvent } from 'react'
+import { useState, useCallback, useEffect, useRef, type KeyboardEvent } from 'react'
 import { useReactFlow, type NodeProps } from '@xyflow/react'
 import { NodeShell } from './NodeShell'
 import { NODE_COLORS } from './registry'
 import { useWorkspaceStore } from '../store/workspaceStore'
-import { executeAction } from '../api/client'
+import { triggerAction, checkActionStatus } from '../api/client'
+
+/** How often to poll a running action for completion. */
+const POLL_INTERVAL_MS = 3000
+const TERMINAL_STATES = new Set(['complete', 'failed'])
 
 type ActionState = 'empty' | 'loaded' | 'running' | 'complete' | 'failed'
 
@@ -48,10 +52,40 @@ export function ActionNode({ id, data, selected }: NodeProps) {
     [],
   )
 
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const stopPolling = useCallback(() => {
+    if (pollRef.current) {
+      clearInterval(pollRef.current)
+      pollRef.current = null
+    }
+  }, [])
+
+  // Poll while the action is running; reconcile state + result when terminal.
+  useEffect(() => {
+    if (!workspaceId || state !== 'running') {
+      stopPolling()
+      return
+    }
+    if (pollRef.current) return // already polling
+
+    pollRef.current = setInterval(async () => {
+      const result = await checkActionStatus(workspaceId, id)
+      if (!result.ok) return
+      const { state: nextState, result_summary } = result.data
+      if (TERMINAL_STATES.has(nextState)) {
+        stopPolling()
+        updateNodeData(id, { state: nextState, result_summary })
+      }
+    }, POLL_INTERVAL_MS)
+
+    return stopPolling
+  }, [workspaceId, state, id, updateNodeData, stopPolling])
+
   const handleRun = useCallback(async () => {
     if (!workspaceId || submitting) return
     setSubmitting(true)
-    const result = await executeAction(workspaceId, id)
+    const result = await triggerAction(workspaceId, id)
     if (result.ok) {
       updateNodeData(id, { state: 'running', job_id: result.data.job_id })
     }

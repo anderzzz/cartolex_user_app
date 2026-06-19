@@ -24,7 +24,7 @@ import '@xyflow/react/dist/style.css'
 import './styles/canvas.css'
 
 import { nodeTypes } from './nodes'
-import { edgeTypes } from './edges'
+import { edgeTypes, DEFAULT_EDGE_TYPE } from './edges'
 import { fromBackendFormat } from './api'
 import { useAutoSave } from './hooks/useAutoSave'
 import { useCanvasMenus } from './hooks/useCanvasMenus'
@@ -44,14 +44,15 @@ const defaultEdges: CanvasEdgeType[] = []
 
 /**
  * Derive React Flow nodes/edges from raw workspace data.
- * If initialGraph has workspace_id it's backend data that needs conversion;
- * otherwise it's already in React Flow format.
+ * Backend workspace detail responses are keyed by `id` and carry `node_type`d
+ * nodes; that shape needs conversion. Anything already in React Flow shape
+ * (nodes with `type`) is used as-is.
  */
 function resolveInitialGraph(initialGraph?: CanvasGraph) {
   if (!initialGraph) return { nodes: defaultNodes, edges: defaultEdges }
 
-  // Backend data has workspace_id at top level — convert it
-  if ('workspace_id' in initialGraph) {
+  // Backend workspace detail is keyed by `id` (not `workspace_id`) — convert it.
+  if ('id' in initialGraph && 'nodes' in initialGraph) {
     const converted = fromBackendFormat(initialGraph as never)
     return {
       nodes: converted.nodes.length ? converted.nodes : defaultNodes,
@@ -94,7 +95,8 @@ function CanvasInner({ workspaceId, initialGraph, onSave }: AppProps) {
 
   const onConnect = useCallback(
     (connection: Connection) => {
-      setEdges((eds) => addEdge(connection, eds))
+      // Tag new edges with a valid default EdgeType so they always serialize.
+      setEdges((eds) => addEdge({ ...connection, type: DEFAULT_EDGE_TYPE }, eds))
     },
     [setEdges],
   )

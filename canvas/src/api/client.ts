@@ -83,11 +83,37 @@ export function validateWorkspace(workspaceId: string) {
   return request<WorkspaceValidateData>('POST', `/workspaces/${workspaceId}/validate`)
 }
 
-export type ActionExecuteData = { job_id: string; state: string }
+export type ActionTriggerData = {
+  action_node_id: string
+  job_id: string
+  workflow_name: string
+  state: string
+}
 
-export function executeAction(workspaceId: string, nodeId: string) {
-  return request<ActionExecuteData>(
+export type ActionStatusData = {
+  action_node_id: string
+  state: string
+  job_id?: string
+  result_summary?: string
+}
+
+/** Trigger an action node's workflow. Returns immediately with a job_id. */
+export function triggerAction(
+  workspaceId: string,
+  nodeId: string,
+  tags: string[] = [],
+) {
+  return request<ActionTriggerData>(
     'POST',
-    `/workspaces/${workspaceId}/nodes/${nodeId}/execute`,
+    `/workspaces/${workspaceId}/actions/${nodeId}/trigger`,
+    { tags },
+  )
+}
+
+/** Poll a running action node's status. */
+export function checkActionStatus(workspaceId: string, nodeId: string) {
+  return request<ActionStatusData>(
+    'POST',
+    `/workspaces/${workspaceId}/actions/${nodeId}/check-status`,
   )
 }

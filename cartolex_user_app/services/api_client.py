@@ -354,6 +354,24 @@ class CartolexAPI:
         endpoint = APIEndpoints.CANVAS_WORKSPACE_VALIDATE.format(workspace_id=workspace_id)
         return self._make_request('POST', endpoint)
 
+    def trigger_canvas_action(
+        self, workspace_id: str, node_id: str, tags: list = None,
+    ) -> APIResponse:
+        """Trigger an action node's workflow. Returns job_id for polling."""
+        endpoint = APIEndpoints.CANVAS_ACTION_TRIGGER.format(
+            workspace_id=workspace_id, node_id=node_id,
+        )
+        return self._make_request('POST', endpoint, data={'tags': tags or []})
+
+    def check_canvas_action_status(
+        self, workspace_id: str, node_id: str,
+    ) -> APIResponse:
+        """Poll a running action node's status; updates terminal state server-side."""
+        endpoint = APIEndpoints.CANVAS_ACTION_CHECK_STATUS.format(
+            workspace_id=workspace_id, node_id=node_id,
+        )
+        return self._make_request('POST', endpoint)
+
     def get_workflows_with_metadata(self) -> APIResponse:
         """Get all workflows with filesystem and schema metadata
 

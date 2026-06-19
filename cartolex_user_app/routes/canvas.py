@@ -132,3 +132,24 @@ def api_validate_workspace(workspace_id):
     if response.success:
         return jsonify(response.data), 200
     return jsonify({'error': response.error}), response.status_code or 500
+
+
+@bp.route('/api/workspaces/<workspace_id>/actions/<node_id>/trigger', methods=['POST'])
+def api_trigger_action(workspace_id, node_id):
+    """Trigger an action node's workflow; returns job info for polling."""
+    data = request.get_json(silent=True) or {}
+    api = current_app.api_client
+    response = api.trigger_canvas_action(workspace_id, node_id, tags=data.get('tags'))
+    if response.success:
+        return jsonify(response.data), 200
+    return jsonify({'error': response.error, 'error_code': response.error_code}), response.status_code or 500
+
+
+@bp.route('/api/workspaces/<workspace_id>/actions/<node_id>/check-status', methods=['POST'])
+def api_check_action_status(workspace_id, node_id):
+    """Poll a running action node's status."""
+    api = current_app.api_client
+    response = api.check_canvas_action_status(workspace_id, node_id)
+    if response.success:
+        return jsonify(response.data), 200
+    return jsonify({'error': response.error, 'error_code': response.error_code}), response.status_code or 500
