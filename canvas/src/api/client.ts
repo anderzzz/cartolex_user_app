@@ -117,3 +117,32 @@ export function checkActionStatus(workspaceId: string, nodeId: string) {
     `/workspaces/${workspaceId}/actions/${nodeId}/check-status`,
   )
 }
+
+// --- IO (raw DB) discovery ---
+
+export interface DbConfigItem {
+  endpoint_name: string
+  [k: string]: unknown
+}
+export interface DbConfigListData {
+  configurations: DbConfigItem[]
+}
+export interface DbInspectData {
+  endpoint_name: string
+  db_type: string
+  db_kind: string
+  [k: string]: unknown
+}
+
+/** List available database config endpoints (for db_endpoint pickers). */
+export function listDbConfigs() {
+  return request<DbConfigListData>('GET', '/io/configs')
+}
+
+/** Inspect a database (counts, document types) to preview a subset source. */
+export function inspectDb(endpoint: string, dbType: string, dbKind: string) {
+  return request<DbInspectData>(
+    'GET',
+    `/io/configs/${endpoint}/${dbType}/${dbKind}/inspect`,
+  )
+}

@@ -4,6 +4,7 @@ import { NodeShell } from './NodeShell'
 import { NODE_COLORS } from './registry'
 import { useWorkspaceStore } from '../store/workspaceStore'
 import { triggerAction, checkActionStatus } from '../api/client'
+import { workflowLabel } from './actionWorkflows'
 
 /** How often to poll a running action for completion. */
 const POLL_INTERVAL_MS = 3000
@@ -30,6 +31,8 @@ export function ActionNode({ id, data, selected }: NodeProps) {
   const label = (data.label as string) || ''
   const state = ((data.state as string) || 'empty') as ActionState
   const badge = STATE_BADGE[state] || STATE_BADGE.empty
+  const workflowType = data.workflow_type as string | undefined
+  const resultSummary = data.result_summary as string | undefined
 
   const startEditing = useCallback(() => {
     setTextDraft(text)
@@ -116,6 +119,12 @@ export function ActionNode({ id, data, selected }: NodeProps) {
         <div onDoubleClick={startEditing} className="canvas-node-text">
           {text || <span className="canvas-node-placeholder">Double-click to describe action</span>}
         </div>
+      )}
+
+      <div className="canvas-node-workflow">{workflowLabel(workflowType)}</div>
+
+      {state === 'complete' && resultSummary && (
+        <div className="canvas-node-result" title={resultSummary}>{resultSummary}</div>
       )}
 
       <div className="canvas-node-action-footer">

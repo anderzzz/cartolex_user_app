@@ -5,7 +5,7 @@
  * workspace persistence, auto-save, and node creation/context menus.
  */
 
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -15,6 +15,7 @@ import {
   BackgroundVariant,
   useNodesState,
   useEdgesState,
+  useReactFlow,
   addEdge,
   type Connection,
   Panel,
@@ -31,6 +32,7 @@ import { useCanvasMenus } from './hooks/useCanvasMenus'
 import { useWorkspaceStore } from './store/workspaceStore'
 import { NodeCreationMenu } from './components/NodeCreationMenu'
 import { NodeContextMenu } from './components/NodeContextMenu'
+import { NodeConfigPanel } from './components/NodeConfigPanel'
 import type { CanvasGraph, CanvasNodeType, CanvasEdgeType } from './types'
 
 interface AppProps {
@@ -75,6 +77,17 @@ function CanvasInner({ workspaceId, initialGraph, onSave }: AppProps) {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initial.edges)
 
   const { saveStatus, setWorkspaceId, setWorkspaceName } = useWorkspaceStore()
+  const { updateNodeData } = useReactFlow()
+
+  // Config panel for the selected node (dismissable per node).
+  const [dismissedNodeId, setDismissedNodeId] = useState<string | null>(null)
+  const selectedNode = nodes.find((n) => n.selected) ?? null
+  const showConfigPanel = selectedNode && selectedNode.id !== dismissedNodeId
+
+  const handleConfigChange = useCallback(
+    (id: string, patch: Record<string, unknown>) => updateNodeData(id, patch),
+    [updateNodeData],
+  )
 
   // Menu state and node CRUD operations
   const menus = useCanvasMenus(nodes, setNodes, setEdges)
@@ -176,6 +189,14 @@ function CanvasInner({ workspaceId, initialGraph, onSave }: AppProps) {
           onDuplicate={menus.duplicateNode}
           onDelete={menus.deleteNode}
           onClose={menus.closeContextMenu}
+        />
+      )}
+
+      {showConfigPanel && selectedNode && (
+        <NodeConfigPanel
+          node={selectedNode}
+          onChange={handleConfigChange}
+          onClose={() => setDismissedNodeId(selectedNode.id)}
         />
       )}
     </div>

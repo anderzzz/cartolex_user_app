@@ -153,3 +153,31 @@ def api_check_action_status(workspace_id, node_id):
     if response.success:
         return jsonify(response.data), 200
     return jsonify({'error': response.error, 'error_code': response.error_code}), response.status_code or 500
+
+
+# ---------------------------------------------------------------------------
+# IO passthrough (JSON) — lets the canvas pick a raw DB endpoint and preview it
+# ---------------------------------------------------------------------------
+
+@bp.route('/api/io/configs', methods=['GET'])
+def api_io_configs():
+    """List available database config endpoints (for db_endpoint pickers)."""
+    api = current_app.api_client
+    response = api.get_database_configs(config_kind=request.args.get('config_kind'))
+    if response.success:
+        return jsonify(response.data), 200
+    return jsonify({'error': response.error, 'error_code': response.error_code}), response.status_code or 500
+
+
+@bp.route('/api/io/configs/<endpoint_name>/<db_type>/<db_kind>/inspect', methods=['GET'])
+def api_io_inspect(endpoint_name, db_type, db_kind):
+    """Inspect a database (counts, document types) to preview a subset source."""
+    api = current_app.api_client
+    response = api.get_database_inspect(
+        endpoint_name, db_type, db_kind,
+        config_kind=request.args.get('config_kind'),
+        fields=request.args.get('fields'),
+    )
+    if response.success:
+        return jsonify(response.data), 200
+    return jsonify({'error': response.error, 'error_code': response.error_code}), response.status_code or 500

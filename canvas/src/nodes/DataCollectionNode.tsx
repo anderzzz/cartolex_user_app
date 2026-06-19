@@ -11,6 +11,10 @@ export function DataCollectionNode({ id, data, selected }: NodeProps) {
   const text = (data.text as string) || ''
   const label = (data.label as string) || ''
   const count = data.count as number | undefined
+  const dbEndpoint = (data.db_endpoint as string) || ''
+  const patentNrs = (data.patent_nrs as string[]) || []
+  const queryFilter = (data.query_filter as Record<string, unknown>) || {}
+  const hasFilter = Object.keys(queryFilter).length > 0
 
   const startEditing = useCallback(() => {
     setTextDraft(text)
@@ -60,6 +64,13 @@ export function DataCollectionNode({ id, data, selected }: NodeProps) {
       )}
       {count !== undefined && (
         <div className="canvas-node-count">{count} items</div>
+      )}
+      {(dbEndpoint || patentNrs.length > 0 || hasFilter) && (
+        <div className="canvas-node-dbinfo">
+          {dbEndpoint && <div>DB: <strong>{dbEndpoint}</strong></div>}
+          {patentNrs.length > 0 && <div>{patentNrs.length} patent(s) to ingest</div>}
+          {hasFilter && <div>subset filter set</div>}
+        </div>
       )}
     </NodeShell>
   )

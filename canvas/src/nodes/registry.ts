@@ -91,7 +91,7 @@ export const nodeTypeRegistry: Record<string, NodeTypeDefinition> = {
     headerColor: NODE_COLORS.action.light,
     headerColorDark: NODE_COLORS.action.dark,
     icon: 'action',
-    defaultData: { label: '', text: '', state: 'empty' },
+    defaultData: { label: '', text: '', state: 'empty', workflow_type: '', workflow_config_name: '' },
   },
   data_collection: {
     component: null!,
@@ -99,7 +99,7 @@ export const nodeTypeRegistry: Record<string, NodeTypeDefinition> = {
     headerColor: NODE_COLORS.data_collection.light,
     headerColorDark: NODE_COLORS.data_collection.dark,
     icon: 'data_collection',
-    defaultData: { label: '', text: '' },
+    defaultData: { label: '', text: '', db_endpoint: '', patent_nrs: [], query_filter: {} },
   },
   untyped: {
     component: null!,
