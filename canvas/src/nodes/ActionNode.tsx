@@ -75,10 +75,14 @@ export function ActionNode({ id, data, selected }: NodeProps) {
     pollRef.current = setInterval(async () => {
       const result = await checkActionStatus(workspaceId, id)
       if (!result.ok) return
-      const { state: nextState, result_summary } = result.data
+      const { state: nextState, result_summary, captures } = result.data
       if (TERMINAL_STATES.has(nextState)) {
         stopPolling()
         updateNodeData(id, { state: nextState, result_summary })
+        // Live-fill any wired data_view capture nodes from the reconciled result.
+        for (const cap of captures ?? []) {
+          updateNodeData(cap.id, cap.content)
+        }
       }
     }, POLL_INTERVAL_MS)
 

@@ -90,11 +90,18 @@ export type ActionTriggerData = {
   state: string
 }
 
+export type CaptureUpdate = {
+  id: string
+  content: Record<string, unknown>
+}
+
 export type ActionStatusData = {
   action_node_id: string
   state: string
   job_id?: string
   result_summary?: string
+  /** Reconciled data_view updates fed by this action's produces edges (live fill). */
+  captures?: CaptureUpdate[]
 }
 
 /** Trigger an action node's workflow. Returns immediately with a job_id. */

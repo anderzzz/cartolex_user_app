@@ -20,6 +20,7 @@ export const EDGE_TYPES = [
   'derived_from',
   'refines',
   'questions',
+  'produces',
 ] as const
 
 export type EdgeTypeName = (typeof EDGE_TYPES)[number]

@@ -19,6 +19,7 @@ export const NODE_COLORS = {
   thesis:          { light: '#1B5420', dark: '#4A9E54' },
   action:          { light: '#0E7490', dark: '#38B2CC' },
   data_collection: { light: '#4338CA', dark: '#7C74E0' },
+  data_view:       { light: '#0F766E', dark: '#2DD4BF' },
   untyped:         { light: '#9CA3AF', dark: '#6B7280' },
 } as const
 
@@ -38,6 +39,8 @@ export const NODE_ICONS: Record<string, string> = {
   action: 'M8 3.5a.5.5 0 01.5.5v1.05a3.5 3.5 0 011.45.6l.74-.74a.5.5 0 01.71.71l-.74.74c.3.43.51.92.6 1.45H12.3a.5.5 0 010 1h-1.05a3.5 3.5 0 01-.6 1.45l.74.74a.5.5 0 01-.71.71l-.74-.74a3.5 3.5 0 01-1.45.6V12.3a.5.5 0 01-1 0v-1.05a3.5 3.5 0 01-1.45-.6l-.74.74a.5.5 0 01-.71-.71l.74-.74a3.5 3.5 0 01-.6-1.45H3.7a.5.5 0 010-1h1.05a3.5 3.5 0 01.6-1.45l-.74-.74a.5.5 0 01.71-.71l.74.74A3.5 3.5 0 017.5 5.05V4a.5.5 0 01.5-.5zM8 6.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3z',
   // Stack/layers for data collection
   data_collection: 'M2 5l6-3 6 3-6 3-6-3zm0 3l6 3 6-3m-12 3l6 3 6-3',
+  // Framed window for data view (a captured slice of the store)
+  data_view: 'M2 3h12v10H2V3zm0 3h12M5 3v3',
   // Dash for untyped
   untyped: 'M4 8h8',
 }
@@ -101,6 +104,15 @@ export const nodeTypeRegistry: Record<string, NodeTypeDefinition> = {
     icon: 'data_collection',
     defaultData: { label: '', text: '', db_endpoint: '', patent_nrs: [], query_filter: {} },
   },
+  data_view: {
+    component: null!,
+    label: 'Data View',
+    headerColor: NODE_COLORS.data_view.light,
+    headerColorDark: NODE_COLORS.data_view.dark,
+    icon: 'data_view',
+    // Content (store_ref/selector/preview) is server-owned; user only names it.
+    defaultData: { label: '' },
+  },
   untyped: {
     component: null!,
     label: 'Untyped',
@@ -114,8 +126,8 @@ export const nodeTypeRegistry: Record<string, NodeTypeDefinition> = {
 /** All valid node type keys */
 export const NODE_TYPES = Object.keys(nodeTypeRegistry) as string[]
 
-/** Display order for the creation menu (2x4 grid) — curated, not alphabetical */
+/** Display order for the creation menu — curated, not alphabetical */
 export const CREATION_MENU_ORDER: string[] = [
   'idea', 'question', 'fact', 'constraint',
-  'thesis', 'action', 'data_collection', 'untyped',
+  'thesis', 'action', 'data_collection', 'data_view', 'untyped',
 ]

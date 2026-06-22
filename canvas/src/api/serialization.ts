@@ -77,13 +77,18 @@ export function toBackendFormat(
         position: node.position,
       }
     }),
-    edges: edges.map((edge): CanvasEdgeBackend => ({
-      id: edge.id,
-      source_id: edge.source,
-      target_id: edge.target,
-      edge_type: resolveEdgeType(edge.type),
-      label: typeof edge.label === 'string' ? edge.label : undefined,
-    })),
+    edges: edges.map((edge): CanvasEdgeBackend => {
+      const outputKind = (edge.data as Record<string, unknown> | undefined)?.output_kind
+      return {
+        id: edge.id,
+        source_id: edge.source,
+        target_id: edge.target,
+        edge_type: resolveEdgeType(edge.type),
+        label: typeof edge.label === 'string' ? edge.label : undefined,
+        // Carry the produces-edge selector; it's part of the edge grammar, not content.
+        ...(typeof outputKind === 'string' ? { output_kind: outputKind } : {}),
+      }
+    }),
   }
 }
 
@@ -113,6 +118,8 @@ export function fromBackendFormat(workspace: WorkspaceDetailData): CanvasGraph {
       target: edge.target_id,
       type: resolveEdgeType(edge.edge_type),
       ...(edge.label ? { label: edge.label } : {}),
+      // Hydrate the produces-edge selector onto edge.data for SemanticEdge.
+      ...(edge.output_kind ? { data: { output_kind: edge.output_kind } } : {}),
     })),
   }
 }

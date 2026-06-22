@@ -43,6 +43,8 @@ export interface CanvasEdgeBackend {
   target_id: string
   edge_type: string
   label?: string
+  /** For `produces` edges: the output kind this projection selects. */
+  output_kind?: string
 }
 
 export interface WorkspaceDetailData {

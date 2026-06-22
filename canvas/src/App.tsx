@@ -25,6 +25,7 @@ import '@xyflow/react/dist/style.css'
 import './styles/canvas.css'
 
 import { nodeTypes } from './nodes'
+import { workflowOutputKind } from './nodes/actionWorkflows'
 import { edgeTypes, DEFAULT_EDGE_TYPE } from './edges'
 import { fromBackendFormat } from './api'
 import { useAutoSave } from './hooks/useAutoSave'
@@ -108,10 +109,26 @@ function CanvasInner({ workspaceId, initialGraph, onSave }: AppProps) {
 
   const onConnect = useCallback(
     (connection: Connection) => {
+      // Drawing action → data_view IS the output projection: auto-tag it as a
+      // `produces` edge carrying the action's output kind (mirrors the backend
+      // add_edge guard). Everything else gets the default semantic edge.
+      const source = nodes.find((n) => n.id === connection.source)
+      const target = nodes.find((n) => n.id === connection.target)
+      if (source?.type === 'action' && target?.type === 'data_view') {
+        const outputKind = workflowOutputKind(
+          (source.data as Record<string, unknown>).workflow_type as string | undefined,
+        )
+        if (outputKind) {
+          setEdges((eds) =>
+            addEdge({ ...connection, type: 'produces', data: { output_kind: outputKind } }, eds),
+          )
+          return
+        }
+      }
       // Tag new edges with a valid default EdgeType so they always serialize.
       setEdges((eds) => addEdge({ ...connection, type: DEFAULT_EDGE_TYPE }, eds))
     },
-    [setEdges],
+    [setEdges, nodes],
   )
 
   const handleSave = useCallback(() => {

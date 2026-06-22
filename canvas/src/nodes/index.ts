@@ -7,6 +7,7 @@ import { ConstraintNode } from './ConstraintNode'
 import { ThesisNode } from './ThesisNode'
 import { ActionNode } from './ActionNode'
 import { DataCollectionNode } from './DataCollectionNode'
+import { DataViewNode } from './DataViewNode'
 import { UntypedNode } from './UntypedNode'
 
 // Populate registry components (avoids circular import in registry.ts)
@@ -17,6 +18,7 @@ nodeTypeRegistry.constraint.component = ConstraintNode
 nodeTypeRegistry.thesis.component = ThesisNode
 nodeTypeRegistry.action.component = ActionNode
 nodeTypeRegistry.data_collection.component = DataCollectionNode
+nodeTypeRegistry.data_view.component = DataViewNode
 nodeTypeRegistry.untyped.component = UntypedNode
 
 /** React Flow nodeTypes mapping — built directly for strict typing */
@@ -28,6 +30,7 @@ export const nodeTypes: NodeTypes = {
   thesis: ThesisNode,
   action: ActionNode,
   data_collection: DataCollectionNode,
+  data_view: DataViewNode,
   untyped: UntypedNode,
 }
 
@@ -40,4 +43,5 @@ export { ConstraintNode } from './ConstraintNode'
 export { ThesisNode } from './ThesisNode'
 export { ActionNode } from './ActionNode'
 export { DataCollectionNode } from './DataCollectionNode'
+export { DataViewNode } from './DataViewNode'
 export { UntypedNode } from './UntypedNode'
